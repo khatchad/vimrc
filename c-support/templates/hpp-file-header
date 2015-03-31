@@ -1,0 +1,20 @@
+// =====================================================================================
+// 
+//       Filename:  |FILENAME|
+// 
+//    Description:  |CURSOR|
+// 
+//        Version:  1.0
+//        Created:  |DATE|
+//       Revision:  none
+//       Compiler:  g++
+// 
+//         Author:  |AUTHOR| (|AUTHORREF|), |EMAIL|
+//        Company:  |COMPANY|
+// 
+// =====================================================================================
+
+#ifndef  |BASENAME|_FILE_HEADER_INC
+#define  |BASENAME|_FILE_HEADER_INC
+
+#endif   // ----- #ifndef |BASENAME|_FILE_HEADER_INC  ----- 

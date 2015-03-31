@@ -1,0 +1,428 @@
+let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
+argglobal
+setlocal keymap=
+setlocal noarabic
+setlocal autoindent
+setlocal balloonexpr=
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal nocindent
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal colorcolumn=
+setlocal comments=s:<!--,m:\ \ \ \ \ ,e:-->
+setlocal commentstring=<!--%s-->
+setlocal complete=.,w,b,u,t,i,k
+setlocal concealcursor=
+setlocal conceallevel=0
+setlocal completefunc=
+setlocal nocopyindent
+setlocal cryptmethod=
+setlocal nocursorbind
+setlocal nocursorcolumn
+setlocal nocursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal noexpandtab
+if &filetype != 'xml'
+setlocal filetype=xml
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=syntax
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=croql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=2
+setlocal imsearch=2
+setlocal include=
+setlocal includeexpr=
+setlocal indentexpr=XmlIndentGet(v:lnum,1)
+setlocal indentkeys=o,O,*<Return>,<>>,<<>,/,{,}
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal nomacmeta
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal modeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+setlocal nonumber
+setlocal numberwidth=4
+setlocal omnifunc=xmlcomplete#CompleteTags
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norelativenumber
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal smartindent
+setlocal softtabstop=4
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en_us
+setlocal statusline=
+setlocal suffixesadd=
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'xml'
+setlocal syntax=xml
+endif
+setlocal tabstop=8
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal noundofile
+setlocal nowinfixheight
+setlocal nowinfixwidth
+setlocal nowrap
+setlocal wrapmargin=0
+1
+normal zo
+3
+normal zo
+15
+normal zo
+16
+normal zo
+15
+normal zo
+21
+normal zo
+23
+normal zo
+26
+normal zo
+28
+normal zo
+32
+normal zo
+37
+normal zo
+23
+normal zo
+40
+normal zo
+43
+normal zo
+45
+normal zo
+48
+normal zo
+52
+normal zo
+40
+normal zo
+55
+normal zo
+58
+normal zo
+60
+normal zo
+64
+normal zo
+69
+normal zo
+55
+normal zo
+72
+normal zo
+75
+normal zo
+77
+normal zo
+80
+normal zo
+84
+normal zo
+72
+normal zo
+87
+normal zo
+90
+normal zo
+92
+normal zo
+96
+normal zo
+101
+normal zo
+87
+normal zo
+104
+normal zo
+107
+normal zo
+109
+normal zo
+112
+normal zo
+116
+normal zo
+104
+normal zo
+119
+normal zo
+122
+normal zo
+124
+normal zo
+127
+normal zo
+131
+normal zo
+119
+normal zo
+134
+normal zo
+137
+normal zo
+139
+normal zo
+142
+normal zo
+146
+normal zo
+134
+normal zo
+149
+normal zo
+152
+normal zo
+154
+normal zo
+158
+normal zo
+163
+normal zo
+149
+normal zo
+166
+normal zo
+169
+normal zo
+171
+normal zo
+176
+normal zo
+181
+normal zo
+166
+normal zo
+184
+normal zo
+187
+normal zo
+189
+normal zo
+192
+normal zo
+196
+normal zo
+184
+normal zo
+199
+normal zo
+202
+normal zo
+204
+normal zo
+208
+normal zo
+213
+normal zo
+199
+normal zo
+216
+normal zo
+219
+normal zo
+221
+normal zo
+224
+normal zo
+228
+normal zo
+216
+normal zo
+231
+normal zo
+234
+normal zo
+236
+normal zo
+240
+normal zo
+245
+normal zo
+231
+normal zo
+248
+normal zo
+251
+normal zo
+253
+normal zo
+256
+normal zo
+260
+normal zo
+248
+normal zo
+263
+normal zo
+266
+normal zo
+268
+normal zo
+272
+normal zo
+276
+normal zo
+263
+normal zo
+279
+normal zo
+282
+normal zo
+284
+normal zo
+287
+normal zo
+291
+normal zo
+279
+normal zo
+294
+normal zo
+297
+normal zo
+299
+normal zo
+304
+normal zo
+310
+normal zo
+294
+normal zo
+313
+normal zo
+316
+normal zo
+318
+normal zo
+323
+normal zo
+329
+normal zo
+313
+normal zo
+332
+normal zo
+335
+normal zo
+337
+normal zo
+341
+normal zo
+346
+normal zo
+332
+normal zo
+349
+normal zo
+352
+normal zo
+354
+normal zo
+358
+normal zo
+363
+normal zo
+349
+normal zo
+366
+normal zo
+369
+normal zo
+371
+normal zo
+374
+normal zo
+378
+normal zo
+366
+normal zo
+381
+normal zo
+384
+normal zo
+386
+normal zo
+390
+normal zo
+395
+normal zo
+381
+normal zo
+398
+normal zo
+401
+normal zo
+403
+normal zo
+407
+normal zo
+412
+normal zo
+398
+normal zo
+415
+normal zo
+418
+normal zo
+420
+normal zo
+424
+normal zo
+429
+normal zo
+415
+normal zo
+3
+normal zo
+1
+normal zo
+let s:l = 40 - ((20 * winheight(0) + 23) / 46)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+40
+normal! 0
+let &so = s:so_save | let &siso = s:siso_save
+doautoall SessionLoadPost
+" vim: set ft=vim :

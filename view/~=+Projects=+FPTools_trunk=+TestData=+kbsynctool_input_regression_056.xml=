@@ -1,0 +1,276 @@
+let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
+argglobal
+setlocal keymap=
+setlocal noarabic
+setlocal autoindent
+setlocal balloonexpr=
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal nocindent
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal colorcolumn=
+setlocal comments=s:<!--,m:\ \ \ \ \ ,e:-->
+setlocal commentstring=<!--%s-->
+setlocal complete=.,w,b,u,t,i,k
+setlocal concealcursor=
+setlocal conceallevel=0
+setlocal completefunc=
+setlocal nocopyindent
+setlocal cryptmethod=
+setlocal nocursorbind
+setlocal nocursorcolumn
+setlocal nocursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal noexpandtab
+if &filetype != 'xml'
+setlocal filetype=xml
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=1
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=syntax
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=croql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=2
+setlocal imsearch=2
+setlocal include=
+setlocal includeexpr=
+setlocal indentexpr=XmlIndentGet(v:lnum,1)
+setlocal indentkeys=o,O,*<Return>,<>>,<<>,/,{,}
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal nomacmeta
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal modeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+setlocal nonumber
+setlocal numberwidth=4
+setlocal omnifunc=xmlcomplete#CompleteTags
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norelativenumber
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal smartindent
+setlocal softtabstop=4
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en_us
+setlocal statusline=
+setlocal suffixesadd=
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'xml'
+setlocal syntax=xml
+endif
+setlocal tabstop=8
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal noundofile
+setlocal nowinfixheight
+setlocal nowinfixwidth
+setlocal nowrap
+setlocal wrapmargin=0
+9
+normal zo
+33
+normal zo
+33
+normal zc
+56
+normal zo
+56
+normal zc
+75
+normal zo
+75
+normal zc
+96
+normal zo
+96
+normal zc
+117
+normal zo
+117
+normal zc
+138
+normal zo
+138
+normal zc
+159
+normal zo
+159
+normal zc
+180
+normal zo
+180
+normal zc
+201
+normal zo
+201
+normal zc
+222
+normal zo
+222
+normal zc
+243
+normal zo
+245
+normal zo
+249
+normal zo
+253
+normal zo
+258
+normal zo
+243
+normal zc
+264
+normal zo
+266
+normal zo
+270
+normal zo
+274
+normal zo
+279
+normal zo
+264
+normal zc
+285
+normal zo
+287
+normal zo
+291
+normal zo
+295
+normal zo
+300
+normal zo
+285
+normal zc
+306
+normal zo
+308
+normal zo
+312
+normal zo
+316
+normal zo
+321
+normal zo
+306
+normal zc
+327
+normal zo
+329
+normal zo
+333
+normal zo
+337
+normal zo
+342
+normal zo
+327
+normal zc
+348
+normal zo
+350
+normal zo
+354
+normal zo
+358
+normal zo
+363
+normal zo
+348
+normal zc
+369
+normal zo
+371
+normal zo
+375
+normal zo
+379
+normal zo
+384
+normal zo
+369
+normal zc
+390
+normal zo
+392
+normal zo
+396
+normal zo
+400
+normal zo
+405
+normal zo
+390
+normal zc
+411
+normal zo
+413
+normal zo
+417
+normal zo
+421
+normal zo
+426
+normal zo
+411
+normal zc
+432
+normal zo
+434
+normal zo
+438
+normal zo
+442
+normal zo
+447
+normal zo
+432
+normal zc
+9
+normal zo
+let s:l = 55 - ((51 * winheight(0) + 54) / 109)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+55
+normal! 010l
+let &so = s:so_save | let &siso = s:siso_save
+doautoall SessionLoadPost
+" vim: set ft=vim :

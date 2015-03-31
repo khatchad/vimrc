@@ -93,7 +93,7 @@ endif
 set ruler
 
 " Height of the command bar
-set cmdheight=2
+"set cmdheight=2
 
 " A buffer becomes hidden when it is abandoned
 set hid
@@ -131,10 +131,10 @@ set showmatch
 set mat=2
 
 " No annoying sound on errors
-set noerrorbells
-set novisualbell
-set t_vb=
-set tm=500
+"set noerrorbells
+"set novisualbell
+"set t_vb=
+"set tm=500
 
 " Add a bit extra margin to the left
 set foldcolumn=1
@@ -192,7 +192,6 @@ set tabstop=4
 
 " Linebreak on 500 characters
 set lbr
-set tw=500
 
 set ai "Auto indent
 set si "Smart indent
@@ -216,8 +215,8 @@ map j gj
 map k gk
 
 " Map <Space> to / (search) and Ctrl-<Space> to ? (backwards search)
-map <space> /
-map <c-space> ?
+"map <space> /
+"map <c-space> ?
 
 " Disable highlight when <leader><cr> is pressed
 map <silent> <leader><cr> :noh<cr>
@@ -362,7 +361,7 @@ noremap <Leader>m mmHmt:%s/<C-V><cr>//ge<cr>'tzt'm
 map <leader>q :e ~/buffer<cr>
 
 " Quickly open a markdown buffer for scribble
-map <leader>x :e ~/buffer.md<cr>
+"map <leader>x :e ~/buffer.md<cr>
 
 " Toggle paste mode on and off
 map <leader>pp :setlocal paste!<cr>
