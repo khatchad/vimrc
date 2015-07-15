@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 import zipfile
 import shutil
 import tempfile
