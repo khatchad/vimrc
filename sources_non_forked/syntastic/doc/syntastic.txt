@@ -46,16 +46,6 @@ CONTENTS                                                  *syntastic-contents*
         7.2.Eclim..................................|syntastic-eclim|
         7.3.The fish shell.........................|syntastic-fish|
         7.4.The fizsh shell........................|syntastic-fizsh|
-<<<<<<< HEAD
-        7.5.powerline..............................|syntastic-powerline|
-        7.6.The PowerShell shell...................|syntastic-powershell|
-        7.7.python-mode............................|syntastic-pymode|
-        7.8.vim-auto-save..........................|syntastic-vim-auto-save|
-        7.9.vim-go.................................|syntastic-vim-go|
-        7.10.vim-virtualenv........................|syntastic-vim-virtualenv|
-        7.11.YouCompleteMe.........................|syntastic-ycm|
-        7.12.The zsh shell and rvm.................|syntastic-zsh|
-=======
         7.5.flagship...............................|syntastic-flagship|
         7.6.powerline..............................|syntastic-powerline|
         7.7.The PowerShell shell...................|syntastic-powershell|
@@ -65,7 +55,6 @@ CONTENTS                                                  *syntastic-contents*
         7.11.vim-virtualenv........................|syntastic-vim-virtualenv|
         7.12.YouCompleteMe.........................|syntastic-ycm|
         7.13.The zsh shell and rvm.................|syntastic-zsh|
->>>>>>> b1ffcf08ba445ed5d55211b3865d072b79fd8474
     8.About........................................|syntastic-about|
     9.License......................................|syntastic-license|
 
@@ -884,9 +873,6 @@ interactive features of "fizsh". Using a more traditional shell such as "zsh",
     let g:syntastic_shell = "/bin/sh"
 <
 ------------------------------------------------------------------------------
-<<<<<<< HEAD
-7.5. powerline                                           *syntastic-powerline*
-=======
 7.5 flagship                                              *syntastic-flagship*
 
 The "flagship" Vim plugin (https://github.com/tpope/vim-flagship) has its
@@ -898,7 +884,6 @@ described in the |syntastic-statusline-flag| section above: >
 <
 ------------------------------------------------------------------------------
 7.6. powerline                                           *syntastic-powerline*
->>>>>>> b1ffcf08ba445ed5d55211b3865d072b79fd8474
 
 The "powerline" Vim plugin (https://github.com/powerline/powerline) comes
 packaged with a syntastic segment. To customize this segment create a file
@@ -915,11 +900,7 @@ packaged with a syntastic segment. To customize this segment create a file
     }
 <
 ------------------------------------------------------------------------------
-<<<<<<< HEAD
-7.6. The PowerShell shell                               *syntastic-powershell*
-=======
 7.7. The PowerShell shell                               *syntastic-powershell*
->>>>>>> b1ffcf08ba445ed5d55211b3865d072b79fd8474
 
 At the time of this writing, syntastic is not compatible with using "Windows
 PowerShell" (http://technet.microsoft.com/en-us/library/bb978526.aspx) as Vim's
@@ -928,11 +909,7 @@ Vim's 'shell' to a more traditional program, such as "cmd.exe": >
     set shell=cmd.exe
 <
 ------------------------------------------------------------------------------
-<<<<<<< HEAD
-7.7 python-mode                                             *syntastic-pymode*
-=======
 7.8 python-mode                                             *syntastic-pymode*
->>>>>>> b1ffcf08ba445ed5d55211b3865d072b79fd8474
 
 Syntastic can be used along with the "python-mode" Vim plugin (see
 https://github.com/klen/python-mode). However, they both run syntax checks by
@@ -943,22 +920,14 @@ for python in syntastic (see |syntastic_mode_map|), or disable lint checks in
     let g:pymode_lint_write = 0
 <
 ------------------------------------------------------------------------------
-<<<<<<< HEAD
-7.8. vim-auto-save                                   *syntastic-vim-auto-save*
-=======
 7.9. vim-auto-save                                   *syntastic-vim-auto-save*
->>>>>>> b1ffcf08ba445ed5d55211b3865d072b79fd8474
 
 Syntastic can be used together with the "vim-auto-save" Vim plugin (see
 https://github.com/907th/vim-auto-save).  However, syntastic checks in active
 mode only work with "vim-auto-save" version 0.1.7 or later.
 
 ------------------------------------------------------------------------------
-<<<<<<< HEAD
-7.9. vim-go                                                 *syntastic-vim-go*
-=======
 7.10. vim-go                                                *syntastic-vim-go*
->>>>>>> b1ffcf08ba445ed5d55211b3865d072b79fd8474
 
 The "vim-go" Vim plugin (https://github.com/fatih/vim-go) uses |quickfix|
 lists, and thus doesn't conflict with syntastic (which uses |location-list|
@@ -971,11 +940,7 @@ from showing a quickfix window when |g:go_fmt_command| fails, by setting
     let g:go_fmt_fail_silently = 1
 <
 ------------------------------------------------------------------------------
-<<<<<<< HEAD
-7.10. vim-virtualenv                                *syntastic-vim-virtualenv*
-=======
 7.11. vim-virtualenv                                *syntastic-vim-virtualenv*
->>>>>>> b1ffcf08ba445ed5d55211b3865d072b79fd8474
 
 At the time of this writing, syntastic can't run checkers installed
 in Python virtual environments activated by "vim-virtualenv" (see
@@ -983,11 +948,7 @@ https://github.com/jmcantrell/vim-virtualenv).  This is a limitation of
 "vim-virtualenv".
 
 ------------------------------------------------------------------------------
-<<<<<<< HEAD
-7.11 YouCompleteMe                                             *syntastic-ycm*
-=======
 7.12 YouCompleteMe                                             *syntastic-ycm*
->>>>>>> b1ffcf08ba445ed5d55211b3865d072b79fd8474
 
 Syntastic can be used together with the "YouCompleteMe" Vim plugin (see
 http://valloric.github.io/YouCompleteMe/).  However, by default "YouCompleteMe"
@@ -998,11 +959,7 @@ have to set |ycm_show_diagnostics_ui| to 0. E.g.: >
     let g:ycm_show_diagnostics_ui = 0
 <
 ------------------------------------------------------------------------------
-<<<<<<< HEAD
-7.12 The zsh shell and rvm                                     *syntastic-zsh*
-=======
 7.13 The zsh shell and rvm                                     *syntastic-zsh*
->>>>>>> b1ffcf08ba445ed5d55211b3865d072b79fd8474
 
 If you're running MacVim together with the "zsh" shell (http://www.zsh.org/)
 and "rvm" (https://rvm.io/), you need to be aware that MacVim does not source
