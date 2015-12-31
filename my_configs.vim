@@ -94,8 +94,8 @@ let g:tex_flavor='latex'
 " => Java section
 """""""""""""""""""""""""""""""
 au FileType java setl fp=astyle\ --mode=java\ --indent=tab
-au Filetype java setl diffopt+=iwhite
 au Filetype java setl makeprg=javac\ %
+au Filetype java setl diffopt+=iwhite, number
 
 """"""""""""""""""""""""""""""
 " => AspectJ section
