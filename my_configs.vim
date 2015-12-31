@@ -106,6 +106,7 @@ au BufNewFile,BufRead *.aj, setf aj
 " => Markdown section
 """""""""""""""""""""""""""""""
 au BufRead,BufNewFile *.md set filetype=markdown
+au FileType markdown AutoSaveToggle
 
 """"""""""""""""""""""""""""""
 " => XML section
