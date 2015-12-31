@@ -62,6 +62,7 @@ autocmd FileType text,markdown setlocal wrapmargin=0
 autocmd FileType tex,plaintex setlocal textwidth=78 
 autocmd FileType tex,plaintex setlocal formatoptions+=ta 
 autocmd FileType tex,plaintex setlocal spell
+autocmd FileType tex,plaintex setlocal foldmethod=syntax
 " search in a singe file. This will confuse latex-suite. Set your grep program
 " to alway generate a file-name.
 autocmd FileType tex,plaintex setlocal grepprg=grep\ -nH\ $*
