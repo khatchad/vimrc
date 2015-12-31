@@ -30,12 +30,13 @@ let xml_syntax_folding=1      " XML
 
 set complete+=k
 set spelllang=en_us
-set dictionary+=/usr/share/dict/words
+set dictionary+=/usr/share/dict/words,~/.dict
 set thesaurus+=$HOME/Library/Dictionaries/mthesaur.txt
 set swapfile
 map <F2> a<C-R>=strftime("%m/%d/%y")<CR><Esc>
 map π :CtrlPCmdPalette<CR>
 set cursorline
+set spellfile=~/.dict.en.utf-8.add
 
 """"""""""""""""""""""""""""""
 " => Reread vimrc
