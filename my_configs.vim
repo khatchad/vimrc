@@ -49,12 +49,17 @@ augroup END
 """"""""""""""""""""""""""""""
 " => Text section
 """""""""""""""""""""""""""""""
-autocmd FileType text,markdown setlocal diffopt+=iwhite,icase 
-autocmd FileType text,markdown setlocal formatoptions+=nt 
-autocmd FileType text,markdown setlocal spell 
+autocmd FileType text,markdown,mail setlocal diffopt+=iwhite,icase 
+autocmd FileType text,markdown,mail setlocal formatoptions+=nt 
+autocmd FileType text,markdown,mail setlocal spell 
 autocmd FileType text,markdown setlocal nolist  " list disables linebreak 
 autocmd FileType text,markdown setlocal textwidth=0 
 autocmd FileType text,markdown setlocal wrapmargin=0
+
+""""""""""""""""""""""""""""""
+" => Mail section
+"""""""""""""""""""""""""""""""
+autocmd FileType mail setlocal tw=72
 
 """"""""""""""""""""""""""""""
 " => TeX section
