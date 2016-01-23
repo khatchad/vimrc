@@ -27,7 +27,7 @@ function! go#cmd#Build(bang, ...)
 
     " if we have nvim, call it asynchronously and return early ;)
     if has('nvim')
-        call go#jobcontrol#Spawn("build", args)
+        call go#jobcontrol#Spawn(a:bang, "build", args)
         return
     endif
 
@@ -36,14 +36,22 @@ function! go#cmd#Build(bang, ...)
     let default_makeprg = &makeprg
     let &makeprg = "go " . join(args, ' ')
 
-    if g:go_dispatch_enabled && exists(':Make') == 2
-        call go#util#EchoProgress("building dispatched ...")
-        silent! exe 'Make'
-    else
-        silent! exe 'lmake!'
-    endif
-    redraw!
-
+    " execute make inside the source folder so we can parse the errors
+    " correctly
+    let cd = exists('*haslocaldir') && haslocaldir() ? 'lcd ' : 'cd '
+    let dir = getcwd()
+    try
+        execute cd . fnameescape(expand("%:p:h"))
+        if g:go_dispatch_enabled && exists(':Make') == 2
+            call go#util#EchoProgress("building dispatched ...")
+            silent! exe 'Make'
+        else
+            silent! exe 'lmake!'
+        endif
+        redraw!
+    finally
+        execute cd . fnameescape(dir)
+    endtry
 
     let errors = go#list#Get()
     call go#list#Window(len(errors))
@@ -62,9 +70,9 @@ endfunction
 
 
 " Run runs the current file (and their dependencies if any) in a new terminal.
-function! go#cmd#RunTerm(mode)
+function! go#cmd#RunTerm(bang, mode)
     let cmd = "go run ".  go#util#Shelljoin(go#tool#Files())
-    call go#term#newmode(cmd, a:mode)
+    call go#term#newmode(a:bang, cmd, a:mode)
 endfunction
 
 " Run runs the current file (and their dependencies if any) and outputs it.
@@ -73,7 +81,7 @@ endfunction
 " calling long running apps will block the whole UI.
 function! go#cmd#Run(bang, ...)
     if has('nvim')
-        call go#cmd#RunTerm('')
+        call go#cmd#RunTerm(a:bang, '')
         return
     endif
 
@@ -123,23 +131,40 @@ endfunction
 " is given(which are passed directly to 'go instal') it tries to install those
 " packages. Errors are populated in the location window.
 function! go#cmd#Install(bang, ...)
-    let command = 'go install ' . go#util#Shelljoin(a:000)
-    call go#cmd#autowrite()
-    let out = go#tool#ExecuteInDir(command)
-    if v:shell_error
-        let errors = go#tool#ParseErrors(split(out, '\n'))
-        call go#list#Populate(errors)
-        call go#list#Window(len(errors))
-        if !empty(errors) && !a:bang
+    let default_makeprg = &makeprg
+
+    " :make expands '%' and '#' wildcards, so they must also be escaped
+    let goargs = go#util#Shelljoin(map(copy(a:000), "expand(v:val)"), 1)
+    let &makeprg = "go install " . goargs
+
+    " execute make inside the source folder so we can parse the errors
+    " correctly
+    let cd = exists('*haslocaldir') && haslocaldir() ? 'lcd ' : 'cd '
+    let dir = getcwd()
+    try
+        execute cd . fnameescape(expand("%:p:h"))
+        if g:go_dispatch_enabled && exists(':Make') == 2
+            call go#util#EchoProgress("building dispatched ...")
+            silent! exe 'Make'
+        else
+            silent! exe 'lmake!'
+        endif
+        redraw!
+    finally
+        execute cd . fnameescape(dir)
+    endtry
+
+    let errors = go#list#Get()
+    call go#list#Window(len(errors))
+    if !empty(errors)
+        if !a:bang
             call go#list#JumpToFirst()
         endif
-        return
     else
-        call go#list#Clean()
-        call go#list#Window()
+        redraws! | echon "vim-go: " | echohl Function | echon "installed to ". $GOPATH | echohl None
     endif
 
-    echon "vim-go: " | echohl Function | echon "installed to ". $GOPATH | echohl None
+    let &makeprg = default_makeprg
 endfunction
 
 " Test runs `go test` in the current directory. If compile is true, it'll
@@ -168,9 +193,9 @@ function! go#cmd#Test(bang, compile, ...)
 
     if has('nvim')
         if get(g:, 'go_term_enabled', 0)
-            call go#term#new(["go"] + args)
+            call go#term#new(a:bang, ["go"] + args)
         else
-            call go#jobcontrol#Spawn("test", args)
+            call go#jobcontrol#Spawn(a:bang, "test", args)
         endif
         return
     endif
@@ -187,14 +212,25 @@ function! go#cmd#Test(bang, compile, ...)
     let command = "go " . join(args, ' ')
 
     let out = go#tool#ExecuteInDir(command)
+
     if v:shell_error
-        let errors = go#tool#ParseErrors(split(out, '\n'))
-        let errors = go#tool#FilterValids(errors)
+        let cd = exists('*haslocaldir') && haslocaldir() ? 'lcd ' : 'cd '
+        let dir = getcwd()
+        try
+            execute cd fnameescape(expand("%:p:h"))
+            let errors = go#tool#ParseErrors(split(out, '\n'))
+            let errors = go#tool#FilterValids(errors)
+        finally
+            execute cd . fnameescape(dir)
+        endtry
 
         call go#list#Populate(errors)
         call go#list#Window(len(errors))
         if !empty(errors) && !a:bang
             call go#list#JumpToFirst()
+        elseif empty(errors)
+            " failed to parse errors, output the original content
+            call go#util#EchoError(out)
         endif
         echon "vim-go: " | echohl ErrorMsg | echon "[test] FAIL" | echohl None
     else
