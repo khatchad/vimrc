@@ -71,6 +71,8 @@ autocmd FileType tex,plaintex setlocal foldmethod=syntax
 " search in a singe file. This will confuse latex-suite. Set your grep program
 " to alway generate a file-name.
 autocmd FileType tex,plaintex setlocal grepprg=grep\ -nH\ $*
+autocmd FileType tex,plaintex syntax region texZone start='\\begin{lstlisting}' end='\\end{lstlisting}'
+autocmd FileType tex,plaintex syntax region texZone start='\\begin{minted}' end='\\end{minted}'
 
 "===== For custom mappings
 augroup MyTeXIMAPs
