@@ -29,6 +29,7 @@ let vimsyn_folding='af'       " Vim script
 let xml_syntax_folding=1      " XML
 
 set complete+=k
+set complete-=i
 set spelllang=en_us
 set dictionary+=/usr/share/dict/words,~/.dict
 set thesaurus+=$HOME/Library/Dictionaries/mthesaur.txt
@@ -59,13 +60,13 @@ autocmd FileType text,markdown setlocal wrapmargin=0
 """"""""""""""""""""""""""""""
 " => Mail section
 """""""""""""""""""""""""""""""
-autocmd FileType mail setlocal tw=72
+autocmd FileType mail setlocal tw=0 nocursorline
 
 """"""""""""""""""""""""""""""
 " => TeX section
 """""""""""""""""""""""""""""""
 autocmd FileType tex,plaintex setlocal textwidth=78 
-autocmd FileType tex,plaintex setlocal formatoptions+=ta 
+autocmd FileType tex,plaintex setlocal formatoptions+=t
 autocmd FileType tex,plaintex setlocal spell
 autocmd FileType tex,plaintex setlocal foldmethod=syntax
 " search in a singe file. This will confuse latex-suite. Set your grep program
@@ -73,6 +74,7 @@ autocmd FileType tex,plaintex setlocal foldmethod=syntax
 autocmd FileType tex,plaintex setlocal grepprg=grep\ -nH\ $*
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{lstlisting}' end='\\end{lstlisting}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{minted}' end='\\end{minted}'
+autocmd FileType tex,plaintex syntax region texZone start='\\begin{javacode}' end='\\end{javacode}'
 
 "===== For custom mappings
 augroup MyTeXIMAPs
