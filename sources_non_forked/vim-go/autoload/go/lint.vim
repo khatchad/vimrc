@@ -64,6 +64,18 @@ function! go#lint#Gometa(autosave, ...) abort
   " deadline if there is no other deadline configured. If a deadline is
   " configured, then use it.
 
+=======
+
+  " gometalinter has a default deadline of 5 seconds.
+  "
+  " For async mode (s:lint_job), we want to override the default deadline only
+  " if we have a deadline configured.
+  "
+  " For sync mode (go#tool#ExecuteInDir), always explicitly pass the 5 seconds
+  " deadline if there is no other deadline configured. If a deadline is
+  " configured, then use it.
+
+>>>>>>> c4fbfe8aa877c8b595bc515ec241217c3744a589
   " Call gometalinter asynchronously.
   if go#util#has_job() && has('lambda')
     let deadline = get(g:, 'go_metalinter_deadline', 0)

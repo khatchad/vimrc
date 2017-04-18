@@ -274,6 +274,15 @@ function! s:configured_tree(git_dir) abort
       if worktree ==# '.'
         unlet! worktree
       endif
+    elseif filereadable(a:git_dir . '/gitdir')
+      let worktree = fnamemodify(readfile(a:git_dir . '/gitdir')[0], ':h')
+      if worktree ==# '.'
+        unlet! worktree
+      endif
+    endif
+    if exists('worktree')
+      let s:worktree_for_dir[a:git_dir] = worktree
+      let s:dir_for_worktree[s:worktree_for_dir[a:git_dir]] = a:git_dir
     endif
     if exists('worktree')
       let s:worktree_for_dir[a:git_dir] = worktree

@@ -59,8 +59,7 @@ Official documentation can be found under [doc/vim-go.txt](doc/vim-go.txt). You 
 ```
 :help vim-go
 ```
-We also have an [official vim-go
-tutorial](https://github.com/fatih/vim-go-tutorial).
+We also have an [official vim-gotutorial](https://github.com/fatih/vim-go-tutorial).
 
 ## License
 
