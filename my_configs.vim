@@ -36,8 +36,9 @@ set thesaurus+=$HOME/Library/Dictionaries/mthesaur.txt
 set swapfile
 map <F2> a<C-R>=strftime("%m/%d/%y")<CR><Esc>
 map π :CtrlPCmdPalette<CR>
-set cursorline
 set spellfile=~/.dict.en.utf-8.add
+map <silent> <F11>
+\    :call system("wmctrl -ir " . v:windowid . " -b toggle,fullscreen")<CR>
 
 """"""""""""""""""""""""""""""
 " => Reread vimrc
@@ -61,12 +62,13 @@ autocmd FileType text,markdown setlocal wrapmargin=0
 " => Mail section
 """""""""""""""""""""""""""""""
 autocmd FileType mail setlocal tw=0 nocursorline
+autocmd FileType mail let g:nerdtree_tabs_open_on_gui_startup = 0
 
 """"""""""""""""""""""""""""""
 " => TeX section
 """""""""""""""""""""""""""""""
-autocmd FileType tex,plaintex setlocal textwidth=78 
-autocmd FileType tex,plaintex setlocal formatoptions+=t
+" autocmd FileType tex,plaintex setlocal textwidth=78 
+autocmd FileType tex,plaintex setlocal formatoptions+=t, noexpandtab
 autocmd FileType tex,plaintex setlocal spell
 autocmd FileType tex,plaintex setlocal foldmethod=syntax
 " search in a singe file. This will confuse latex-suite. Set your grep program
@@ -75,6 +77,12 @@ autocmd FileType tex,plaintex setlocal grepprg=grep\ -nH\ $*
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{lstlisting}' end='\\end{lstlisting}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{minted}' end='\\end{minted}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{javacode}' end='\\end{javacode}'
+autocmd FileType tex,plaintex syntax region texZone start='\\mintinline{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\javainline{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\lstinline{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\url{' end='}'
+
+
 
 "===== For custom mappings
 augroup MyTeXIMAPs
@@ -98,6 +106,7 @@ augroup END
 "
 let g:Tex_ViewRule_pdf = 'Skim'
 let g:tex_flavor='latex'
+let g:syntastic_tex_checkers = ["chktex"]
 
 """"""""""""""""""""""""""""""
 " => Java section
@@ -105,6 +114,11 @@ let g:tex_flavor='latex'
 au FileType java setl fp=astyle\ --mode=java\ --indent=tab
 au Filetype java setl makeprg=javac\ %
 au Filetype java setl diffopt+=iwhite, number
+
+""""""""""""""""""""""""""""""
+" => Java section
+"""""""""""""""""""""""""""""""
+au FileType ruby setl tabstop=2
 
 """"""""""""""""""""""""""""""
 " => AspectJ section
@@ -115,7 +129,6 @@ au BufNewFile,BufRead *.aj, setf aj
 " => Markdown section
 """""""""""""""""""""""""""""""
 au BufRead,BufNewFile *.md set filetype=markdown
-au FileType markdown AutoSaveToggle
 
 """"""""""""""""""""""""""""""
 " => XML section
