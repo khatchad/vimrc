@@ -81,8 +81,10 @@ autocmd FileType tex,plaintex syntax region texZone start='\\mintinline{' end='}
 autocmd FileType tex,plaintex syntax region texZone start='\\javainline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\lstinline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\url{' end='}'
-
-
+autocmd FileType tex,plaintex syntax region texZone start='\\cite{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\citep{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\citet{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='%' end='\n'
 
 "===== For custom mappings
 augroup MyTeXIMAPs
@@ -100,6 +102,12 @@ au VimEnter * if &filetype == "tex" | imap <C-u> <Plug>Tex_InsertItemOnThisLine|
 au VimEnter * if &filetype == "tex" | imap <C-y> <Plug>Tex_InsertItemOnNextLine| endif
 au VimEnter * if &filetype == "tex" | imap <A-u> <Plug>Tex_InsertItemOnThisLine| endif
 au VimEnter * if &filetype == "tex" | imap <A-y> <Plug>Tex_InsertItemOnNextLine| endif
+" au VimEnter * if &filetype == "tex" | nnoremap k gk
+" au VimEnter * if &filetype == "tex" | nnoremap j gj
+" au VimEnter * if &filetype == "tex" | nnoremap 0 g0
+" au VimEnter * if &filetype == "tex" | nnoremap $ g$
+" au VimEnter * if &filetype == "tex" | nnoremap ^ g^
+
 augroup END
 "
 "======
