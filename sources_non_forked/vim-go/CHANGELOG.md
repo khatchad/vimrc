@@ -8,6 +8,8 @@ FEATURES:
 * New setting `g:go_test_prepend_name` (off by default) to add the failing test
   name to the output of `:GoTest`
   [[GH-1578]](https://github.com/fatih/vim-go/pull/1578).
+* Support [denite.vim](https://github.com/Shougo/denite.nvim) for `:GoDecls[Dir]`
+  [[GH-1604]](https://github.com/fatih/vim-go/pull/1604).
 
 IMPROVEMENTS:
 
@@ -33,7 +35,9 @@ IMPROVEMENTS:
 * `g:go_snippet_engine` now defaults to `automatic` to use the first installed
   snippet engine it can find.
   [[GH-1589]](https://github.com/fatih/vim-go/pull/1589).
-
+* Make sure temporary files created for `:GoFmt` end with `.go` suffix as this
+  is required by some Go formatting tools
+  [[GH-1601]](https://github.com/fatih/vim-go/pull/1601).
 
 BUG FIXES:
 
@@ -55,6 +59,8 @@ BUG FIXES:
   [[GH-1581]](https://github.com/fatih/vim-go/pull/1581).
 * Add `g:go_highlight_function_arguments` to highlight function arguments.
   [[GH-1587]](https://github.com/fatih/vim-go/pull/1587).
+* Fix installation of `gocode` on MS-Windows.
+  [[GH-1606]](https://github.com/fatih/vim-go/pull/1606).
 
 BACKWARDS INCOMPATIBILITIES:
 
@@ -70,7 +76,6 @@ BACKWARDS INCOMPATIBILITIES:
   changed for all commands run from Vim.
   [[GH-1461]](https://github.com/fatih/vim-go/pull/1461) and
   [[GH-1525]](https://github.com/fatih/vim-go/pull/1525).
-
 
 ## 1.15 - (October 3, 2017)
 
@@ -220,8 +225,6 @@ BACKWARDS INCOMPATIBILITIES:
   to the current open buffer. For more info check the [comment
   here](https://github.com/fatih/vim-go/issues/1375#issuecomment-317535953)
   [[GH-1382]](https://github.com/fatih/vim-go/pull/1382)
-
-
 
 ## 1.13 - (June 6, 2017)
 
