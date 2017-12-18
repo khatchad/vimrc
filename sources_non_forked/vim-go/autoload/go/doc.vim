@@ -29,7 +29,19 @@ function! go#doc#OpenBrowser(...) abort
     let name = out["name"]
     let decl = out["decl"]
 
-    let godoc_url = "https://godoc.org/" . import
+    let godoc_url = get(g:, 'go_doc_url', 'https://godoc.org')
+    if godoc_url isnot 'https://godoc.org'
+      " strip last '/' character if available
+      let last_char = strlen(godoc_url) - 1
+      if godoc_url[last_char] == '/'
+        let godoc_url = strpart(godoc_url, 0, last_char)
+      endif
+
+      " custom godoc installations expects it
+      let godoc_url .= "/pkg"
+    endif
+
+    let godoc_url .= "/" . import
     if decl !~ "^package"
       let godoc_url .= "#" . name
     endif
@@ -80,6 +92,7 @@ endfunction
 
 function! s:GodocView(newposition, position, content) abort
   " reuse existing buffer window if it exists otherwise create a new one
+  let is_visible = bufexists(s:buf_nr) && bufwinnr(s:buf_nr) != -1
   if !bufexists(s:buf_nr)
     execute a:newposition
     sil file `="[Godoc]"`
@@ -91,20 +104,23 @@ function! s:GodocView(newposition, position, content) abort
     execute bufwinnr(s:buf_nr) . 'wincmd w'
   endif
 
-  if a:position == "split"
-    " cap window height to 20, but resize it for smaller contents
-    let max_height = get(g:, "go_doc_max_height", 20)
-    let content_height = len(split(a:content, "\n"))
-    if content_height > max_height
-      exe 'resize ' . max_height
+  " if window was not visible then resize it
+  if !is_visible
+    if a:position == "split"
+      " cap window height to 20, but resize it for smaller contents
+      let max_height = get(g:, "go_doc_max_height", 20)
+      let content_height = len(split(a:content, "\n"))
+      if content_height > max_height
+        exe 'resize ' . max_height
+      else
+        exe 'resize ' . content_height
+      endif
     else
-      exe 'resize ' . content_height
+      " set a sane maximum width for vertical splits. In this case the minimum
+      " that fits the godoc for package http without extra linebreaks and line
+      " numbers on
+      exe 'vertical resize 84'
     endif
-  else
-    " set a sane maximum width for vertical splits. In this case the minimum
-    " that fits the godoc for package http without extra linebreaks and line
-    " numbers on
-    exe 'vertical resize 84'
   endif
 
   setlocal filetype=godoc
@@ -150,18 +166,8 @@ function! s:gogetdoc(json) abort
   let command = join(cmd, " ")
 
   if &modified
-    " gogetdoc supports the same archive format as guru for dealing with
-    " modified buffers.
-    "   use the -modified flag
-    "   write each archive entry on stdin as:
-    "     filename followed by newline
-    "     file size followed by newline
-    "     file contents
-    let in = ""
-    let content = join(go#util#GetLines(), "\n")
-    let in = fname . "\n" . strlen(content) . "\n" . content
     let command .= " -modified"
-    let out = go#util#System(command, in)
+    let out = go#util#System(command, go#util#archive())
   else
     let out = go#util#System(command)
   endif
