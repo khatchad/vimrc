@@ -39,6 +39,7 @@ map π :CtrlPCmdPalette<CR>
 set spellfile=~/.dict.en.utf-8.add
 map <silent> <F11>
 \    :call system("wmctrl -ir " . v:windowid . " -b toggle,fullscreen")<CR>
+set gfn=Monospace\ 12
 
 """"""""""""""""""""""""""""""
 " => Reread vimrc
@@ -134,6 +135,18 @@ au FileType ruby setl tabstop=2
 au BufNewFile,BufRead *.aj, setf aj 
 
 """"""""""""""""""""""""""""""
+" => Log section
+"""""""""""""""""""""""""""""""
+au BufNewFile,BufRead *.log, setf log
+au FileType log setl nowrap
+
+""""""""""""""""""""""""""""""
+" => CSV section
+"""""""""""""""""""""""""""""""
+au BufNewFile,BufRead *.csv, setf csv
+au FileType csv setl nowrap
+
+""""""""""""""""""""""""""""""
 " => Markdown section
 """""""""""""""""""""""""""""""
 au BufRead,BufNewFile *.md set filetype=markdown
@@ -186,3 +199,4 @@ if has("autocmd")
 endif
 
 let g:netrw_browsex_viewer= "/usr/bin/xdg-open"
+colorscheme wombat
