@@ -51,6 +51,7 @@ vim-pug https://github.com/digitaltoad/vim-pug
 vim-yankstack https://github.com/maxbrunsfeld/vim-yankstack
 lightline.vim https://github.com/itchyny/lightline.vim
 vim-latex https://github.com/vim-latex/vim-latex
+vim-tex-syntax https://github.com/gerw/vim-tex-syntax
 """.strip()
 
 GITHUB_ZIP = '%s/archive/master.zip'
