@@ -134,6 +134,12 @@ au FileType ruby setl tabstop=2
 au BufNewFile,BufRead *.aj, setf aj 
 
 """"""""""""""""""""""""""""""
+" => CSV section
+"""""""""""""""""""""""""""""""
+au BufNewFile,BufRead *.csv, setf csv
+autocmd FileType csv setlocal nowrap
+
+""""""""""""""""""""""""""""""
 " => Markdown section
 """""""""""""""""""""""""""""""
 au BufRead,BufNewFile *.md set filetype=markdown
