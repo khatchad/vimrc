@@ -28,8 +28,21 @@ BUG FIXES:
 * The `gohtmltmpl` filetype will now highlight `{{ .. }}` syntax HTML attributes
   and some other locations.
   [[GH-1790]](https://github.com/fatih/vim-go/pull/1790)
+* Update using the correct logging flag option that was caused with the recent
+  delve changes
+  [[GH-1809]](https://github.com/fatih/vim-go/pull/1809)
+* Fix gocode option string values that would cause gocode settings not to set
+  correctly
+  [[GH-1818]](https://github.com/fatih/vim-go/pull/1818)
 
 BACKWARDS INCOMPATIBILITIES:
+
+* This is not a breaking changes but we list it in case there are some issues
+  that come up after upgrading to the new release with autocompletion. We no
+  longer rely on using `nsf/gocode` and switched to the new fork
+  `mdempsky/gocode`. Please let us know if you see any `gocode`
+  (autocompletion) related issues after upgrading.
+  [[GH-1814]](https://github.com/fatih/vim-go/pull/1814)
 
 ## 1.17 - (March 27, 2018)
 
