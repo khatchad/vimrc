@@ -6,6 +6,7 @@ syn cluster texMatchGroup add=texNoSpellCommand
 syn match texNoSpellCommand "\\\(email\|address\|urladdr\){.\{-}}"	contains=texStatement,texInputCurlies
 
 " Fix highlight of ref/cite
+" CHECK: What is actully fixed here?
 syn clear texRefOption
 syn clear texCite
 syn clear texRefZone
@@ -19,17 +20,13 @@ syn match  texStatement		'\\cite\%([tp]\*\=\)\=\ze\%({\|\[\)' nextgroup=texRefOp
 syn region texRefOption	contained	matchgroup=Delimiter start='\[' end=']'		contains=@texMatchGroup	nextgroup=texRefOption,texCite
 syn region texCite	contained	matchgroup=texStatement start='{' end='}'		contains=@texRefGroup
 
-" Due to the concealment in vim 7.3 some things has ugly highlight:
-syn cluster texMathZoneGroup	remove=texGreek,texSuperscript,texSubscript,texMathSymbol
-syn cluster texMathMatchGroup	remove=texGreek,texSuperscript,texSubscript,texMathSymbol
-
 " Better highlighting of names of references
 hi link texRefZone Identifier
 
 
 " Add spell for \begin{lemma}[some text]
-" If the SectionName contains some theorem-like string:
-syn match texSectionName	"{\(lemma\|definition\|theorem\|remark\|assumption\|corollary\|proposition\)}" contained	nextgroup=texTheoremModifier	contains=texTheoremNameString
+" If the texBeginEndName contains some theorem-like string:
+syn match texBeginEndName	"{\(lemma\|definition\|theorem\|remark\|assumption\|corollary\|proposition\)}" contained	nextgroup=texTheoremModifier	contains=texTheoremNameString
 " Correct coloring of the braced string:
 syn region texTheoremNameString matchgroup=Delimiter start="{" end="}" contained
 " Add spell checking in the optional parameter:
