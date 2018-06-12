@@ -28,6 +28,9 @@ IMPROVEMENTS:
   [[GH-1826]](https://github.com/fatih/vim-go/pull/1826)
 * Performance improvements for the `go.vim` syntax file.
   [[GH-1799]](https://github.com/fatih/vim-go/pull/1799)
+* Allow `GoDebugBreakpoint` and `GoDebugCurrent` highlight groups to be
+  overridden by user configuration.
+  [[GH-1850]](https://github.com/vim-go/pull/1850)
 
 BUG FIXES:
 
@@ -50,6 +53,22 @@ BUG FIXES:
   [[GH-1846]](https://github.com/fatih/vim-go/pull/1846)
 
 BACKWARDS INCOMPATIBILITIES:
+
+* We switched to a [maintained fork of * gocode](https://github.com/mdempsky/gocode). 
+  The new fork doesn't support the following settings anymore and therefore are 
+  invalid. Please remove them from your vimrc until those are again supported 
+  by `gocode`.
+
+```
+g:go_gocode_autobuild
+g:go_gocode_propose_builtins
+g:go_gocode_unimported_packages
+```
+
+  Checkout the issue for more details [[GH-1851]](https://github.com/fatih/vim-go/pull/1851)
+
+ 
+
 
 ## 1.17 - (March 27, 2018)
 
