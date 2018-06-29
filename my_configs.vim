@@ -72,6 +72,7 @@ autocmd FileType mail let g:nerdtree_tabs_open_on_gui_startup = 0
 autocmd FileType tex,plaintex setlocal formatoptions+=t, noexpandtab
 autocmd FileType tex,plaintex setlocal spell
 autocmd FileType tex,plaintex setlocal foldmethod=syntax
+autocmd FileType tex,plaintex setlocal syntax spell toplevel
 " search in a singe file. This will confuse latex-suite. Set your grep program
 " to alway generate a file-name.
 autocmd FileType tex,plaintex setlocal grepprg=grep\ -nH\ $*
