@@ -355,7 +355,7 @@ if go#config#HighlightBuildConstraints() || go#config#FoldEnable('package_commen
         \ . ' end=/\v\n\s*package/he=e-7,me=e-7,re=e-7'
         \ . ' contains=@goCommentGroup,@Spell'
         \ . (go#config#FoldEnable('package_comment') ? ' fold' : '')
-  exe 'syn region  goPackageComment    start=/\v\/\*.*\n(.*\n)*\s*\*\/\npackage/'
+  exe 'syn region  goPackageComment    start=/\v^\s*\/\*.*\n(.*\n)*\s*\*\/\npackage/'
         \ . ' end=/\v\*\/\n\s*package/he=e-7,me=e-7,re=e-7'
         \ . ' contains=@goCommentGroup,@Spell'
         \ . (go#config#FoldEnable('package_comment') ? ' fold' : '')
@@ -371,6 +371,10 @@ function! s:hi()
   " :GoCoverage commands
   hi def      goCoverageCovered    ctermfg=green guifg=#A6E22E
   hi def      goCoverageUncover    ctermfg=red guifg=#F92672
+
+  " :GoDebug commands
+  hi GoDebugBreakpoint term=standout ctermbg=117 ctermfg=0 guibg=#BAD4F5  guifg=Black
+  hi GoDebugCurrent    term=reverse  ctermbg=12  ctermfg=7 guibg=DarkBlue guifg=White
 endfunction
 
 augroup vim-go-hi

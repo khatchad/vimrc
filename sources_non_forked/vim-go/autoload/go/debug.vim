@@ -551,8 +551,8 @@ function! go#debug#Start(is_test, ...) abort
 
     let l:cmd = [
           \ dlv,
-          \ l:pkgname,
           \ (a:is_test ? 'test' : 'debug'),
+          \ l:pkgname,
           \ '--output', tempname(),
           \ '--headless',
           \ '--api-version', '2',
@@ -892,15 +892,5 @@ endfunction
 
 sign define godebugbreakpoint text=> texthl=GoDebugBreakpoint
 sign define godebugcurline text== linehl=GoDebugCurrent texthl=GoDebugCurrent
-
-fun! s:hi()
-  hi GoDebugBreakpoint term=standout ctermbg=117 ctermfg=0 guibg=#BAD4F5  guifg=Black
-  hi GoDebugCurrent    term=reverse  ctermbg=12  ctermfg=7 guibg=DarkBlue guifg=White
-endfun
-augroup vim-go-breakpoint
-  autocmd!
-  autocmd ColorScheme * call s:hi()
-augroup end
-call s:hi()
 
 " vim: sw=2 ts=2 et

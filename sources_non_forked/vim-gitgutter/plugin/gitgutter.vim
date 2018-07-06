@@ -173,6 +173,16 @@ nnoremap <silent> <Plug>GitGutterPreviewHunk :GitGutterPreviewHunk<CR>
 
 " }}}
 
+function! s:on_bufenter()
+  if exists('t:gitgutter_didtabenter') && t:gitgutter_didtabenter
+    let t:gitgutter_didtabenter = 0
+    call gitgutter#all(!g:gitgutter_terminal_reports_focus)
+  else
+    call gitgutter#init_buffer(bufnr(''))
+    call gitgutter#process_buffer(bufnr(''), !g:gitgutter_terminal_reports_focus)
+  endif
+endfunction
+
 " Autocommands {{{
 
 augroup gitgutter
@@ -180,24 +190,17 @@ augroup gitgutter
 
   autocmd TabEnter * let t:gitgutter_didtabenter = 1
 
-  autocmd BufEnter *
-        \ if exists('t:gitgutter_didtabenter') && t:gitgutter_didtabenter |
-        \   let t:gitgutter_didtabenter = 0 |
-        \   call gitgutter#all(!g:gitgutter_terminal_reports_focus) |
-        \ else |
-        \   call gitgutter#init_buffer(bufnr('')) |
-        \   call gitgutter#process_buffer(bufnr(''), !g:gitgutter_terminal_reports_focus) |
-        \ endif
+  autocmd BufEnter * call s:on_bufenter()
 
-  autocmd CursorHold,CursorHoldI            * call gitgutter#process_buffer(bufnr(''), 0)
-  autocmd FileChangedShellPost,ShellCmdPost * call gitgutter#process_buffer(bufnr(''), 1)
+  autocmd CursorHold,CursorHoldI * call gitgutter#process_buffer(bufnr(''), 0)
+  autocmd FileChangedShellPost   * call gitgutter#process_buffer(bufnr(''), 1)
 
   " Ensure that all buffers are processed when opening vim with multiple files, e.g.:
   "
   "   vim -o file1 file2
   autocmd VimEnter * if winnr() != winnr('$') | call gitgutter#all(0) | endif
 
-  autocmd FocusGained * call gitgutter#all(1)
+  autocmd FocusGained,ShellCmdPost * call gitgutter#all(1)
 
   autocmd ColorScheme * call gitgutter#highlight#define_sign_column_highlight() | call gitgutter#highlight#define_highlights()
 
