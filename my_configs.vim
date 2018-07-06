@@ -116,6 +116,7 @@ augroup END
 let g:Tex_ViewRule_pdf = 'Skim'
 let g:tex_flavor='latex'
 let g:syntastic_tex_checkers = ["chktex"]
+let g:LatexBox_split_type = "new"
 
 """"""""""""""""""""""""""""""
 " => Java section
