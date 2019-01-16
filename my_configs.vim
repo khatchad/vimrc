@@ -1,3 +1,5 @@
+let g:NERDTreeHijackNetrw=0
+
 " Use Vim settings, rather then Vi settings (much better!).
 " This must be first, because it changes other options as a side effect.
 set nocompatible
@@ -82,6 +84,7 @@ autocmd FileType tex,plaintex syntax region texZone start='\\begin{javacode}' en
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{javacode\*}' end='\\end{javacode\*}'
 autocmd FileType tex,plaintex syntax region texZone start='\\mintinline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\javainline{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\ji{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\lstinline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\url{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\cite{' end='}'

@@ -1,16 +1,11 @@
+" don't spam the user when Vim is started in Vi compatibility mode
+let s:cpo_save = &cpo
+set cpo&vim
+
 function! s:gocodeCommand(cmd, args) abort
   let l:gocode_bin = "gocode"
   let l:gomod = go#util#gomod()
   if filereadable(l:gomod)
-    " Save the file when in module mode so that go list can read the
-    " imports. If the user doesn't have autowrite or autorwriteall enabled,
-    " they'll need to write the file manually to get reliable results.
-    " See https://github.com/fatih/vim-go/pull/1988#issuecomment-428576989.
-    "
-    " TODO(bc): don't save the file when in module mode once
-    " golang.org/x/tools/go/packages has support for an overlay and it's used
-    " by gocode.
-    call go#cmd#autowrite()
     let l:gocode_bin = "gocode-gomod"
   endif
 
@@ -31,6 +26,8 @@ function! s:gocodeCommand(cmd, args) abort
 
   if go#config#GocodeProposeSource()
     let cmd = extend(cmd, ['-source'])
+  else
+    let cmd = extend(cmd, ['-fallback-to-source', '-cache'])
   endif
 
   if go#config#GocodeUnimportedPackages()
@@ -200,8 +197,10 @@ function! s:info_filter(echo, result) abort
   let wordMatch = substitute(wordMatch, "'", "''", "g")
   let filtered = filter(l:candidates, "v:val.info =~ '".wordMatch."'")
 
-  if len(l:filtered) != 1
-    return ""
+  if len(l:filtered) == 0
+    return "no matches"
+  elseif len(l:filtered) > 1
+    return "ambiguous match"
   endif
 
   return l:filtered[0].info
@@ -247,5 +246,9 @@ function! go#complete#ToggleAutoTypeInfo() abort
   call go#config#SetAutoTypeInfo(1)
   call go#util#EchoProgress("auto type info enabled")
 endfunction
+
+" restore Vi compatibility settings
+let &cpo = s:cpo_save
+unlet s:cpo_save
 
 " vim: sw=2 ts=2 et
