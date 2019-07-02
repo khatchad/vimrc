@@ -6,7 +6,7 @@
 let s:UI = {}
 let g:NERDTreeUI = s:UI
 
-" FUNCTION: s:UI.centerView() {{{2
+" FUNCTION: s:UI.centerView() {{{1
 " centers the nerd tree window around the cursor (provided the nerd tree
 " options permit)
 function! s:UI.centerView()
@@ -28,7 +28,6 @@ function! s:UI._dumpHelp()
         let help .= "\" ============================\n"
         let help .= "\" File node mappings~\n"
         let help .= "\" ". (g:NERDTreeMouseMode ==# 3 ? "single" : "double") ."-click,\n"
-        let help .= "\" <CR>,\n"
         if self.nerdtree.isTabTree()
             let help .= "\" ". g:NERDTreeMapActivateNode .": open in prev window\n"
         else
@@ -44,6 +43,7 @@ function! s:UI._dumpHelp()
         let help .= "\" ". g:NERDTreeMapPreviewSplit .": preview split\n"
         let help .= "\" ". g:NERDTreeMapOpenVSplit .": open vsplit\n"
         let help .= "\" ". g:NERDTreeMapPreviewVSplit .": preview vsplit\n"
+        let help .= "\" ". g:NERDTreeMapCustomOpen .": custom open\n"
 
         let help .= "\"\n\" ----------------------------\n"
         let help .= "\" Directory node mappings~\n"
@@ -52,6 +52,7 @@ function! s:UI._dumpHelp()
         let help .= "\" ". g:NERDTreeMapOpenRecursively .": recursively open node\n"
         let help .= "\" ". g:NERDTreeMapOpenInTab.": open in new tab\n"
         let help .= "\" ". g:NERDTreeMapOpenInTabSilent .": open in new tab silently\n"
+        let help .= "\" ". g:NERDTreeMapCustomOpen .": custom open\n"
         let help .= "\" ". g:NERDTreeMapCloseDir .": close parent of node\n"
         let help .= "\" ". g:NERDTreeMapCloseChildren .": close all child nodes of\n"
         let help .= "\"    current node recursively\n"
@@ -66,6 +67,7 @@ function! s:UI._dumpHelp()
         let help .= "\" ". g:NERDTreeMapPreview .": find dir in tree\n"
         let help .= "\" ". g:NERDTreeMapOpenInTab.": open in new tab\n"
         let help .= "\" ". g:NERDTreeMapOpenInTabSilent .": open in new tab silently\n"
+        let help .= "\" ". g:NERDTreeMapCustomOpen .": custom open\n"
         let help .= "\" ". g:NERDTreeMapDeleteBookmark .": delete bookmark\n"
 
         let help .= "\"\n\" ----------------------------\n"
@@ -280,11 +282,10 @@ endfunction
 
 " FUNCTION: s:UI._indentLevelFor(line) {{{1
 function! s:UI._indentLevelFor(line)
-    " have to do this work around because match() returns bytes, not chars
-    let numLeadBytes = match(a:line, '\M\[^ '.g:NERDTreeDirArrowExpandable.g:NERDTreeDirArrowCollapsible.']')
-    " The next line is a backward-compatible workaround for strchars(a:line(0:numLeadBytes-1]). strchars() is in 7.3+
-    let leadChars = len(split(a:line[0:numLeadBytes-1], '\zs'))
-
+    " Replace multi-character DirArrows with a single space so the
+    " indentation calculation doesn't get messed up.
+    let l:line = substitute(substitute(a:line, '\V'.g:NERDTreeDirArrowExpandable, ' ', ''), '\V'.g:NERDTreeDirArrowCollapsible, ' ', '')
+    let leadChars = match(l:line, '\M\[^ ]')
     return leadChars / s:UI.IndentWid()
 endfunction
 
