@@ -29,7 +29,7 @@ function! FugitiveCommonDir(...) abort
 endfunction
 
 function! FugitiveWorkTree(...) abort
-  return FugitiveTreeForGitDir(FugitiveGitDir(a:0 ? a:1 : -1))
+  return s:Tree(FugitiveGitDir(a:0 ? a:1 : -1))
 endfunction
 
 function! FugitiveReal(...) abort
@@ -103,14 +103,14 @@ endfunction
 
 function! FugitiveIsGitDir(path) abort
   let path = substitute(a:path, '[\/]$', '', '') . '/'
-  return getfsize(path.'HEAD') > 10 && (
+  return len(a:path) && getfsize(path.'HEAD') > 10 && (
         \ isdirectory(path.'objects') && isdirectory(path.'refs') ||
         \ getftype(path.'commondir') ==# 'file')
 endfunction
 
 let s:worktree_for_dir = {}
 let s:dir_for_worktree = {}
-function! FugitiveTreeForGitDir(path) abort
+function! s:Tree(path) abort
   let dir = a:path
   if dir =~# '/\.git$'
     return len(dir) ==# 5 ? '/' : dir[0:-6]
@@ -159,9 +159,11 @@ function! FugitiveExtractGitDir(path) abort
   endif
   let root = resolve(path)
   if root !=# path
-    silent! exe haslocaldir() ? 'lcd .' : 'cd .'
+    silent! exe (haslocaldir() ? 'lcd' : exists(':tcd') && haslocaldir(-1) ? 'tcd' : 'cd') '.'
   endif
   let previous = ""
+  let env_git_dir = len($GIT_DIR) ? s:Slash(simplify(fnamemodify($GIT_DIR, ':p:s?[\/]$??'))) : ''
+  call s:Tree(env_git_dir)
   while root !=# previous
     if root =~# '\v^//%([^/]+/?)?$'
       break
@@ -169,14 +171,10 @@ function! FugitiveExtractGitDir(path) abort
     if index(split($GIT_CEILING_DIRECTORIES, ':'), root) >= 0
       break
     endif
-    if root ==# $GIT_WORK_TREE && FugitiveIsGitDir($GIT_DIR)
-      return simplify(fnamemodify($GIT_DIR, ':p:s?[\/]$??'))
-    endif
-    if FugitiveIsGitDir($GIT_DIR)
-      call FugitiveWorkTree(simplify(fnamemodify($GIT_DIR, ':p:s?[\/]$??')))
-      if has_key(s:dir_for_worktree, root)
-        return s:dir_for_worktree[root]
-      endif
+    if root ==# $GIT_WORK_TREE && FugitiveIsGitDir(env_git_dir)
+      return env_git_dir
+    elseif has_key(s:dir_for_worktree, root)
+      return s:dir_for_worktree[root]
     endif
     let dir = substitute(root, '[\/]$', '', '') . '/.git'
     let type = getftype(dir)
@@ -228,13 +226,16 @@ function! s:ProjectionistDetect() abort
   let dir = FugitiveExtractGitDir(file)
   let base = matchstr(file, '^fugitive://.\{-\}//\x\+')
   if empty(base)
-    let base = FugitiveTreeForGitDir(dir)
+    let base = s:Tree(dir)
   endif
   if len(base)
     if exists('+shellslash') && !&shellslash
       let base = tr(base, '/', '\')
     endif
-    call projectionist#append(base, FugitiveCommonDir(dir) . '/info/projections.json')
+    let file = FugitiveCommonDir(dir) . '/info/projections.json'
+    if filereadable(file)
+      call projectionist#append(base, file)
+    endif
   endif
 endfunction
 
@@ -251,21 +252,21 @@ augroup fugitive
   autocmd CmdWinEnter * call FugitiveDetect(expand('#:p'))
 
   autocmd FileType git
-        \ if exists('b:git_dir') |
+        \ if len(FugitiveGitDir()) |
         \   call fugitive#MapJumps() |
         \   call fugitive#MapCfile() |
         \ endif
   autocmd FileType gitcommit
-        \ if exists('b:git_dir') |
+        \ if len(FugitiveGitDir()) |
         \   call fugitive#MapCfile('fugitive#MessageCfile()') |
         \ endif
   autocmd FileType fugitive
-        \ if exists('b:git_dir') |
+        \ if len(FugitiveGitDir()) |
         \   call fugitive#MapCfile('fugitive#StatusCfile()') |
         \ endif
   autocmd FileType gitrebase
         \ let &l:include = '^\%(pick\|squash\|edit\|reword\|fixup\|drop\|[pserfd]\)\>' |
-        \ if exists('b:git_dir') |
+        \ if len(FugitiveGitDir()) |
         \   let &l:includeexpr = 'v:fname =~# ''^\x\{4,40\}$'' ? FugitiveFind(v:fname) : ' .
         \   (len(&l:includeexpr) ? &l:includeexpr : 'v:fname') |
         \ endif |
@@ -276,9 +277,14 @@ augroup fugitive
         \   let b:git_dir = s:Slash(expand('<amatch>:p:h')) |
         \   exe fugitive#BufReadStatus() |
         \ elseif filereadable(expand('<amatch>')) |
-        \   read <amatch> |
+        \   silent doautocmd BufReadPre |
+        \   keepalt read <amatch> |
         \   1delete_ |
+        \   silent doautocmd BufReadPost |
+        \ else |
+        \   silent doautocmd BufNewFile |
         \ endif
+
   autocmd BufReadCmd    fugitive://*//*             exe fugitive#BufReadCmd()
   autocmd BufWriteCmd   fugitive://*//[0-3]/*       exe fugitive#BufWriteCmd()
   autocmd FileReadCmd   fugitive://*//*             exe fugitive#FileReadCmd()

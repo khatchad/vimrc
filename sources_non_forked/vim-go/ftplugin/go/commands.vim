@@ -54,7 +54,8 @@ command! -nargs=* -bang GoCoverageBrowser call go#coverage#Browser(<bang>0, <f-a
 command! -nargs=0 -range=% GoPlay call go#play#Share(<count>, <line1>, <line2>)
 
 " -- def
-command! -nargs=* -range GoDef :call go#def#Jump('')
+command! -nargs=* -range GoDef :call go#def#Jump('', 0)
+command! -nargs=* -range GoDefType :call go#def#Jump('', 1)
 command! -nargs=? GoDefPop :call go#def#StackPop(<f-args>)
 command! -nargs=? GoDefStack :call go#def#Stack(<f-args>)
 command! -nargs=? GoDefStackClear :call go#def#StackClear(<f-args>)
@@ -114,5 +115,8 @@ command! -nargs=0 GoReportGitHubIssue call go#issue#New()
 
 " -- iferr
 command! -nargs=0 GoIfErr call go#iferr#Generate()
+
+" -- lsp
+command! -nargs=+ -complete=dir GoAddWorkspace call go#lsp#AddWorkspace(<f-args>)
 
 " vim: sw=2 ts=2 et

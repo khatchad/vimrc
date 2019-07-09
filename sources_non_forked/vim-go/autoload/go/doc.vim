@@ -31,11 +31,15 @@ function! go#doc#OpenBrowser(...) abort
 
     let godoc_url = go#config#DocUrl()
     let godoc_url .= "/" . import
-    if decl !~ "^package"
-      let godoc_url .= "#" . name
+    if decl !~ '^package'
+      let anchor = name
+      if decl =~ '^func ('
+        let anchor = substitute(decl, '^func ([^ ]\+ \*\?\([^)]\+\)) ' . name . '(.*', '\1', '') . "." . name
+      endif
+      let godoc_url .= "#" . anchor
     endif
 
-    call go#tool#OpenBrowser(godoc_url)
+    call go#util#OpenBrowser(godoc_url)
     return
   endif
 
@@ -49,7 +53,7 @@ function! go#doc#OpenBrowser(...) abort
 
   " example url: https://godoc.org/github.com/fatih/set#Set
   let godoc_url = go#config#DocUrl() . "/" . pkg . "#" . exported_name
-  call go#tool#OpenBrowser(godoc_url)
+  call go#util#OpenBrowser(godoc_url)
 endfunction
 
 function! go#doc#Open(newmode, mode, ...) abort
@@ -72,6 +76,18 @@ function! go#doc#Open(newmode, mode, ...) abort
 endfunction
 
 function! s:GodocView(newposition, position, content) abort
+  " popup window
+  if go#config#DocPopupWindow() && has("patch-8.1.1513")
+    call popup_clear()
+
+    call popup_atcursor(split(a:content, '\n'), {
+          \ 'padding': [1, 1, 1, 1],
+          \ 'borderchars': ['-','|','-','|','+','+','+','+'],
+          \ "border": [1, 1, 1, 1],
+          \ })
+    return
+  endif
+
   " reuse existing buffer window if it exists otherwise create a new one
   let is_visible = bufexists(s:buf_nr) && bufwinnr(s:buf_nr) != -1
   if !bufexists(s:buf_nr)
