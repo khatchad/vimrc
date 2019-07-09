@@ -131,9 +131,9 @@ au Filetype java setl makeprg=javac\ %
 au Filetype java setl diffopt+=iwhite, number
 
 """"""""""""""""""""""""""""""
-" => Java section
+" => Ruby section
 """""""""""""""""""""""""""""""
-au FileType ruby setl tabstop=2
+au FileType ruby setl tabstop=0
 
 """"""""""""""""""""""""""""""
 " => AspectJ section
