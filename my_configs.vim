@@ -1,5 +1,3 @@
-let g:NERDTreeHijackNetrw=0
-
 " Use Vim settings, rather then Vi settings (much better!).
 " This must be first, because it changes other options as a side effect.
 set nocompatible
@@ -34,7 +32,7 @@ set complete+=k
 set complete-=i
 set spelllang=en_us
 set dictionary+=/usr/share/dict/words,~/.dict
-set thesaurus+=~/.thesaur
+set thesaurus+=$HOME/Library/Dictionaries/mthesaur.txt
 set swapfile
 map <F2> a<C-R>=strftime("%m/%d/%y")<CR><Esc>
 map π :CtrlPCmdPalette<CR>
@@ -84,7 +82,6 @@ autocmd FileType tex,plaintex syntax region texZone start='\\begin{javacode}' en
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{javacode\*}' end='\\end{javacode\*}'
 autocmd FileType tex,plaintex syntax region texZone start='\\mintinline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\javainline{' end='}'
-autocmd FileType tex,plaintex syntax region texZone start='\\ji{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\lstinline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\url{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\cite{' end='}'
