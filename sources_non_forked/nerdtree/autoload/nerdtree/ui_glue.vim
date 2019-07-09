@@ -17,6 +17,7 @@ function! nerdtree#ui_glue#createDefaultBindings()
     call NERDTreeAddKeyMap({ 'key': g:NERDTreeMapCustomOpen, 'scope':'FileNode', 'callback': s."customOpenFile"})
     call NERDTreeAddKeyMap({ 'key': g:NERDTreeMapCustomOpen, 'scope':'DirNode', 'callback': s."customOpenDir"})
     call NERDTreeAddKeyMap({ 'key': g:NERDTreeMapCustomOpen, 'scope':'Bookmark', 'callback': s."customOpenBookmark"})
+    call NERDTreeAddKeyMap({ 'key': g:NERDTreeMapCustomOpen, 'scope':'all', 'callback': s."activateAll" })
 
     call NERDTreeAddKeyMap({ 'key': g:NERDTreeMapActivateNode, 'scope': "DirNode", 'callback': s."activateDirNode" })
     call NERDTreeAddKeyMap({ 'key': g:NERDTreeMapActivateNode, 'scope': "FileNode", 'callback': s."activateFileNode" })
@@ -94,7 +95,7 @@ endfunction
 "FUNCTION: s:customOpenBookmark() {{{1
 " Open bookmark node with the "custom" key, initially <CR>.
 function! s:customOpenBookmark(node)
-    if node.isDirectory
+    if a:node.path.isDirectory
         call a:node.activate(b:NERDTree, s:initCustomOpenArgs().dir)
     else
         call a:node.activate(b:NERDTree, s:initCustomOpenArgs().file)

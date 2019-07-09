@@ -44,6 +44,9 @@ IMPROVEMENTS:
   [[GH-2369]](https://github.com/fatih/vim-go/pull/2369)
 * Remove warnings and lsp short-circuiting when using a null module.
   [[GH-2371]](https://github.com/fatih/vim-go/pull/2371)
+* Calculate LSP position correctly when on a line that contains multi-byte
+  characters before the position.
+  [[GH-2389]](https://github.com/fatih/vim-go/pull/2389)
 
 BUG FIXES:
 * display info about function and function types whose parameters are
@@ -88,6 +91,9 @@ BUG FIXES:
 * Fix false positives when saving a buffer and `g:go_metalinter_command` is
   `golangci-lint`.
   [[GH-2367]](https://github.com/fatih/vim-go/pull/2367)
+* Fix `:GoDebugRestart`.
+  [[GH-2390]](https://github.com/fatih/vim-go/pull/2390)
+
 
 ## 1.20 - (April 22, 2019)
 
