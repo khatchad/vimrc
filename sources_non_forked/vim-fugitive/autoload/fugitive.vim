@@ -184,7 +184,11 @@ function! s:UserCommandList(...) abort
     if empty(tree)
       call add(git, '--git-dir=' . dir)
     elseif len(tree) && s:cpath(tree) !=# s:cpath(getcwd())
-      call extend(git, ['-C', tree])
+      if fugitive#GitVersion(1, 8, 5)
+        call extend(git, ['-C', tree])
+      else
+        throw 'fugitive: Git 1.8.5 or higher required to change directory'
+      endif
     endif
   endif
   return git
@@ -349,7 +353,7 @@ function! s:BuildShell(dir, env, args) abort
   endfor
   if empty(tree) || index(cmd, '--') == len(cmd) - 1
     call insert(cmd, '--git-dir=' . a:dir)
-  elseif fugitive#GitVersion(1, 9)
+  elseif fugitive#GitVersion(1, 8, 5)
     call extend(cmd, ['-C', tree], 'keep')
   else
     let pre = 'cd ' . s:shellesc(tree) . (s:winshell() ? '& ' : '; ') . pre
@@ -3189,9 +3193,9 @@ function! s:Merge(cmd, bang, mods, args, ...) abort
     let exec_error = s:ChompError([dir, 'diff-index', '--cached', '--quiet', 'HEAD', '--'])[1]
     if exec_error && isdirectory(rdir)
       if getfsize(rdir . '/amend') <= 0
-        return 'exe ' . string(mods . 'Gcommit -n -F ' . s:shellesc(rdir .'/message') . ' -e') . '|let b:fugitive_commit_rebase = 1'
+        return 'exe ' . string(mods . 'Gcommit -n -F ' . s:fnameescape(rdir .'/message') . ' -e') . '|let b:fugitive_commit_rebase = 1'
       elseif readfile(rdir . '/amend')[0] ==# fugitive#Head(-1, dir)
-        return 'exe ' . string(mods . 'Gcommit --amend -n -F ' . s:shellesc(rdir . '/message') . ' -e') . '|let b:fugitive_commit_rebase = 1'
+        return 'exe ' . string(mods . 'Gcommit --amend -n -F ' . s:fnameescape(rdir . '/message') . ' -e') . '|let b:fugitive_commit_rebase = 1'
       endif
     endif
   endif
@@ -3274,10 +3278,10 @@ function! s:Merge(cmd, bang, mods, args, ...) abort
           \ filereadable(fugitive#Find('.git/rebase-merge/done', dir)) &&
           \ get(readfile(fugitive#Find('.git/rebase-merge/done', dir)), -1, '') =~# '^[^e]'
       cclose
-      return 'exe ' . string(mods . 'Gcommit --amend -n -F ' . s:shellesc(fugitive#Find('.git/rebase-merge/message', dir)) . ' -e') . '|let b:fugitive_commit_rebase = 1'
+      return 'exe ' . string(mods . 'Gcommit --amend -n -F ' . s:fnameescape(fugitive#Find('.git/rebase-merge/message', dir)) . ' -e') . '|let b:fugitive_commit_rebase = 1'
     elseif !had_merge_msg && filereadable(fugitive#Find('.git/MERGE_MSG', dir))
       cclose
-      return mods . 'Gcommit --no-status -n -t '.s:shellesc(fugitive#Find('.git/MERGE_MSG', dir))
+      return mods . 'Gcommit --no-status -n -t '.s:fnameescape(fugitive#Find('.git/MERGE_MSG', dir))
     endif
   endif
   let qflist = getqflist()
@@ -3820,41 +3824,46 @@ function! s:FetchComplete(A, L, P) abort
   return s:CompleteSubcommand('fetch', a:A, a:L, a:P, function('s:CompleteRemote'))
 endfunction
 
-function! s:Dispatch(bang, args)
+function! s:Dispatch(bang, cmd, arg) abort
+  let dir = s:Dir()
+  let [args, after] = s:SplitExpandChain(a:arg, s:Tree(dir))
   let [mp, efm, cc] = [&l:mp, &l:efm, get(b:, 'current_compiler', '')]
   try
-    let cdback = s:Cd(s:Tree())
     let b:current_compiler = 'git'
     let &l:errorformat = s:common_efm
-    let &l:makeprg = substitute(s:UserCommand() . ' ' . a:args, '\s\+$', '', '')
+    let &l:makeprg = s:shellesc(s:UserCommandList(dir) + [a:cmd] + args)
     if exists(':Make') == 2
       Make
+      return after[1:-1]
     else
-      try
-        if !has('patch-8.1.0334') && &autowrite
-          let autowrite_was_set = 1
-          set noautowrite
-          wall
-        endif
-        silent noautocmd make!
-      finally
-        if exists('autowrite_was_set')
-          set autowrite
-        endif
-      endtry
+      if !has('patch-8.1.0334') && &autowrite
+        let autowrite_was_set = 1
+        set noautowrite
+        wall
+      endif
+      silent noautocmd make!
       redraw!
-      return 'call fugitive#Cwindow()|call fugitive#ReloadStatus()'
+      return 'call fugitive#Cwindow()|call fugitive#ReloadStatus()' . after
     endif
-    return ''
   finally
     let [&l:mp, &l:efm, b:current_compiler] = [mp, efm, cc]
     if empty(cc) | unlet! b:current_compiler | endif
-    execute cdback
+    if exists('autowrite_was_set')
+      set autowrite
+    endif
   endtry
 endfunction
 
-call s:command("-nargs=? -bang -complete=customlist,s:PushComplete Gpush  execute s:Dispatch('<bang>', 'push '.<q-args>)")
-call s:command("-nargs=? -bang -complete=customlist,s:FetchComplete Gfetch execute s:Dispatch('<bang>', 'fetch '.<q-args>)")
+function! s:PushCommand(line1, line2, range, count, bang, mods, reg, arg, args) abort
+  return s:Dispatch(a:bang ? '!' : '', 'push', a:arg)
+endfunction
+
+function! s:FetchCommand(line1, line2, range, count, bang, mods, reg, arg, args) abort
+  return s:Dispatch(a:bang ? '!' : '', 'fetch', a:arg)
+endfunction
+
+call s:command("-nargs=? -bang -complete=customlist,s:PushComplete Gpush", "Push")
+call s:command("-nargs=? -bang -complete=customlist,s:FetchComplete Gfetch", "Fetch")
 
 " Section: :Gdiff
 
