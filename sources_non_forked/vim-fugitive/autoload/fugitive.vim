@@ -201,7 +201,7 @@ endfunction
 let s:git_versions = {}
 function! fugitive#GitVersion(...) abort
   if !has_key(s:git_versions, g:fugitive_git_executable)
-    let s:git_versions[g:fugitive_git_executable] = matchstr(system(g:fugitive_git_executable.' --version'), '\d\S\+')
+    let s:git_versions[g:fugitive_git_executable] = matchstr(system(g:fugitive_git_executable.' --version'), '\d[^[:space:]]\+')
   endif
   if !a:0
     return s:git_versions[g:fugitive_git_executable]
@@ -2018,9 +2018,6 @@ augroup END
 
 " Section: :Git
 
-call s:command("-bang -nargs=? -range=-1 -complete=customlist,fugitive#CompleteGit Git", "Git")
-call s:command("-bar -bang -range=-1 -nargs=* -complete=customlist,fugitive#CompleteGit G", "")
-
 function! s:GitExec(line1, line2, range, count, bang, mods, reg, args, dir) abort
   if empty(a:args)
     return s:StatusCommand(a:line1, a:line2, a:range, a:count, a:bang, a:mods, a:reg, '', [])
@@ -2058,8 +2055,8 @@ endfunction
 
 function! s:Command(line1, line2, range, count, bang, mods, reg, arg, args, ...) abort
   let dir = a:0 ? s:Dir(a:1) : s:Dir()
-  let args = s:SplitExpand(a:arg, s:Tree(dir))
-  return s:GitExec(a:line1, a:line2, a:range, a:count, a:bang, a:mods, a:reg, args, dir)
+  let [args, after] = s:SplitExpandChain(a:arg, s:Tree(dir))
+  return s:GitExec(a:line1, a:line2, a:range, a:count, a:bang, a:mods, a:reg, args, dir) . after
 endfunction
 
 let s:exec_paths = {}
@@ -2102,6 +2099,9 @@ endfunction
 function! fugitive#Complete(...) abort
   return call('fugitive#CompleteGit', a:000)
 endfunction
+
+call s:command("-bang -nargs=? -range=-1 -complete=customlist,fugitive#CompleteGit Git", "Git")
+call s:command("-bang -nargs=? -range=-1 -complete=customlist,fugitive#CompleteGit G", "")
 
 " Section: :Gcd, :Glcd
 
@@ -2983,7 +2983,7 @@ function! s:CommitCommand(line1, line2, range, count, bang, mods, reg, arg, args
         let exec_error = v:shell_error
         call delete(errorfile)
       else
-        if &autowrite
+        if &autowrite && !a:0
           wall
         endif
         let [error_string, exec_error] = s:TempCmd(outfile, command)
@@ -2996,10 +2996,9 @@ function! s:CommitCommand(line1, line2, range, count, bang, mods, reg, arg, args
       redraw!
     endif
     if !exec_error
+      echo join(errors, "\n")
       if filereadable(outfile)
-        for line in readfile(outfile)
-          echo line
-        endfor
+        echo join(readfile(outfile), "\n")
       endif
       call fugitive#ReloadStatus(dir, 1)
       return after[1:-1]
@@ -3036,11 +3035,13 @@ function! s:CommitCommand(line1, line2, range, count, bang, mods, reg, arg, args
         let b:fugitive_commit_arguments = argv
         setlocal bufhidden=wipe filetype=gitcommit
         return '1' . after
-      elseif error ==# '!'
-        echo get(readfile(outfile), -1, '')
+      elseif empty(errors)
+        let out = readfile(outfile)
+        echo get(out, -1, '') =~# 'stash\|\d' ? get(out, -2, '') : out[-1]
         return after[1:-1]
       else
-        call s:throw(empty(error)?join(errors, ' '):error)
+        echo join(errors, "\n")
+        return after[1:-1]
       endif
     endif
   catch /^fugitive:/
@@ -3167,9 +3168,9 @@ function! s:RebaseEdit(cmd, dir) abort
   return a:cmd . ' +setlocal\ bufhidden=wipe\|' . escape('let b:fugitive_rebase_shas = ' . string(shas), ' ') . ' ' . rebase_todo
 endfunction
 
-function! s:Merge(cmd, bang, mods, args, ...) abort
+function! s:MergeRebase(cmd, bang, mods, args, ...) abort
   let dir = a:0 ? a:1 : s:Dir()
-  let args = s:SplitExpand(a:args, s:Tree(dir))
+  let args = a:args
   let mods = s:Mods(a:mods)
   if a:cmd =~# '^rebase' && s:HasOpt(args, '-i', '--interactive')
     let cmd = fugitive#Prepare(dir, '-c', 'sequence.editor=sh ' . s:RebaseSequenceAborter(), 'rebase') . ' ' . s:shellesc(args)
@@ -3183,7 +3184,7 @@ function! s:Merge(cmd, bang, mods, args, ...) abort
     endfor
     call writefile([], fugitive#Find('.git/rebase-merge/done', dir))
     if a:bang
-      return ''
+      return 'exe'
     endif
     return s:RebaseEdit(mods . 'split', dir)
   elseif a:cmd =~# '^rebase' && s:HasOpt(args, '--edit-todo') && filereadable(fugitive#Find('.git/rebase-merge/git-rebase-todo', dir))
@@ -3299,7 +3300,7 @@ function! s:Merge(cmd, bang, mods, args, ...) abort
       return 'cfirst'
     endif
   endif
-  return exists('err') ? 'echoerr '.string(err) : ''
+  return exists('err') ? 'echoerr '.string(err) : 'exe'
 endfunction
 
 function! s:RebaseClean(file) abort
@@ -3323,6 +3324,21 @@ function! s:RebaseClean(file) abort
   return ''
 endfunction
 
+function! s:MergeCommand(line1, line2, range, count, bang, mods, reg, arg, args) abort
+  let [args, after] = s:SplitExpandChain(a:arg, s:Tree())
+  return s:MergeRebase('merge', a:bang, a:mods, args) . after
+endfunction
+
+function! s:RebaseCommand(line1, line2, range, count, bang, mods, reg, arg, args) abort
+  let [args, after] = s:SplitExpandChain(a:arg, s:Tree())
+  return s:MergeRebase('rebase', a:bang, a:mods, args) . after
+endfunction
+
+function! s:PullCommand(line1, line2, range, count, bang, mods, reg, arg, args) abort
+  let [args, after] = s:SplitExpandChain(a:arg, s:Tree())
+  return s:MergeRebase('pull --progress', a:bang, a:mods, args) . after
+endfunction
+
 augroup fugitive_merge
   autocmd!
   autocmd VimLeavePre,BufDelete git-rebase-todo
@@ -3334,16 +3350,13 @@ augroup fugitive_merge
         \ endif
   autocmd BufEnter * nested
         \ if exists('s:rebase_continue') |
-        \   exe s:Merge('rebase', 0, '', getfsize(fugitive#Find('.git/rebase-merge/git-rebase-todo', s:rebase_continue)) > 0 ? '--continue' : '--abort', remove(s:, 'rebase_continue')) |
+        \   exe s:MergeRebase('rebase', 0, '', [getfsize(fugitive#Find('.git/rebase-merge/git-rebase-todo', s:rebase_continue)) > 0 ? '--continue' : '--abort'], remove(s:, 'rebase_continue')) |
         \ endif
 augroup END
 
-call s:command("-nargs=? -bar -bang -complete=customlist,s:MergeComplete Gmerge " .
-      \ "execute s:Merge('merge', <bang>0, '<mods>', <q-args>)")
-call s:command("-nargs=? -bar -bang -complete=customlist,s:RebaseComplete Grebase " .
-      \ "execute s:Merge('rebase', <bang>0, '<mods>', <q-args>)")
-call s:command("-nargs=? -bar -bang -complete=customlist,s:PullComplete Gpull " .
-      \ "execute s:Merge('pull --progress', <bang>0, '<mods>', <q-args>)")
+call s:command("-nargs=? -bang -complete=customlist,s:MergeComplete Gmerge", "Merge")
+call s:command("-nargs=? -bang -complete=customlist,s:RebaseComplete Grebase", "Rebase")
+call s:command("-nargs=? -bang -complete=customlist,s:PullComplete Gpull", "Pull")
 
 " Section: :Ggrep, :Glog
 
@@ -3417,7 +3430,7 @@ function! s:Grep(type, bang, arg) abort
   if fugitive#GitVersion(2, 19)
     call add(cmd, '--column')
   endif
-  let args = s:SplitExpand(a:arg, s:Tree(dir))
+  let [args, after] = s:SplitExpandChain(a:arg, s:Tree(dir))
   if exists(':chistory')
     call s:SetLocList(listnr, [], ' ', {'title': (listnr < 0 ? ':Ggrep ' : ':Glgrep ') . s:fnameescape(args)})
   else
@@ -3431,16 +3444,16 @@ function! s:Grep(type, bang, arg) abort
   let list = map(readfile(tempfile), 's:GrepParseLine(cached, name_only, dir, v:val)')
   call s:SetLocList(listnr, list, 'a')
   if !a:bang && !empty(list)
-    return (listnr < 0 ? 'c' : 'l').'first'
+    return (listnr < 0 ? 'c' : 'l').'first' . after
   else
-    return ''
+    return after[1:-1]
   endif
 endfunction
 
 function! s:Log(type, bang, line1, count, args) abort
   let dir = s:Dir()
   let listnr = a:type =~# '^l' ? 0 : -1
-  let args = s:SplitExpand(a:args, s:Tree(dir))
+  let [args, after] = s:SplitExpandChain(a:args, s:Tree(dir))
   let split = index(args, '--')
   if split > 0
     let paths = args[split : -1]
@@ -3495,15 +3508,17 @@ function! s:Log(type, bang, line1, count, args) abort
     wincmd p
   endif
   if !a:bang && len(s:GetLocList(listnr))
-    return a:type . 'first'
+    return a:type . 'first' . after
   endif
-  return ''
+  return after[1:-1]
 endfunction
 
-call s:command("-bar -bang -nargs=? -complete=customlist,s:GrepComplete Ggrep :execute s:Grep('c',<bang>0,<q-args>)")
-call s:command("-bar -bang -nargs=? -complete=customlist,s:GrepComplete Glgrep :execute s:Grep('l',<bang>0,<q-args>)")
-call s:command("-bar -bang -nargs=? -range=-1 -complete=customlist,s:LogComplete Glog :exe s:Log('c',<bang>0,<line1>,<count>,<q-args>)")
-call s:command("-bar -bang -nargs=? -range=-1 -complete=customlist,s:LogComplete Gllog :exe s:Log('l',<bang>0,<line1>,<count>,<q-args>)")
+call s:command("-bang -nargs=? -complete=customlist,s:GrepComplete Ggrep :execute s:Grep('c',<bang>0,<q-args>)")
+call s:command("-bang -nargs=? -complete=customlist,s:GrepComplete Gcgrep :execute s:Grep('c',<bang>0,<q-args>)")
+call s:command("-bang -nargs=? -complete=customlist,s:GrepComplete Glgrep :execute s:Grep('l',<bang>0,<q-args>)")
+call s:command("-bang -nargs=? -range=-1 -complete=customlist,s:LogComplete Glog :exe s:Log('c',<bang>0,<line1>,<count>,<q-args>)")
+call s:command("-bang -nargs=? -range=-1 -complete=customlist,s:LogComplete Gclog :exe s:Log('c',<bang>0,<line1>,<count>,<q-args>)")
+call s:command("-bang -nargs=? -range=-1 -complete=customlist,s:LogComplete Gllog :exe s:Log('l',<bang>0,<line1>,<count>,<q-args>)")
 
 " Section: :Gedit, :Gpedit, :Gsplit, :Gvsplit, :Gtabedit, :Gread
 
@@ -4261,7 +4276,7 @@ function! s:BlameCommand(line1, line2, range, count, bang, mods, reg, arg, args)
         let current = line('.')
         let temp = s:Resolve(temp)
         let s:temp_files[s:cpath(temp)] = { 'dir': s:Dir(), 'filetype': 'fugitiveblame', 'args': cmd, 'bufnr': bufnr }
-        exe 'keepalt' (a:bang ? 'split' : 'leftabove vsplit') . temp
+        exe 'keepalt' (a:bang ? 'split' : 'leftabove vsplit') s:fnameescape(temp)
         let b:fugitive_blamed_bufnr = bufnr
         let b:fugitive_type = 'blame'
         let w:fugitive_leave = restore

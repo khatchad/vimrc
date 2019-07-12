@@ -195,13 +195,6 @@ function! s:newlsp() abort
   endfunction
 
   function! l:lsp.sendMessage(data, handler) dict abort
-    " block while waiting on any in flight initializations to avoid race
-    " conditions initializing gopls.
-    while get(self, 'checkingmodule', 0)
-      sleep 50 m
-      redraw
-    endwhile
-
     if !self.last_request_id
       call go#util#EchoProgress("initializing gopls")
       " TODO(bc): run a server per module and one per GOPATH? (may need to
@@ -409,7 +402,7 @@ endfunction
 function! s:definitionHandler(next, msg) abort dict
   " gopls returns a []Location; just take the first one.
   let l:msg = a:msg[0]
-  let l:args = [[printf('%s:%d:%d: %s', go#path#FromURI(l:msg.uri), l:msg.range.start.line+1, l:msg.range.start.character+1, 'lsp does not supply a description')]]
+  let l:args = [[printf('%s:%d:%d: %s', go#path#FromURI(l:msg.uri), l:msg.range.start.line+1, go#lsp#lsp#PositionOf(getline(l:msg.range.start.line+1), l:msg.range.start.character), 'lsp does not supply a description')]]
   call call(a:next, l:args)
 endfunction
 
@@ -431,7 +424,7 @@ endfunction
 function! s:typeDefinitionHandler(next, msg) abort dict
   " gopls returns a []Location; just take the first one.
   let l:msg = a:msg[0]
-  let l:args = [[printf('%s:%d:%d: %s', go#path#FromURI(l:msg.uri), l:msg.range.start.line+1, l:msg.range.start.character+1, 'lsp does not supply a description')]]
+  let l:args = [[printf('%s:%d:%d: %s', go#path#FromURI(l:msg.uri), l:msg.range.start.line+1, go#lsp#lsp#PositionOf(getline(l:msg.range.start.line+1), l:msg.range.start.character), 'lsp does not supply a description')]]
   call call(a:next, l:args)
 endfunction
 

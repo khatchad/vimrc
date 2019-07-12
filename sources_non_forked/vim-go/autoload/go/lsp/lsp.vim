@@ -12,28 +12,43 @@ function! go#lsp#lsp#Position(...)
     let l:line = a:1
     let l:col = a:2
   endif
-	let l:content = getline(l:line)
+  let l:content = getline(l:line)
 
   " LSP uses 0-based lines.
-  let l:line -= 1
+  return [l:line - 1, s:character(l:line, l:col)]
+endfunction
 
-  let l:offset = l:col - 1
+function! s:strlen(str) abort
+  let l:runes = split(a:str, '\zs')
+  return len(l:runes) + len(filter(l:runes, 'char2nr(v:val)>=0x10000'))
+endfunction
 
-  let l:cmd = [go#path#CheckBinPath('lsp-position'), '-offset', l:offset]
-  let [l:out, l:exit]= go#util#Exec(l:cmd, l:content)
+function! s:character(line, col) abort
+  return s:strlen(getline(a:line)[:col([a:line, a:col - 1])])
+endfunction
 
-  if l:exit != 0
-    call go#util#EchoWarn(l:out)
-    " assume that the line and column calculated directly from the cursor
-    " position is correct, because in the vast majority of cases the column
-    " will be the number of utf-16 code units to the column, too.
-    " than one utf-16 code unit
-    return [l:line, l:col]
+" go#lsp#PositionOf returns len(content[0:units]) where units is utf-16 code
+" units. This is mostly useful for converting LSP text position to vim
+" position.
+function! go#lsp#lsp#PositionOf(content, units) abort
+  if a:units == 0
+    return 1
   endif
 
-  let l:col = str2nr(split(l:out)[0])
+  let l:remaining = a:units
+  let l:str = ""
+  for l:rune in split(a:content, '\zs')
+    if l:remaining < 0
+      break
+    endif
+    let l:remaining -= 1
+    if char2nr(l:rune) >= 0x10000
+      let l:remaining -= 1
+    endif
+    let l:str = l:str . l:rune
+  endfor
 
-  return [l:line, l:col]
+  return len(l:str)
 endfunction
 
 " restore Vi compatibility settings
