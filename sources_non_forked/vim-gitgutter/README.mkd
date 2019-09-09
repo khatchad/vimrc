@@ -1,6 +1,6 @@
 ## vim-gitgutter
 
-A Vim plugin which shows a git diff in the 'gutter' (sign column).  It shows which lines have been added, modified, or removed.  You can also preview, stage, and undo individual hunks.  The plugin also provides a hunk text object.
+A Vim plugin which shows a git diff in the 'gutter' (sign column).  It shows which lines have been added, modified, or removed.  You can also preview, stage, and undo individual hunks; and stage partial hunks.  The plugin also provides a hunk text object.
 
 The signs are always up to date and the plugin never saves your buffer.
 
@@ -16,6 +16,7 @@ Features:
 * Provides a hunk text object.
 * Diffs against index (default) or any commit.
 * Allows folding all unchanged text.
+* Can load all hunk locations into quickfix list.
 * Handles line endings correctly, even with repos that do CRLF conversion.
 * Optional line highlighting.
 * Optional line number highlighting. (Only available in Neovim 0.3.2 or higher)
@@ -159,7 +160,7 @@ With Neovim 0.3.2 or higher, you can turn line number highlighting on and off (d
 
 Note that if you have line highlighting on and signs off, you will have an empty sign column – more accurately, a sign column with invisible signs.  This is because line highlighting requires signs and Vim always shows the sign column even if the signs are invisible.
 
-If you switch off both line highlighting and signs, you won't see the sign column.  That is unless you configure the sign column always to be there (see Sign Column section).
+If you switch off both line highlighting and signs, you won't see the sign column.
 
 To keep your Vim snappy, vim-gitgutter will suppress the signs when a file has more than 500 changes.  As soon as the number of changes falls below the limit vim-gitgutter will show the signs again.  You can configure the threshold with:
 
@@ -179,9 +180,11 @@ Both of those take a preceding count.
 To set your own mappings for these, for example `]h` and `[h`:
 
 ```viml
-nmap ]h <Plug>GitGutterNextHunk
-nmap [h <Plug>GitGutterPrevHunk
+nmap ]h <Plug>(GitGutterNextHunk)
+nmap [h <Plug>(GitGutterPrevHunk)
 ```
+
+You can load all your hunks into the quickfix list with `:GitGutterQuickFix`.  Note this ignores any unsaved changes in your buffers.
 
 You can stage or undo an individual hunk when your cursor is in it:
 
@@ -198,23 +201,25 @@ To stage part of any hunk:
 * preview the hunk, e.g. `<Leader>hp`;
 * move to the preview window, e.g. `:wincmd P`;
 * delete the lines you do not want to stage;
-* stage the remaining lines, e.g. `<Leader>hs` or `:GitGutterStageHunk`.
+* stage the remaining lines: either write (`:w`) the window or stage via `<Leader>hs` or `:GitGutterStageHunk`.
+
+Note the above workflow is not possible if you have opted in to preview hunks with Vim's popup windows.
 
 See the FAQ if you want to unstage staged changes.
 
 The `.` command will work with both these if you install [repeat.vim](https://github.com/tpope/vim-repeat).
 
-To set your own mappings for these, for example if you prefer the mnemonics hunk-add and hunk-revert:
+To set your own mappings for these, for example if you prefer `g`-based maps:
 
 ```viml
-nmap <Leader>ha <Plug>GitGutterStageHunk
-nmap <Leader>hr <Plug>GitGutterUndoHunk
+nmap ghs <Plug>(GitGutterStageHunk)
+nmap ghu <Plug>(GitGutterUndoHunk)
 ```
 
 And you can preview a hunk's changes with `<Leader>hp`.  The location of the preview window is configured with `g:gitgutter_preview_win_location` (default `'bo'`).  You can of course change this mapping, e.g:
 
 ```viml
-nmap <Leader>hv <Plug>GitGutterPreviewHunk
+nmap ghp <Plug>(GitGutterPreviewHunk)
 ```
 
 A hunk text object is provided which works in visual and operator-pending modes.
@@ -225,10 +230,10 @@ A hunk text object is provided which works in visual and operator-pending modes.
 To re-map these, for example to `ih` and `ah`:
 
 ```viml
-omap ih <Plug>GitGutterTextObjectInnerPending
-omap ah <Plug>GitGutterTextObjectOuterPending
-xmap ih <Plug>GitGutterTextObjectInnerVisual
-xmap ah <Plug>GitGutterTextObjectOuterVisual
+omap ih <Plug>(GitGutterTextObjectInnerPending)
+omap ah <Plug>(GitGutterTextObjectOuterPending)
+xmap ih <Plug>(GitGutterTextObjectInnerVisual)
+xmap ah <Plug>(GitGutterTextObjectOuterVisual)
 ```
 
 If you don't want vim-gitgutter to set up any mappings at all, use this:
@@ -258,17 +263,19 @@ You can customise:
 * How to handle non-gitgutter signs
 * The signs' colours and symbols
 * Line highlights
+* Whether the diff is relative to the index (default) or working tree.
 * The base of the diff
 * Extra arguments for `git` when running `git diff`
 * Extra arguments for `git diff`
 * Key mappings
-* Whether or not vim-gitgutter is on initially (defaults to on)
-* Whether or not signs are shown (defaults to yes)
-* Whether or not line highlighting is on initially (defaults to off)
-* Whether or not line number highlighting is on initially (defaults to off)
-* Whether or not vim-gitgutter runs in "realtime" (defaults to yes)
-* Whether or not vim-gitgutter runs eagerly (defaults to yes)
-* Whether or not vim-gitgutter runs asynchronously (defaults to yes)
+* Whether vim-gitgutter is on initially (defaults to on)
+* Whether signs are shown (defaults to yes)
+* Whether line highlighting is on initially (defaults to off)
+* Whether line number highlighting is on initially (defaults to off)
+* Whether vim-gitgutter runs asynchronously (defaults to yes)
+* Whether to clobber or preserve non-gitgutter signs
+* The priority of gitgutter's signs.
+* Whether to use a floating/popup window for hunk previews
 
 Please note that vim-gitgutter won't override any colours or highlights you've set in your colorscheme.
 
@@ -293,14 +300,11 @@ highlight SignColumn guibg=whatever      " gVim/MacVim
 By default the sign column will appear when there are signs to show and disappear when there aren't.  To always have the sign column, add to your vimrc:
 
 ```viml
-if exists('&signcolumn')  " Vim 7.4.2201
-  set signcolumn=yes
-else
-  let g:gitgutter_sign_column_always = 1
-endif
+" Vim 7.4.2201
+set signcolumn=yes
 ```
 
-GitGutter can preserve or ignore non-gitgutter signs.  On Vim and Neovim < 0.4.0, gitgutter will default to preserving other signs; on Neovim >= 0.4.0 gitgutter defaults to ignoring them.  You can control this with:
+GitGutter can preserve or ignore non-gitgutter signs.  For Vim v8.1.0614 and later you can set gitgutter's signs' priorities with `g:gitgutter_sign_priority`, so gitgutter defaults to clobbering other signs.  For Neovim v0.4.0 and later you can set an expanding sign column so gitgutter again defaults to clobbering other signs.  Otherwise, gitgutter defaults to preserving other signs.  You can configure this with:
 
 ```viml
 let g:gitgutter_sign_allow_clobber = 1
@@ -383,6 +387,15 @@ highlight link GitGutterChangeLineNr Underlined
 ```
 
 
+#### Whether the diff is relative to the index or working tree
+
+By default diffs are relative to the index.  How you can make them relative to the working tree:
+
+```viml
+let g:gitgutter_diff_relative_to = 'working_tree'
+```
+
+
 #### The base of the diff
 
 By default buffers are diffed against the index.  However you can diff against any commit by setting:
@@ -390,6 +403,8 @@ By default buffers are diffed against the index.  However you can diff against a
 ```viml
 let g:gitgutter_diff_base = '<commit SHA>'
 ```
+
+This setting is ignored when the diffs are relative to the working tree.
 
 
 #### Extra arguments for `git` when running `git diff`
@@ -457,6 +472,11 @@ let g:gitgutter_async = 0
 ```
 
 
+#### To use floating/popup windows for hunk previews
+
+Add `let g:gitgutter_preview_win_floating = 1` to your vimrc.  Note that on Vim this prevents you staging (partial) hunks via the preview window.
+
+
 ### Extensions
 
 #### Operate on every line in a hunk
@@ -517,7 +537,9 @@ Let's say, for example, you want to remove trailing whitespace from all changed 
 
 #### Cycle through hunks in all buffers
 
-`]c` and `[c` jump from one hunk to the next in the current buffer.  You can use this code to jump to the next hunk no matter which buffer it's in.
+You can use `:GitGutterQuickFix` to load all hunks into the quickfix list.
+
+Alternatively, given that`]c` and `[c` jump from one hunk to the next in the current buffer, you can use this code to jump to the next hunk no matter which buffer it's in.
 
 ```viml
 function! NextHunkAllBuffers()
@@ -596,7 +618,7 @@ Your colorscheme is configuring the `SignColumn` highlight group weirdly.  Pleas
 
 > What happens if I also use another plugin which uses signs (e.g. Syntastic)?
 
-Vim only allows one sign per line.  Before adding a sign to a line, vim-gitgutter checks whether a sign has already been added by somebody else.  If so it doesn't do anything.  In other words vim-gitgutter won't overwrite another plugin's signs.  It also won't remove another plugin's signs.
+You can configure whether GitGutter preserves or clobbers other signs using `g:gitgutter_sign_allow_clobber`.  Set to `1` to clobber other signs (default on Vim >= 8.1.0614 and NeoVim >= 0.4.0) or `0` to preserve them.
 
 
 ### Troubleshooting
