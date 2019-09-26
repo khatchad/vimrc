@@ -1,6 +1,10 @@
 # Change Log
 
+#### 6.0...
+- **.0**: Make the behavior of window splits consistent [#1035](https://github.com/scrooloose/nerdtree/pull/1035)
 #### 5.3...
+- **.3**: Fix (p)ath not displaying in the minimal menu [#1038](https://github.com/scrooloose/nerdtree/pull/1038)
+- **.2**: Enable events when closing NerdTree window. [#1037](https://github.com/scrooloose/nerdtree/pull/1037)
 - **.1**: Fix the `e` key mapping to use netrw if desired [#1031](https://github.com/scrooloose/nerdtree/pull/1031)
 - **.0**: Add file extension and size to sorting capabilities [#1029](https://github.com/scrooloose/nerdtree/pull/1029)
 #### 5.2...

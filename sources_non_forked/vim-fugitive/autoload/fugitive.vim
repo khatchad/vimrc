@@ -1603,7 +1603,7 @@ function! s:AddHeader(key, value) abort
   endwhile
   call append(before - 1, [a:key . ':' . (len(a:value) ? ' ' . a:value : '')])
   if before == 1 && line('$') == 2
-    silent 2delete _
+    silent keepjumps 2delete _
   endif
 endfunction
 
@@ -1971,7 +1971,7 @@ function! fugitive#BufReadCmd(...) abort
         if b:fugitive_display_format
           call s:ReplaceCmd([dir, 'cat-file', b:fugitive_type, rev])
         else
-          call s:ReplaceCmd([dir, 'show', '--no-color', '--pretty=format:tree%x20%T%nparent%x20%P%nauthor%x20%an%x20<%ae>%x20%ad%ncommitter%x20%cn%x20<%ce>%x20%cd%nencoding%x20%e%n%n%s%n%n%b', rev])
+          call s:ReplaceCmd([dir, 'show', '--no-color', '-m', '--first-parent', '--pretty=format:tree%x20%T%nparent%x20%P%nauthor%x20%an%x20<%ae>%x20%ad%ncommitter%x20%cn%x20<%ce>%x20%cd%nencoding%x20%e%n%n%s%n%n%b', rev])
           keepjumps call search('^parent ')
           if getline('.') ==# 'parent '
             silent keepjumps delete_
@@ -2410,7 +2410,10 @@ augroup fugitive_status
   autocmd!
   autocmd BufWritePost         * call fugitive#ReloadStatus(-1, 0)
   autocmd ShellCmdPost     * nested call fugitive#ReloadStatus()
-  autocmd BufDelete term://* nested call fugitive#ReloadStatus()
+  autocmd BufDelete * nested
+        \ if getbufvar(+expand('<abuf>'), 'buftype') == 'terminal' |
+        \   call fugitive#ReloadStatus() |
+        \ endif
   if !has('win32')
     autocmd FocusGained        * call fugitive#ReloadStatus(-2, 0)
   endif
@@ -2475,7 +2478,7 @@ function! s:Selection(arg1, ...) abort
   endif
   let first = arg1
   if arg2 < 0
-    let last = first - arg2 + 1
+    let last = first - arg2 - 1
   elseif arg2 > 0
     let last = arg2
   else
@@ -2580,7 +2583,7 @@ endfunction
 function! s:Do(action, visual) abort
   let line = getline('.')
   let reload = 0
-  if !a:0 && !v:count && line =~# '^[A-Z][a-z]'
+  if !a:visual && !v:count && line =~# '^[A-Z][a-z]'
     let header = matchstr(line, '^\S\+\ze:')
     if len(header) && exists('*s:Do' . a:action . header . 'Header')
       let reload = s:Do{a:action}{header}Header(matchstr(line, ': \zs.*')) > 0
@@ -2628,8 +2631,9 @@ function! s:Do(action, visual) abort
   return ''
 endfunction
 
-function! s:StageReveal(...) abort
-  let begin = a:0 ? a:1 : line('.')
+function! s:StageReveal() abort
+  exe 'normal! zv'
+  let begin = line('.')
   if getline(begin) =~# '^@'
     let end = begin + 1
     while getline(end) =~# '^[ \+-]'
@@ -3001,9 +3005,10 @@ function! s:StageDelete(lnum1, lnum2, count) abort
       if empty(info.paths)
         continue
       endif
-      let hash = s:TreeChomp('hash-object', '-w', '--', info.paths[0])
-      if empty(hash)
-        continue
+      if info.status ==# 'D'
+        let undo = 'Gremove'
+      else
+        let undo = 'Gread ' . s:TreeChomp('hash-object', '-w', '--', info.paths[0])[0:10]
       endif
       if info.patch
         call s:StageApply(info, 1, info.section ==# 'Staged' ? ['--index'] : [])
@@ -3025,7 +3030,7 @@ function! s:StageDelete(lnum1, lnum2, count) abort
       else
         call s:TreeChomp('checkout', 'HEAD^{}', '--', info.paths[0])
       endif
-      call add(restore, ':Gsplit ' . s:fnameescape(info.relative[0]) . '|Gread ' . hash[0:6])
+      call add(restore, ':Gsplit ' . s:fnameescape(info.relative[0]) . '|' . undo)
     endfor
   catch /^fugitive:/
     let err = '|echoerr ' . string(v:exception)
@@ -3335,7 +3340,7 @@ function! s:RevertSubcommand(line1, line2, range, bang, mods, args) abort
   return s:CommitSubcommand(a:line1, a:line2, a:range, a:bang, a:mods, [], dir)
 endfunction
 
-function! s:CommitComplete(A, L, P) abort
+function! fugitive#CommitComplete(A, L, P) abort
   if a:A =~# '^--fixup=\|^--squash='
     let commits = s:LinesError(['log', '--pretty=format:%s', '@{upstream}..'])[0]
     let pre = matchstr(a:A, '^--\w*=''\=') . ':/^'
@@ -3352,7 +3357,7 @@ function! s:CommitComplete(A, L, P) abort
   return []
 endfunction
 
-function! s:RevertComplete(A, L, P) abort
+function! fugitive#RevertComplete(A, L, P) abort
   return s:CompleteSub('revert', a:A, a:L, a:P, function('s:CompleteRevision'))
 endfunction
 
@@ -3370,20 +3375,20 @@ function! s:FinishCommit() abort
   return ''
 endfunction
 
-call s:command("-nargs=? -range=-1 -complete=customlist,s:CommitComplete Gcommit", "commit")
-call s:command("-nargs=? -range=-1 -complete=customlist,s:RevertComplete Grevert", "revert")
+call s:command("-nargs=? -range=-1 -complete=customlist,fugitive#CommitComplete Gcommit", "commit")
+call s:command("-nargs=? -range=-1 -complete=customlist,fugitive#RevertComplete Grevert", "revert")
 
 " Section: :Gmerge, :Grebase, :Gpull
 
-function! s:MergeComplete(A, L, P) abort
+function! fugitive#MergeComplete(A, L, P) abort
   return s:CompleteSub('merge', a:A, a:L, a:P, function('s:CompleteRevision'))
 endfunction
 
-function! s:RebaseComplete(A, L, P) abort
+function! fugitive#RebaseComplete(A, L, P) abort
   return s:CompleteSub('rebase', a:A, a:L, a:P, function('s:CompleteRevision'))
 endfunction
 
-function! s:PullComplete(A, L, P) abort
+function! fugitive#PullComplete(A, L, P) abort
   return s:CompleteSub('pull', a:A, a:L, a:P, function('s:CompleteRemote'))
 endfunction
 
@@ -3650,9 +3655,9 @@ augroup fugitive_merge
         \ endif
 augroup END
 
-call s:command("-nargs=? -bang -complete=customlist,s:MergeComplete Gmerge", "merge")
-call s:command("-nargs=? -bang -complete=customlist,s:RebaseComplete Grebase", "rebase")
-call s:command("-nargs=? -bang -complete=customlist,s:PullComplete Gpull", "pull")
+call s:command("-nargs=? -bang -complete=customlist,fugitive#MergeComplete Gmerge", "merge")
+call s:command("-nargs=? -bang -complete=customlist,fugitive#RebaseComplete Grebase", "rebase")
+call s:command("-nargs=? -bang -complete=customlist,fugitive#PullComplete Gpull", "pull")
 
 " Section: :Ggrep, :Glog
 
@@ -4203,11 +4208,11 @@ augroup END
 
 " Section: :Gpush, :Gfetch
 
-function! s:PushComplete(A, L, P) abort
+function! fugitive#PushComplete(A, L, P) abort
   return s:CompleteSub('push', a:A, a:L, a:P, function('s:CompleteRemote'))
 endfunction
 
-function! s:FetchComplete(A, L, P) abort
+function! fugitive#FetchComplete(A, L, P) abort
   return s:CompleteSub('fetch', a:A, a:L, a:P, function('s:CompleteRemote'))
 endfunction
 
@@ -4241,7 +4246,7 @@ function! s:Dispatch(bang, cmd, args) abort
       endif
       silent noautocmd make!
       redraw!
-      return 'call fugitive#Cwindow()|call fugitive#ReloadStatus()'
+      return 'call fugitive#Cwindow()|silent doautocmd ShellCmdPost'
     endif
   finally
     let [&l:mp, &l:efm, b:current_compiler] = [mp, efm, cc]
@@ -4260,8 +4265,8 @@ function! s:FetchSubcommand(line1, line2, range, bang, mods, args) abort
   return s:Dispatch(a:bang ? '!' : '', 'fetch', a:args)
 endfunction
 
-call s:command("-nargs=? -bang -complete=customlist,s:PushComplete Gpush", "push")
-call s:command("-nargs=? -bang -complete=customlist,s:FetchComplete Gfetch", "fetch")
+call s:command("-nargs=? -bang -complete=customlist,fugitive#PushComplete Gpush", "push")
+call s:command("-nargs=? -bang -complete=customlist,fugitive#FetchComplete Gfetch", "fetch")
 
 " Section: :Gdiff
 
@@ -4667,7 +4672,7 @@ function! s:BlameQuit() abort
   endif
 endfunction
 
-function! s:BlameComplete(A, L, P) abort
+function! fugitive#BlameComplete(A, L, P) abort
   return s:CompleteSub('blame', a:A, a:L, a:P)
 endfunction
 
@@ -5093,7 +5098,7 @@ augroup fugitive_blame
   autocmd BufWinLeave * execute getwinvar(+bufwinnr(+expand('<abuf>')), 'fugitive_leave')
 augroup END
 
-call s:command('-buffer -bang -range=-1 -nargs=? -complete=customlist,s:BlameComplete Gblame', 'blame')
+call s:command('-buffer -bang -range=-1 -nargs=? -complete=customlist,fugitive#BlameComplete Gblame', 'blame')
 
 " Section: :Gbrowse
 

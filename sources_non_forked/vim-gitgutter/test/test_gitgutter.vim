@@ -60,6 +60,9 @@ function SetUp()
   execute ':cd' s:test_repo
   edit! fixture.txt
   call gitgutter#sign#reset()
+
+  " FIXME why won't vim autoload the file?
+  execute 'source' '../../autoload/gitgutter/diff_highlight.vim'
 endfunction
 
 function TearDown()
@@ -909,4 +912,130 @@ function Test_quickfix()
         \ ]
 
   call s:assert_list_of_dicts(expected, getqflist())
+endfunction
+
+
+function Test_common_prefix()
+  " zero length
+  call assert_equal(-1, gitgutter#diff_highlight#common_prefix('', 'foo'))
+  call assert_equal(-1, gitgutter#diff_highlight#common_prefix('foo', ''))
+  " nothing in common
+  call assert_equal(-1, gitgutter#diff_highlight#common_prefix('-abcde', '+pqrst'))
+  call assert_equal(-1, gitgutter#diff_highlight#common_prefix('abcde', 'pqrst'))
+  " something in common
+  call assert_equal(-1, gitgutter#diff_highlight#common_prefix('-abcde', '+abcpq'))
+  call assert_equal(2, gitgutter#diff_highlight#common_prefix('abcde', 'abcpq'))
+  call assert_equal(0, gitgutter#diff_highlight#common_prefix('abc', 'apq'))
+  " everything in common
+  call assert_equal(-1, gitgutter#diff_highlight#common_prefix('-abcde', '+abcde'))
+  call assert_equal(4, gitgutter#diff_highlight#common_prefix('abcde', 'abcde'))
+  " different lengths
+  call assert_equal(-1, gitgutter#diff_highlight#common_prefix('-abcde', '+abx'))
+  call assert_equal(1, gitgutter#diff_highlight#common_prefix('abcde', 'abx'))
+  call assert_equal(-1, gitgutter#diff_highlight#common_prefix('-abx',   '+abcde'))
+  call assert_equal(1, gitgutter#diff_highlight#common_prefix('abx',   'abcde'))
+  call assert_equal(-1, gitgutter#diff_highlight#common_prefix('-abcde', '+abc'))
+  call assert_equal(2, gitgutter#diff_highlight#common_prefix('abcde', 'abc'))
+endfunction
+
+
+function Test_common_suffix()
+  " nothing in common
+  call assert_equal([6,6], gitgutter#diff_highlight#common_suffix('-abcde', '+pqrst', 0))
+  " something in common
+  call assert_equal([3,3], gitgutter#diff_highlight#common_suffix('-abcde', '+pqcde', 0))
+  " everything in common
+  call assert_equal([5,5], gitgutter#diff_highlight#common_suffix('-abcde', '+abcde', 5))
+  " different lengths
+  call assert_equal([4,2], gitgutter#diff_highlight#common_suffix('-abcde', '+xde', 0))
+  call assert_equal([2,4], gitgutter#diff_highlight#common_suffix('-xde',   '+abcde', 0))
+endfunction
+
+
+" Note the order of lists within the overall returned list does not matter.
+function Test_diff_highlight()
+  " Ignores mismatched number of added and removed lines.
+  call assert_equal([], gitgutter#diff_highlight#process(['-foo']))
+  call assert_equal([], gitgutter#diff_highlight#process(['+foo']))
+  call assert_equal([], gitgutter#diff_highlight#process(['-foo','-bar','+baz']))
+
+  " everything changed
+  let hunk = ['-foo', '+cat']
+  let expected = []
+  call assert_equal(expected, gitgutter#diff_highlight#process(hunk))
+
+  " change in middle
+  let hunk = ['-foo bar baz', '+foo zip baz']
+  let expected = [[1, '-', 6, 8], [2, '+', 6, 8]]
+  call assert_equal(expected, gitgutter#diff_highlight#process(hunk))
+
+  " change at start
+  let hunk = ['-foo bar baz', '+zip bar baz']
+  let expected = [[1, '-', 2, 4], [2, '+', 2, 4]]
+  call assert_equal(expected, gitgutter#diff_highlight#process(hunk))
+
+  " change at end
+  let hunk = ['-foo bar baz', '+foo bar zip']
+  let expected = [[1, '-', 10, 12], [2, '+', 10, 12]]
+  call assert_equal(expected, gitgutter#diff_highlight#process(hunk))
+
+  " removed in middle
+  let hunk = ['-foo bar baz', '+foo baz']
+  let expected = [[1, '-', 8, 11]]
+  call assert_equal(expected, gitgutter#diff_highlight#process(hunk))
+
+  " added in middle
+  let hunk = ['-foo baz', '+foo bar baz']
+  let expected = [[2, '+', 8, 11]]
+  call assert_equal(expected, gitgutter#diff_highlight#process(hunk))
+
+  " two insertions at start
+  let hunk = ['-foo bar baz', '+(foo) bar baz']
+  let expected = [[2, '+', 2, 2], [2, '+', 6, 6]]
+  call assert_equal(expected, gitgutter#diff_highlight#process(hunk))
+
+  " two insertions in middle
+  let hunk = ['-foo bar baz', '+foo (bar) baz']
+  let expected = [[2, '+', 6, 6], [2, '+', 10, 10]]
+  call assert_equal(expected, gitgutter#diff_highlight#process(hunk))
+
+  " two insertions at end
+  let hunk = ['-foo bar baz', '+foo bar (baz)']
+  let expected = [[2, '+', 10, 10], [2, '+', 14, 14]]
+  call assert_equal(expected, gitgutter#diff_highlight#process(hunk))
+
+  " singular insertion
+  let hunk = ['-The cat in the hat.', '+The furry cat in the hat.']
+  call assert_equal([[2, '+', 6, 11]], gitgutter#diff_highlight#process(hunk))
+
+  " singular deletion
+  let hunk = ['-The cat in the hat.', '+The cat.']
+  call assert_equal([[1, '-', 9, 19]], gitgutter#diff_highlight#process(hunk))
+
+  " two insertions
+  let hunk = ['-The cat in the hat.', '+The furry cat in the teal hat.']
+  call assert_equal([[2, '+', 6, 11], [2, '+', 22, 26]], gitgutter#diff_highlight#process(hunk))
+
+  " two deletions
+  let hunk = ['-The furry cat in the teal hat.', '+The cat in the hat.']
+  call assert_equal([[1, '-', 6, 11], [1, '-', 22, 26]], gitgutter#diff_highlight#process(hunk))
+
+  " two edits
+  let hunk = ['-The cat in the hat.', '+The ox in the box.']
+  call assert_equal([[1, '-', 6, 8], [2, '+', 6, 7], [1, '-', 17, 19], [2, '+', 16, 18]], gitgutter#diff_highlight#process(hunk))
+
+  " Requires s:gap_between_regions = 2 to pass.
+  " let hunk = ['-foo: bar.zap', '+foo: quux(bar)']
+  " call assert_equal([[2, '+', 7, 11], [1, '-', 10, 13], [2, '+', 15, 15]], gitgutter#diff_highlight#process(hunk))
+
+  let hunk = ['-gross_value: transaction.unexplained_amount', '+gross_value: amount(transaction)']
+  call assert_equal([[2, '+', 15, 21], [1, '-', 26, 44], [2, '+', 33, 33]], gitgutter#diff_highlight#process(hunk))
+endfunction
+
+
+function Test_lcs()
+  call assert_equal('', gitgutter#diff_highlight#lcs('', 'foo'))
+  call assert_equal('', gitgutter#diff_highlight#lcs('foo', ''))
+  call assert_equal('bar', gitgutter#diff_highlight#lcs('foobarbaz', 'bbart'))
+  call assert_equal('transaction', gitgutter#diff_highlight#lcs('transaction.unexplained_amount', 'amount(transaction)'))
 endfunction

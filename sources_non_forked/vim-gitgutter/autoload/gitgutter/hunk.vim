@@ -1,5 +1,10 @@
 let s:winid = 0
 
+if exists('*prop_type_add')
+  call prop_type_add('gitgutter_add_intra_line', {'highlight': 'GitGutterAddIntraLine', 'combine': 1})
+  call prop_type_add('gitgutter_delete_intra_line', {'highlight': 'GitGutterDeleteIntraLine', 'combine': 1})
+endif
+
 function! gitgutter#hunk#set_hunks(bufnr, hunks) abort
   call gitgutter#utility#setbufvar(a:bufnr, 'hunks', a:hunks)
   call s:reset_summary(a:bufnr)
@@ -422,7 +427,6 @@ function! s:open_hunk_preview_window()
             \ })
 
       call setbufvar(winbufnr(s:winid), '&filetype', 'diff')
-      call win_execute(s:winid, 'syntax enable')
 
       return
     endif
@@ -458,11 +462,26 @@ function! s:populate_hunk_preview_window(header, body)
       call nvim_buf_set_lines(winbufnr(s:winid), 0, -1, v:false, [])
       call nvim_buf_set_lines(winbufnr(s:winid), 0, -1, v:false, a:body)
       call nvim_buf_set_option(winbufnr(s:winid), 'modified', v:false)
+
+      let ns_id = nvim_create_namespace('GitGutter')
+      call nvim_buf_clear_namespace(winbufnr(s:winid), ns_id, 0, -1)
+      for region in gitgutter#diff_highlight#process(a:body)
+        let group = region[1] == '+' ? 'GitGutterAddIntraLine' : 'GitGutterDeleteIntraLine'
+        call nvim_buf_add_highlight(winbufnr(s:winid), ns_id, group, region[0]-1, region[2]-1, region[3])
+      endfor
+
       call nvim_win_set_cursor(s:winid, [1,0])
     endif
 
     if exists('*popup_create')
       call popup_settext(s:winid, a:body)
+
+      if has('patch-8.1.2071')
+        for region in gitgutter#diff_highlight#process(a:body)
+          let type = region[1] == '+' ? 'gitgutter_add_intra_line' : 'gitgutter_delete_intra_line'
+          call prop_add(region[0], region[2], {'bufnr': winbufnr(s:winid), 'type': type, 'end_col': region[3]+1})
+        endfor
+      endif
     endif
 
   else
@@ -472,6 +491,13 @@ function! s:populate_hunk_preview_window(header, body)
     %delete _
     call setline(1, a:body)
     setlocal nomodified
+
+    call clearmatches()
+    for region in gitgutter#diff_highlight#process(a:body)
+      let group = region[1] == '+' ? 'GitGutterAddIntraLine' : 'GitGutterDeleteIntraLine'
+      call matchaddpos(group, [[region[0], region[2], region[3]-region[2]+1]])
+    endfor
+
     1
   endif
 endfunction

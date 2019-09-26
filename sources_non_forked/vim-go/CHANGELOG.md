@@ -1,8 +1,36 @@
 ## unplanned
 
 BACKWARDS INCOMPATABILITIES:
+* Drop support for Vim 7.4. The minimu required version of Vim is now 8.0.1453.
+  [[GH-2495]](https://github.com/fatih/vim-go/pull/2495)
+  [[GH-2497]](https://github.com/fatih/vim-go/pull/2497)
+* Drop support for `gometalinter`
+  [[GH-2494]](https://github.com/fatih/vim-go/pull/2494)
+
+IMPROVEMENTS:
+* Highlight the `go` keyword in go.mod files.
+  [[GH-2473]](https://github.com/fatih/vim-go/pull/2473)
+* Use echo functions consistently.
+  [[GH-2458]](https://github.com/fatih/vim-go/pull/2458)
+* Add support for managing goroutines in debugger.
+  [[GH-2463]](https://github.com/fatih/vim-go/pull/2463)
+* Document `g:go_doc_popup_window`.
+  [[GH-2506]](https://github.com/fatih/vim-go/pull/2506)
+* Make `g:go_doc_window_popup_window=1` work for Neovim, too.
+  [[GH-2451]](https://github.com/fatih/vim-go/pull/2451)
+
+BUG FIXES:
+* Fix removal of missing directories from gopls workspaces.
+  [[GH-2507]](https://github.com/fatih/vim-go/pull/2507)
+* Change to original window before trying to change directories when term job
+  ends.
+  [[GH-2508]](https://github.com/fatih/vim-go/pull/2508)
+
+## v1.21 - (September 11, 2019)
+
+BACKWARDS INCOMPATABILITIES:
 * `g:go_metalinter_disabled` has been removed.
-  [[GH-2375]](https://github.com/fatih/vim-go/pull/2117)
+  [[GH-2375]](https://github.com/fatih/vim-go/pull/2375)
 
 IMPROVEMENTS:
 * Add a new option, `g:go_code_completion_enabled`, to control whether omnifunc
@@ -65,6 +93,8 @@ IMPROVEMENTS:
   [[GH-2475]](https://github.com/fatih/vim-go/pull/2475)
 * Make `golangci-lint` the default value for `g:go_metalinter_command`.
   [[GH-2478]](https://github.com/fatih/vim-go/pull/2478)
+* Parse compiler errors from Go 1.13 `go vet` correctly.
+  [[GH-2485]](https://github.com/fatih/vim-go/pull/2485)
 
 BUG FIXES:
 * display info about function and function types whose parameters are
