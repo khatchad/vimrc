@@ -50,7 +50,6 @@ vim-flake8 https://github.com/nvie/vim-flake8
 vim-pug https://github.com/digitaltoad/vim-pug
 vim-yankstack https://github.com/maxbrunsfeld/vim-yankstack
 lightline.vim https://github.com/itchyny/lightline.vim
-vim-latex https://github.com/vim-latex/vim-latex
 vim-tex-syntax https://github.com/gerw/vim-tex-syntax
 awesome-vim-colorschemes https://github.com/rafi/awesome-vim-colorschemes
 ultisnips https://github.com/SirVer/ultisnips
