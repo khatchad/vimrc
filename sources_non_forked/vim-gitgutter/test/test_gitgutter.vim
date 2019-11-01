@@ -34,12 +34,12 @@ function s:assert_signs(expected, filename)
   call s:assert_list_of_dicts(a:expected, actual)
 endfunction
 
-function s:git_diff()
-  return split(system('git diff -U0 fixture.txt'), '\n')
+function s:git_diff(...)
+  return split(system('git diff -U0 '.(a:0 ? a:1 : 'fixture.txt')), '\n')
 endfunction
 
-function s:git_diff_staged()
-  return split(system('git diff -U0 --staged fixture.txt'), '\n')
+function s:git_diff_staged(...)
+  return split(system('git diff -U0 --staged '.(a:0 ? a:1 : 'fixture.txt')), '\n')
 endfunction
 
 function s:trigger_gitgutter()
@@ -55,6 +55,7 @@ function SetUp()
   call system("git init ".s:test_repo.
         \ " && cd ".s:test_repo.
         \ " && cp ../fixture.txt .".
+        \ " && cp ../fixture_dos.txt .".
         \ " && git add . && git commit -m 'initial'".
         \ " && git config diff.mnemonicPrefix false")
   execute ':cd' s:test_repo
@@ -63,6 +64,7 @@ function SetUp()
 
   " FIXME why won't vim autoload the file?
   execute 'source' '../../autoload/gitgutter/diff_highlight.vim'
+  execute 'source' '../../autoload/gitgutter/fold.vim'
 endfunction
 
 function TearDown()
@@ -346,6 +348,34 @@ function Test_hunk_outside_noop()
   call assert_equal([], s:git_diff())
   call assert_equal([], s:git_diff_staged())
 endfunction
+
+
+function Test_preview()
+  normal 5Gi*
+  GitGutterPreviewHunk
+
+  wincmd P
+  call assert_equal(2, line('$'))
+  call assert_equal('-e', getline(1))
+  call assert_equal('+*e', getline(2))
+  wincmd p
+endfunction
+
+
+function Test_preview_dos()
+  edit! fixture_dos.txt
+
+  normal 5Gi*
+  GitGutterPreviewHunk
+
+  wincmd P
+  call assert_equal(2, line('$'))
+  call assert_equal('-e', getline(1))
+  call assert_equal('+*e', getline(2))
+  wincmd p
+endfunction
+
+
 
 
 function Test_hunk_stage()
@@ -653,6 +683,20 @@ function Test_hunk_undo()
   call s:assert_signs([], 'fixture.txt')
   call assert_equal([], s:git_diff())
   call assert_equal([], s:git_diff_staged())
+  call assert_equal('e', getline(5))
+endfunction
+
+
+function Test_hunk_undo_dos()
+  edit! fixture_dos.txt
+
+  normal 5Gi*
+  GitGutterUndoHunk
+
+  call s:assert_signs([], 'fixture_dos.txt')
+  call assert_equal([], s:git_diff('fixture_dos.txt'))
+  call assert_equal([], s:git_diff_staged('fixture_dos.txt'))
+  call assert_equal('e', getline(5))
 endfunction
 
 
@@ -1030,6 +1074,9 @@ function Test_diff_highlight()
 
   let hunk = ['-gross_value: transaction.unexplained_amount', '+gross_value: amount(transaction)']
   call assert_equal([[2, '+', 15, 21], [1, '-', 26, 44], [2, '+', 33, 33]], gitgutter#diff_highlight#process(hunk))
+
+  let hunk = ['-gem "contact_sport", "~> 1.0.2"', '+gem ("contact_sport"), "~> 1.2"']
+  call assert_equal([[2, '+', 6, 6], [2, '+', 22, 22], [1, '-', 28, 29]], gitgutter#diff_highlight#process(hunk))
 endfunction
 
 
@@ -1038,4 +1085,29 @@ function Test_lcs()
   call assert_equal('', gitgutter#diff_highlight#lcs('foo', ''))
   call assert_equal('bar', gitgutter#diff_highlight#lcs('foobarbaz', 'bbart'))
   call assert_equal('transaction', gitgutter#diff_highlight#lcs('transaction.unexplained_amount', 'amount(transaction)'))
+endfunction
+
+
+function Test_split()
+  call assert_equal(['foo', 'baz'], gitgutter#diff_highlight#split('foobarbaz', 'bar'))
+  call assert_equal(['', 'barbaz'], gitgutter#diff_highlight#split('foobarbaz', 'foo'))
+  call assert_equal(['foobar', ''], gitgutter#diff_highlight#split('foobarbaz', 'baz'))
+  call assert_equal(['1', '2'], gitgutter#diff_highlight#split('1~2', '~'))
+endfunction
+
+
+function Test_foldtext()
+  8d
+  call s:trigger_gitgutter()
+  call assert_equal(0, gitgutter#fold#is_changed())
+
+  let v:foldstart = 5
+  let v:foldend = 9
+  call assert_equal(1, gitgutter#fold#is_changed())
+  call assert_equal('+-  5 lines (*): e', gitgutter#fold#foldtext())
+
+  let v:foldstart = 1
+  let v:foldend = 3
+  call assert_equal(0, gitgutter#fold#is_changed())
+  call assert_equal('+-  3 lines: a', gitgutter#fold#foldtext())
 endfunction

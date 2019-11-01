@@ -104,10 +104,10 @@ function! s:diff(rline, aline, rlinenr, alinenr, rprefix, aprefix, regions, whol
   let lcs = s:lcs(rtext, atext)
   " TODO do we need to ensure we don't get more than 2 elements when splitting?
   if len(lcs) > s:gap_between_regions
-    let redits = split(rtext, lcs, 1)
-    let aedits = split(atext, lcs, 1)
-    call s:diff(redits[0], aedits[0], a:rlinenr, a:alinenr, prefix+1,                         prefix+1,                         a:regions, 0)
-    call s:diff(redits[1], aedits[1], a:rlinenr, a:alinenr, prefix+1+len(redits[0])+len(lcs), prefix+1+len(aedits[0])+len(lcs), a:regions, 0)
+    let redits = s:split(rtext, lcs)
+    let aedits = s:split(atext, lcs)
+    call s:diff(redits[0], aedits[0], a:rlinenr, a:alinenr, a:rprefix+prefix+1,                         a:aprefix+prefix+1,                         a:regions, 0)
+    call s:diff(redits[1], aedits[1], a:rlinenr, a:alinenr, a:rprefix+prefix+1+len(redits[0])+len(lcs), a:aprefix+prefix+1+len(aedits[0])+len(lcs), a:regions, 0)
     return
   endif
 
@@ -202,5 +202,24 @@ endfunction
 if $VIM_GITGUTTER_TEST
   function! gitgutter#diff_highlight#common_suffix(a, b, start)
     return s:common_suffix(a:a, a:b, a:start)
+  endfunction
+endif
+
+
+" Split a string on another string.
+" Assumes 1 occurrence of the delimiter.
+function! s:split(str, delimiter)
+  let i = stridx(a:str, a:delimiter)
+
+  if i == 0
+    return ['', a:str[len(a:delimiter):]]
+  endif
+
+  return [a:str[:i-1], a:str[i+len(a:delimiter):]]
+endfunction
+
+if $VIM_GITGUTTER_TEST
+  function! gitgutter#diff_highlight#split(str, delimiter)
+    return s:split(a:str, a:delimiter)
   endfunction
 endif

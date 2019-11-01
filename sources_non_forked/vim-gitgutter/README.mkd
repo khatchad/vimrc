@@ -17,6 +17,7 @@ Features:
 * Provides a hunk text object.
 * Diffs against index (default) or any commit.
 * Allows folding all unchanged text.
+* Provides fold text showing whether folded lines have been changed.
 * Can load all hunk locations into quickfix list.
 * Handles line endings correctly, even with repos that do CRLF conversion.
 * Optional line highlighting.
@@ -46,65 +47,26 @@ In the screenshot above you can see:
 
 ### Installation
 
-Before installation, please check your Vim supports signs by running `:echo has('signs')`.  `1` means you're all set; `0` means you need to install a Vim with signs support.  If you're compiling Vim yourself you need the 'big' or 'huge' feature set.  MacVim supports signs.
+Install using your favourite package manager, or use Vim's built-in package support.
 
-You install vim-gitgutter like any other vim plugin.
-
-##### Pathogen
+Vim:
 
 ```
-cd ~/.vim/bundle
-git clone git://github.com/airblade/vim-gitgutter.git
+mkdir -p ~/.vim/pack/airblade/start
+cd ~/.vim/pack/airblade/start
+git clone https://github.com/airblade/vim-gitgutter.git
+vim -u NONE -c "helptags vim-gitgutter/doc" -c q
 ```
 
-##### Voom
+Neovim:
 
-Edit your plugin manifest (`voom edit`) and add:
-
-```
-airblade/vim-gitgutter
-```
-
-##### VimPlug
-
-Place this in your .vimrc:
-
-```viml
-Plug 'airblade/vim-gitgutter'
-```
-
-Then run the following in Vim:
 
 ```
-:source %
-:PlugInstall
+mkdir -p ~/.config/nvim/pack/airblade/start
+cd ~/.config/nvim/pack/airblade/start
+git clone https://github.com/airblade/vim-gitgutter.git
+nvim -u NONE -c "helptags vim-gitgutter/doc" -c q
 ```
-
-##### NeoBundle
-
-Place this in your .vimrc:
-
-```viml
-NeoBundle 'airblade/vim-gitgutter'
-```
-
-Then run the following in Vim:
-
-```
-:source %
-:NeoBundleInstall
-```
-
-##### No plugin manager
-
-Copy vim-gitgutter's subdirectories into your vim configuration directory:
-
-```
-cd /tmp && git clone git://github.com/airblade/vim-gitgutter.git
-cp -r vim-gitgutter/* ~/.vim/
-```
-
-See `:help add-global-plugin`.
 
 
 ### Windows
@@ -180,11 +142,9 @@ Both of those take a preceding count.
 
 To set your own mappings for these, for example `]h` and `[h`:
 
-In the lines below I have deleted brackets around GitGutter{Next,Prev}Hunk:
-
 ```viml
-nmap ]h <Plug>GitGutterNextHunk
-nmap [h <Plug>GitGutterPrevHunk
+nmap ]h <Plug>(GitGutterNextHunk)
+nmap [h <Plug>(GitGutterPrevHunk)
 ```
 
 You can load all your hunks into the quickfix list with `:GitGutterQuickFix`.  Note this ignores any unsaved changes in your buffers.
@@ -255,6 +215,21 @@ See the customisation section below for how to change the defaults.
 Use the `GitGutterFold` command to fold all unchanged lines, leaving just the hunks visible.  Use `zr` to unfold 3 lines of context above and below a hunk.
 
 Execute `GitGutterFold` a second time to restore the previous view.
+
+Use `gitgutter#fold#foldtext()` to augment the default `foldtext()` with an indicator of whether the folded lines have been changed.
+
+```viml
+set foldtext=gitgutter#fold#foldtext()
+```
+
+For a closed fold with changed lines:
+
+```
+Default foldtext():         +-- 45 lines: abcdef
+gitgutter#fold#foldtext():  +-- 45 lines (*): abcdef
+```
+
+You can use `gitgutter#fold#is_changed()` in your own `foldtext` expression to find out whether the folded lines have been changed.
 
 
 ### Customisation
@@ -613,11 +588,21 @@ autocmd BufWritePost * GitGutter
 
 > Why can't I unstage staged changes?
 
-This plugin is for showing changes between the working tree and the index (and staging/undoing those changes).  Unstaging a staged hunk would require showing changes between the index and HEAD, which is out of scope.
+This plugin is for showing changes between the buffer and the index (and staging/undoing those changes).  Unstaging a staged hunk would require showing changes between the index and HEAD, which is out of scope.
 
 > Why are the colours in the sign column weird?
 
 Your colorscheme is configuring the `SignColumn` highlight group weirdly.  Please see the section above on customising the sign column.
+
+> Why are the colours in the preview window weird?
+
+Probably because your colourscheme doesn't configure the `diff{Added,Changed,Removed}` highlight groups.  Try this in `after/syntax/diff.vim`:
+
+```viml
+highlight link diffAdded DiffAdd
+highlight link diffChanged DiffChange
+highlight link diffRemoved DiffDelete
+```
 
 > What happens if I also use another plugin which uses signs (e.g. Syntastic)?
 
