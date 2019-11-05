@@ -36,6 +36,20 @@ function! go#lsp#message#Initialized() abort
        \ }
 endfunction
 
+function! go#lsp#message#Shutdown() abort
+  return {
+          \ 'notification': 0,
+          \ 'method': 'shutdown',
+       \ }
+endfunction
+
+function! go#lsp#message#Exit() abort
+  return {
+          \ 'notification': 1,
+          \ 'method': 'exit',
+       \ }
+endfunction
+
 function! go#lsp#message#WorkspaceFoldersResult(dirs) abort
   return map(copy(a:dirs), function('s:workspaceFolder', []))
 endfunction
@@ -118,6 +132,22 @@ function! go#lsp#message#Completion(file, line, col) abort
           \       'uri': go#path#ToURI(a:file)
           \   },
           \   'position': s:position(a:line, a:col),
+          \ }
+       \ }
+endfunction
+
+function! go#lsp#message#References(file, line, col) abort
+  return {
+          \ 'notification': 0,
+          \ 'method': 'textDocument/references',
+          \ 'params': {
+          \   'textDocument': {
+          \       'uri': go#path#ToURI(a:file)
+          \   },
+          \   'position': s:position(a:line, a:col),
+          \   'context': {
+          \       'includeDeclaration': v:true,
+          \   },
           \ }
        \ }
 endfunction

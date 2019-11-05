@@ -64,18 +64,27 @@ for s:test in sort(s:tests)
   endif
   try
     exe 'call ' . s:test
+    " sleep to give events a chance to be processed. This is especially
+    " important for the LSP code to have a chance to run before Vim exits,  in
+    " order to avoid errors trying to write to the gopls channels since Vim
+    " would otherwise stop gopls before the event handlers were run and result
+    " in 'stream closed' errors when the events were run _after_ gopls exited.
+    sleep 50m
   catch
     let v:errors += [v:exception]
   endtry
+
+  let s:elapsed_time = substitute(reltimestr(reltime(s:started)), '^\s*\(.\{-}\)\s*$', '\1', '')
 
   " Restore GOPATH after each test.
   let $GOPATH = s:gopath
   " Restore the working directory after each test.
   execute s:cd . s:dir
 
-  let s:elapsed_time = substitute(reltimestr(reltime(s:started)), '^\s*\(.\{-}\)\s*$', '\1', '')
-  let s:done += 1
+  " exit gopls after each test
+  call go#lsp#Exit()
 
+  let s:done += 1
 
   if len(v:errors) > 0
     let s:fail += 1
