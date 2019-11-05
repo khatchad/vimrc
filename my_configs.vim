@@ -32,7 +32,7 @@ set complete+=k
 set complete-=i
 set spelllang=en_us
 set dictionary+=/usr/share/dict/words,~/.dict
-set thesaurus+=$HOME/Library/Dictionaries/mthesaur.txt
+set thesaurus+=$HOME/.vim_runtime/wordlists/thesaurus.txt
 set swapfile
 map <F2> a<C-R>=strftime("%m/%d/%y")<CR><Esc>
 map π :CtrlPCmdPalette<CR>
