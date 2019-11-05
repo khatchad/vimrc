@@ -31,6 +31,8 @@ IMPROVEMENTS:
   [[GH-2535]](https://github.com/fatih/vim-go/pull/2535)
 * Update documentation for `g:go_addtags_transform`.
   [[GH-2541]](https://github.com/fatih/vim-go/pull/2541)
+* Install most helper tools in module aware mode.
+  [[GH-2545]](https://github.com/fatih/vim-go/pull/2545)
 
 BUG FIXES:
 * Fix removal of missing directories from gopls workspaces.
@@ -51,6 +53,11 @@ BUG FIXES:
   [[GH-2529]](https://github.com/fatih/vim-go/pull/2529)
 * Fix example for g:go_debug_log_output in docs.
   [[GH-2547]](https://github.com/fatih/vim-go/pull/2547)
+* Use FileChangedShellPost instead of FileChangedShell so that reload messages
+  are not hidden.
+  [[GH-2549]](https://github.com/fatih/vim-go/pull/2549)
+* Restore cwd after `:GoTest` when `g:go_term_enabled` is set.
+  [[GH-2556]](https://github.com/fatih/vim-go/pull/2556)
 
 ## v1.21 - (September 11, 2019)
 
