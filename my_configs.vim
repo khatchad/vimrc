@@ -32,7 +32,7 @@ set complete+=k
 set complete-=i
 set spelllang=en_us
 set dictionary+=/usr/share/dict/words,~/.dict
-set thesaurus+=$HOME/Library/Dictionaries/mthesaur.txt
+set thesaurus+=$HOME/.vim_runtime/wordlists/thesaurus.txt
 set swapfile
 map <F2> a<C-R>=strftime("%m/%d/%y")<CR><Esc>
 map π :CtrlPCmdPalette<CR>
@@ -79,11 +79,14 @@ autocmd FileType tex,plaintex setlocal grepprg=grep\ -nH\ $*
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{lstlisting}' end='\\end{lstlisting}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{minted}' end='\\end{minted}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{javacode}' end='\\end{javacode}'
-autocmd FileType tex,plaintex syntax region texZone start='\\begin{javacode\*}' end='\\end{javacode\*}'
+autocmd FileType tex,plaintex syntax region texZone start='\\begin{javacode}' end='\\end{javacode}'
+autocmd FileType tex,plaintex syntax region texZone start='\\begin{pythoncode\*}' end='\\end{pythoncode\*}'
+autocmd FileType tex,plaintex syntax region texZone start='\\begin{pythoncode\*}' end='\\end{pythoncode\*}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{diffcode}' end='\\end{diffcode}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{diffcode\*}' end='\\end{diffcode\*}'
 autocmd FileType tex,plaintex syntax region texZone start='\\mintinline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\javainline{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\pythoninline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\lstinline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\url{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\cite{' end='}'

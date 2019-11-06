@@ -34,12 +34,7 @@ load-plugins=
 # --disable=W"
 disable=
    attribute-defined-outside-init,
-   bad-continuation,
    fixme,
-   import-error,
-   missing-class-docstring,
-   missing-function-docstring,
-   missing-module-docstring,
    redefined-builtin,
    too-few-public-methods,
    too-many-arguments,
@@ -49,8 +44,7 @@ disable=
    too-many-public-methods, 
    too-many-return-statements,
    too-many-statements,
-   useless-object-inheritance,
-
+   bad-continuation,
 
 
 [REPORTS]
@@ -125,7 +119,7 @@ docstring-min-length=-1
 [FORMAT]
 
 # Maximum number of characters on a single line.
-max-line-length=110
+max-line-length=80
 
 # Regexp for a line that is allowed to be longer than the limit.
 ignore-long-lines=^\s*(# )?<?https?://\S+>?$
@@ -175,7 +169,6 @@ ignore-mixin-members=yes
 # List of classes names for which member attributes should not be checked
 # (useful for classes with attributes dynamically set).
 ignored-classes=SQLObject
-ignored-modules=vim
 
 # When zope mode is activated, add a predefined set of Zope acquired attributes
 # to generated-members.

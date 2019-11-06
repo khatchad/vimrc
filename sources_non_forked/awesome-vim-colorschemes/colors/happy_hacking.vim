@@ -286,8 +286,6 @@ hi! link rubyRegexp           Regexp
 hi! link rubyRegexpSpecial    Regexp
 hi! link rubyRegexpCharClass  Normal
 hi! link rubyRegexpQuantifier Normal
-hi! link rubyAttribute        Identifier
-hi! link rubyMacro            Identifier
 
 " Rust
 hi! link rustFuncCall        Identifier

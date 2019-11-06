@@ -1,6 +1,8 @@
 from test.vim_test_case import VimTestCase as _VimTest
 from test.constant import *
 
+# Cursor Movement  {{{#
+
 
 class CursorMovement_Multiline_ECR(_VimTest):
     snippets = ("test", r"$1 ${1:a tab}")
@@ -18,6 +20,10 @@ class CursorMovement_BS_InEditMode(_VimTest):
     snippets = ("<trh", "<tr>\n\t<th>$1</th>\n\t$2\n</tr>\n$3")
     keys = "<trh" + EX + "blah" + JF + BS + BS + JF + "end"
     wanted = "<tr>\n\t<th>blah</th>\n</tr>\nend"
+
+
+# End: Cursor Movement  #}}}
+# Insert Mode Moving  {{{#
 
 
 class IMMoving_CursorsKeys_ECR(_VimTest):
@@ -76,3 +82,6 @@ class IMMoving_ExitWhenOutsideBelow_ECR(_VimTest):
         "hello test this" + ESC + "02f i" + EX + "tab" + 2 * ARR_D + JF + "testhallo\n"
     )
     wanted = "hello tab\nblub this\n" + JF + "testhallo"
+
+
+# End: Insert Mode Moving  #}}}

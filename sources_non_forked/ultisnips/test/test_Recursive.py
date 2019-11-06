@@ -1,6 +1,8 @@
 from test.vim_test_case import VimTestCase as _VimTest
 from test.constant import *
 
+# Recursive (Nested) Snippets  {{{#
+
 
 class RecTabStops_SimpleCase_ExpectCorrectResult(_VimTest):
     snippets = ("m", "[ ${1:first}  ${2:sec} ]")
@@ -344,3 +346,6 @@ endsnippet
     wanted = (
         "form_for user, namespace: some_namespace, html: {(id: |class: |title:  )d: "
     )
+
+
+# End: Recursive (Nested) Snippets  #}}}

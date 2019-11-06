@@ -4,11 +4,14 @@
 """Contains the SnippetManager facade used by all Vim Functions."""
 
 from collections import defaultdict
-from contextlib import contextmanager
+from functools import wraps
 import os
 import platform
+import traceback
 import sys
 import vim
+import re
+from contextlib import contextmanager
 
 from UltiSnips import vim_helper
 from UltiSnips import err_to_scratch_buffer
@@ -86,7 +89,7 @@ class SnippetManager(object):
         self._snip_expanded_in_action = False
         self._inside_action = False
 
-        self._last_change = ("", Position(-1, -1))
+        self._last_change = ("", 0)
 
         self._added_snippets_source = AddedSnippetsSource()
         self.register_snippet_source("ultisnips_files", UltiSnipsFileSource())
@@ -111,7 +114,6 @@ class SnippetManager(object):
         if not self._jump():
             vim_helper.command("let g:ulti_jump_forwards_res = 0")
             return self._handle_failure(self.forward_trigger)
-        return None
 
     @err_to_scratch_buffer.wrap
     def jump_backwards(self):
@@ -121,7 +123,6 @@ class SnippetManager(object):
         if not self._jump(True):
             vim_helper.command("let g:ulti_jump_backwards_res = 0")
             return self._handle_failure(self.backward_trigger)
-        return None
 
     @err_to_scratch_buffer.wrap
     def expand(self):
@@ -150,10 +151,10 @@ class SnippetManager(object):
             self._handle_failure(self.expand_trigger)
 
     @err_to_scratch_buffer.wrap
-    def snippets_in_current_scope(self, search_all):
+    def snippets_in_current_scope(self, searchAll):
         """Returns the snippets that could be expanded to Vim as a global
         variable."""
-        before = "" if search_all else vim_helper.buf.line_till_cursor
+        before = "" if searchAll else vim_helper.buf.line_till_cursor
         snippets = self._snips(before, True)
 
         # Sort snippets alphabetically
@@ -179,7 +180,7 @@ class SnippetManager(object):
                 )
             )
 
-            if search_all:
+            if searchAll:
                 vim_helper.command(
                     as_unicode(
                         (
@@ -230,7 +231,7 @@ class SnippetManager(object):
         ft="all",
         priority=0,
         context=None,
-        actions=None,
+        actions={},
     ):
         """Add a snippet to the list of known snippets of the given 'ft'."""
         self._added_snippets_source.add_snippet(
@@ -250,7 +251,7 @@ class SnippetManager(object):
 
     @err_to_scratch_buffer.wrap
     def expand_anon(
-        self, value, trigger="", description="", options="", context=None, actions=None
+        self, value, trigger="", description="", options="", context=None, actions={}
     ):
         """Expand an anonymous snippet right here."""
         before = vim_helper.buf.line_till_cursor
@@ -261,7 +262,8 @@ class SnippetManager(object):
         if not trigger or snip.matches(before, self._visual_content):
             self._do_snippet(snip, before)
             return True
-        return False
+        else:
+            return False
 
     def register_snippet_source(self, name, snippet_source):
         """Registers a new 'snippet_source' with the given 'name'.
@@ -292,10 +294,10 @@ class SnippetManager(object):
             + ["all"]
         )
 
-    def add_buffer_filetypes(self, filetypes):
+    def add_buffer_filetypes(self, ft):
         buf_fts = self._added_buffer_filetypes[vim_helper.buf.number]
         idx = -1
-        for ft in filetypes.split("."):
+        for ft in ft.split("."):
             ft = ft.strip()
             if not ft:
                 continue
@@ -466,7 +468,7 @@ class SnippetManager(object):
         terminated.
 
         """
-        while self._active_snippets:
+        while len(self._active_snippets):
             self._current_snippet_is_done()
         self._reinit()
 
@@ -610,7 +612,10 @@ class SnippetManager(object):
                 # Use remap mode so SuperTab mappings will be invoked.
                 break
 
-        if feedkey in (r"\<Plug>SuperTabForward", r"\<Plug>SuperTabBackward"):
+        if (
+            feedkey == r"\<Plug>SuperTabForward"
+            or feedkey == r"\<Plug>SuperTabBackward"
+        ):
             vim_helper.command("return SuperTab(%s)" % vim_helper.escape(mode))
         elif feedkey:
             vim_helper.command("return %s" % vim_helper.escape(feedkey))
@@ -769,7 +774,7 @@ class SnippetManager(object):
     @property
     def _current_snippet(self):
         """The current snippet or None."""
-        if not self._active_snippets:
+        if not len(self._active_snippets):
             return None
         return self._active_snippets[-1]
 
@@ -900,11 +905,11 @@ class SnippetManager(object):
                 if (
                     before
                     and before[-1] == self._last_change[0]
-                    or self._last_change[1] != vim_helper.buf.cursor
+                    or self._last_change[1] != vim.current.window.cursor[0]
                 ):
                     self._try_expand(autotrigger_only=True)
         finally:
-            self._last_change = (inserted_char, vim_helper.buf.cursor)
+            self._last_change = (inserted_char, vim.current.window.cursor[0])
 
         if self._should_reset_visual and self._visual_content.mode == "":
             self._visual_content.reset()

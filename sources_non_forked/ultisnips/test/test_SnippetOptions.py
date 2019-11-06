@@ -3,6 +3,8 @@ from test.vim_test_case import VimTestCase as _VimTest
 from test.constant import *
 from test.util import running_on_windows
 
+# Snippet Options  {{{#
+
 
 class SnippetOptions_OnlyExpandWhenWSInFront_Expand(_VimTest):
     snippets = ("test", "Expand me!", "", "b")
@@ -360,3 +362,6 @@ class MultiWord_SnippetOptions_ExpandWordSnippets_ExpandSuffix(
 ):
     keys = "a-test it" + EX
     wanted = "a-Expand me!"
+
+
+# Snippet Options  #}}}

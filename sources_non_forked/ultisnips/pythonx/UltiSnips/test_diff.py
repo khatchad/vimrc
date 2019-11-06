@@ -28,6 +28,8 @@ def transform(a, cmds):
 
 import unittest
 
+# Test Guessing  {{{
+
 
 class _BaseGuessing(object):
     def runTest(self):
@@ -71,6 +73,9 @@ class TestGuessing_DeleteOneChar(_BaseGuessing, unittest.TestCase):
     initial_line = 0
     ppos, pos = (0, 5), (0, 5)
     wanted = (("D", 0, 5, " "),)
+
+
+# End: Test Guessing  }}}
 
 
 class _Base(object):

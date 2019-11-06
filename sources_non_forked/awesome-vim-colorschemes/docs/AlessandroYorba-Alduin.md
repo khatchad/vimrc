@@ -23,18 +23,12 @@ let g:alduin_Shout_Become_Ethereal = 1
 colorscheme alduin 
 ```
 
-:squid:	Other Settings
+:squid:	Dark Red HL
 ------
-###### [Adds Deep Red Color for Special Highlighting Groups]()
+###### [Dark Red SpecialHL]()
 ```VimL
 let g:alduin_Shout_Fire_Breath = 1
 colorscheme alduin
-```
-
-###### [Removes Block Matchparens setting and adds an underline]()
-```VimL
-"let g:alduin_Shout_Aura_Whisper = 1
-"colorscheme alduin
 ```
 
 :crescent_moon: Dev Build

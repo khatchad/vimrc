@@ -2,6 +2,8 @@
 from test.vim_test_case import VimTestCase as _VimTest
 from test.constant import *
 
+# snipMate support  {{{#
+
 
 class snipMate_SimpleSnippet(_VimTest):
     files = {
@@ -207,6 +209,9 @@ endsnippet
     wanted = "ultisnips"
 
 
+# End: snipMate support  #}}}
+
+
 class snipMate_Issue658(_VimTest):
     files = {
         "snippets/_.snippets": """
@@ -222,3 +227,6 @@ snippet /*
  * 2
  */
 """
+
+
+# End: snipMate support  #}}}
