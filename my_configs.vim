@@ -20,6 +20,7 @@ set foldmethod=syntax
 set foldlevelstart=1
 
 let javaScript_fold=1         " JavaScript
+let latex_fold=1              " latex
 let perl_fold=1               " Perl
 let php_folding=1             " PHP
 let r_syntax_folding=1        " R
@@ -84,6 +85,8 @@ autocmd FileType tex,plaintex syntax region texZone start='\\begin{pythoncode}' 
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{pythoncode\*}' end='\\end{pythoncode\*}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{diffcode}' end='\\end{diffcode}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{diffcode\*}' end='\\end{diffcode\*}'
+autocmd FileType tex,plaintex syntax region texZone start='\\begin{csharpcode}' end='\\end{csharpcode}'
+autocmd FileType tex,plaintex syntax region texZone start='\\begin{csharpcode\*}' end='\\end{csharpcode\*}'
 autocmd FileType tex,plaintex syntax region texZone start='\\mintinline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\javainline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\pythoninline{' end='}'
