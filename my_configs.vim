@@ -27,7 +27,7 @@ let ruby_fold=1               " Ruby
 let sh_fold_enabled=1         " sh
 let vimsyn_folding='af'       " Vim script
 let xml_syntax_folding=1      " XML
-let g:tex_fold_enabled=1
+" let g:tex_fold_enabled=1
 
 set complete+=k
 set complete-=i
@@ -89,6 +89,7 @@ autocmd FileType tex,plaintex syntax region texZone start='\\begin{csharpcode}' 
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{csharpcode\*}' end='\\end{csharpcode\*}'
 autocmd FileType tex,plaintex syntax region texZone start='\\mintinline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\javainline{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\csharpinline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\pythoninline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\lstinline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\url{' end='}'
