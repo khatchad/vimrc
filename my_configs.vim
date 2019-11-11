@@ -96,6 +96,8 @@ autocmd FileType tex,plaintex syntax region texZone start='\\url{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\cite{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\citep{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\citet{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\citeauthor{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\citetitle{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='%' end='\n'
 
 "===== For custom mappings
