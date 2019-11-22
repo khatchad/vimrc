@@ -27,7 +27,7 @@ let ruby_fold=1               " Ruby
 let sh_fold_enabled=1         " sh
 let vimsyn_folding='af'       " Vim script
 let xml_syntax_folding=1      " XML
-" let g:tex_fold_enabled=1
+let g:tex_fold_enabled=1
 
 set complete+=k
 set complete-=i
@@ -93,6 +93,8 @@ autocmd FileType tex,plaintex syntax region texZone start='\\csharpinline{' end=
 autocmd FileType tex,plaintex syntax region texZone start='\\pythoninline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\lstinline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\url{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\httplink{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\href{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\cite{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\citep{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\citet{' end='}'
@@ -130,6 +132,9 @@ let g:Tex_ViewRule_pdf = 'Skim'
 let g:tex_flavor='latex'
 let g:syntastic_tex_checkers = ["chktex"]
 let g:LatexBox_split_type = "new"
+let g:tex_nospell=0
+let g:tex_comment_nospell= 1
+let g:tex_verbspell= 0
 
 """"""""""""""""""""""""""""""
 " => Java section
