@@ -58,7 +58,10 @@ function! go#config#SetTermCloseOnExit(value) abort
 endfunction
 
 function! go#config#TermEnabled() abort
-  return has('nvim') && get(g:, 'go_term_enabled', 0)
+  " nvim always support
+  " vim will support if terminal feature exists
+  let l:support = has('nvim') || has('terminal')
+  return support && get(g:, 'go_term_enabled', 0)
 endfunction
 
 function! go#config#SetTermEnabled(value) abort
@@ -242,6 +245,10 @@ endfunction
 
 function! go#config#AddtagsTransform() abort
   return get(g:, 'go_addtags_transform', "snakecase")
+endfunction
+
+function! go#config#AddtagsSkipUnexported() abort
+  return get(g:, 'go_addtags_skip_unexported', 0)
 endfunction
 
 function! go#config#TemplateAutocreate() abort
@@ -501,23 +508,23 @@ function! go#config#ReferrersMode() abort
 endfunction
 
 function! go#config#GoplsCompleteUnimported() abort
-  return get(g:, 'go_gopls_complete_unimported', 1)
+  return get(g:, 'go_gopls_complete_unimported', v:null)
 endfunction
 
 function! go#config#GoplsDeepCompletion() abort
-  return get(g:, 'go_gopls_deep_completion', 1)
+  return get(g:, 'go_gopls_deep_completion', v:null)
 endfunction
 
 function! go#config#GoplsFuzzyMatching() abort
-  return get(g:, 'go_gopls_fuzzy_matching', 1)
+  return get(g:, 'go_gopls_fuzzy_matching', v:null)
 endfunction
 
 function! go#config#GoplsStaticCheck() abort
-  return get(g:, 'go_gopls_staticcheck', 0)
+  return get(g:, 'go_gopls_staticcheck', v:null)
 endfunction
 
 function! go#config#GoplsUsePlaceholders() abort
-  return get(g:, 'go_gopls_use_placeholders', 0)
+  return get(g:, 'go_gopls_use_placeholders', v:null)
 endfunction
 
 function! go#config#GoplsEnabled() abort

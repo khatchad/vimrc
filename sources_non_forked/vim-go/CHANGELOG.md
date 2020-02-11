@@ -10,10 +10,30 @@ IMPROVEMENTS:
   [[GH-2690]](https://github.com/fatih/vim-go/pull/2690)
 * Enable g:go_gopls_complete_unimported by default to stay aligned with gopls' defaults.
   [[GH-2695]](https://github.com/fatih/vim-go/pull/2695)
+* Document mappings that were recently added.
+  [[GH-2699]](https://github.com/fatih/vim-go/pull/2699)
+* Handle null arrays better in gopls responses.
+  [[GH-2703]](https://github.com/fatih/vim-go/pull/2703)
+* Use `gopls` defaults by default when they're not otherwise specified in vim-go options.
+  [[GH-2696]](https://github.com/fatih/vim-go/pull/2696)
+* Add support for `gomodifytags --skip-unexported`
+  [[GH-2660]](https://github.com/fatih/vim-go/pull/2660)
+* Show problems that prevent golangci-lint from running linters.
+  [[GH-2706]](https://github.com/fatih/vim-go/pull/2706)
+* Support golangci-lint config file by not using `--disable-all` when
+  `g:go_metalinter_enable` or `g:go_metalinter_autosave_enabled` is set.
+  [[GH-2655]](https://github.com/fatih/vim-go/pull/2655)
+  [[GH-2715]](https://github.com/fatih/vim-go/pull/2715)
+* Add support for Vim8 terminals.
+  [[GH-2639]](https://github.com/fatih/vim-go/pull/2639)
+
 
 BUG FIXES:
 * Use the discovered full path for gopls when renaming.
   [[GH-2692]](https://github.com/fatih/vim-go/pull/2692)
+* Execute commands correctly on windows when `'shell'` is not cmd.exe
+  [[GH-2713]](https://github.com/fatih/vim-go/pull/2713)
+
 
 ## v1.22 - (January 30, 2020)
 
