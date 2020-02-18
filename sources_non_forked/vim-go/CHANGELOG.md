@@ -20,6 +20,7 @@ IMPROVEMENTS:
   [[GH-2660]](https://github.com/fatih/vim-go/pull/2660)
 * Show problems that prevent golangci-lint from running linters.
   [[GH-2706]](https://github.com/fatih/vim-go/pull/2706)
+  [[GH-2720]](https://github.com/fatih/vim-go/pull/2720)
 * Support golangci-lint config file by not using `--disable-all` when
   `g:go_metalinter_enable` or `g:go_metalinter_autosave_enabled` is set.
   [[GH-2655]](https://github.com/fatih/vim-go/pull/2655)
@@ -33,7 +34,9 @@ BUG FIXES:
   [[GH-2692]](https://github.com/fatih/vim-go/pull/2692)
 * Execute commands correctly on windows when `'shell'` is not cmd.exe
   [[GH-2713]](https://github.com/fatih/vim-go/pull/2713)
-
+  [[GH-2724]](https://github.com/fatih/vim-go/pull/2724)
+* Always execute `errcheck` in the current package's directory.
+  [[GH-2726]](https://github.com/fatih/vim-go/pull/2726)
 
 ## v1.22 - (January 30, 2020)
 

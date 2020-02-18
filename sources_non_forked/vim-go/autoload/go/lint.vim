@@ -223,18 +223,19 @@ endfunction
 function! go#lint#Errcheck(bang, ...) abort
   if a:0 == 0
     let l:import_path = go#package#ImportPath()
-    if import_path == -1
+    if l:import_path == -1
       call go#util#EchoError('package is not inside GOPATH src')
       return
     endif
+    let l:args = [l:import_path]
   else
-    let l:import_path = join(a:000, ' ')
+    let l:args = a:000
   endif
 
   call go#util#EchoProgress('[errcheck] analysing ...')
   redraw
 
-  let [l:out, l:err] = go#util#Exec([go#config#ErrcheckBin(), '-abspath', l:import_path])
+  let [l:out, l:err] = go#util#ExecInDir([go#config#ErrcheckBin(), '-abspath'] + l:args)
 
   let l:listtype = go#list#Type("GoErrCheck")
   if l:err != 0
@@ -353,7 +354,7 @@ function! s:errorformat(metalinter) abort
     " Golangci-lint can output the following:
     "   <file>:<line>:<column>: <message> (<linter>)
     " This can be defined by the following errorformat:
-    return 'level=%tarning\ msg="%m:\ [%f:%l:%c:\ %.%#]",level=%trror\ msg="%m:\ [%f:%l:%c:\ %.%#]",%f:%l:%c:\ %m'
+    return 'level=%tarning\ msg="%m:\ [%f:%l:%c:\ %.%#]",level=%tarning\ msg="%m",level=%trror\ msg="%m:\ [%f:%l:%c:\ %.%#]",level=%trror\ msg="%m",%f:%l:%c:\ %m,%f:%l\ %m'
   elseif a:metalinter == 'gopls'
     return '%f:%l:%c:%t:\ %m,%f:%l:%c::\ %m'
   endif
