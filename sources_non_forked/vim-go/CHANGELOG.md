@@ -27,7 +27,16 @@ IMPROVEMENTS:
   [[GH-2715]](https://github.com/fatih/vim-go/pull/2715)
 * Add support for Vim8 terminals.
   [[GH-2639]](https://github.com/fatih/vim-go/pull/2639)
-
+  [[GH-2736]](https://github.com/fatih/vim-go/pull/2736)
+* Replace `g:go_gopls_fuzzy_matching` with `g:go_gopls_matcher` in response to
+  `gopls` deprecation of its `fuzzyMatching` option.
+  [[GH-2728]](https://github.com/fatih/vim-go/pull/2728)
+* Set statuses and progress messages consistently for code quality tools.
+  [[GH-2727]](https://github.com/fatih/vim-go/pull/2727)
+* Add a new supported value to `g:go_fmt_command` to format with `gopls`.
+  [[GH-2729]](https://github.com/fatih/vim-go/pull/2729)
+* Handle changes to `go test -v` output.
+  [[GH-2743]](https://github.com/fatih/vim-go/pull/2743)
 
 BUG FIXES:
 * Use the discovered full path for gopls when renaming.
@@ -37,6 +46,11 @@ BUG FIXES:
   [[GH-2724]](https://github.com/fatih/vim-go/pull/2724)
 * Always execute `errcheck` in the current package's directory.
   [[GH-2726]](https://github.com/fatih/vim-go/pull/2726)
+* Fix errors when highlighting diagnostics after a `:GoImports`.
+  [[GH-2746]](https://github.com/fatih/vim-go/pull/2746)
+* Preserve errors from formatting when both formatting and metalinting happen
+  on save.
+  [[GH-2733]](https://github.com/fatih/vim-go/pull/2733)
 
 ## v1.22 - (January 30, 2020)
 

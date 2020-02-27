@@ -48,6 +48,21 @@ function! go#lsp#message#Shutdown() abort
        \ }
 endfunction
 
+function! go#lsp#message#Format(file) abort
+  return {
+          \ 'notification': 0,
+          \ 'method': 'textDocument/formatting',
+          \ 'params': {
+          \   'textDocument': {
+          \       'uri': go#path#ToURI(a:file)
+          \   },
+          \   'options': {
+          \     'insertSpaces': v:false,
+          \   },
+          \ }
+       \ }
+endfunction
+
 function! go#lsp#message#Exit() abort
   return {
           \ 'notification': 1,
@@ -204,7 +219,7 @@ function! go#lsp#message#ConfigurationResult(items) abort
     endif
 
     let l:deepCompletion = go#config#GoplsDeepCompletion()
-    let l:fuzzyMatching = go#config#GoplsFuzzyMatching()
+    let l:matcher = go#config#GoplsMatcher()
     let l:completeUnimported = go#config#GoplsCompleteUnimported()
     let l:staticcheck = go#config#GoplsStaticCheck()
     let l:usePlaceholder = go#config#GoplsUsePlaceholders()
@@ -217,12 +232,8 @@ function! go#lsp#message#ConfigurationResult(items) abort
       endif
     endif
 
-    if l:fuzzyMatching isnot v:null
-      if l:fuzzyMatching
-        let l:config.fuzzyMatching = v:true
-      else
-        let l:config.fuzzyMatching = v:false
-      endif
+    if l:matcher isnot v:null
+        let l:config.matcher = l:matcher
     endif
 
     if l:completeUnimported isnot v:null
