@@ -1626,7 +1626,13 @@ function! s:ReplaceCmd(cmd) abort
     call s:throw((len(err) ? err : filereadable(temp) ? join(readfile(temp), ' ') : 'unknown error running ' . a:cmd))
   endif
   silent exe 'lockmarks keepalt 0read ++edit' s:fnameescape(temp)
-  silent keepjumps $delete _
+  if &foldenable && foldlevel('$') > 0
+    set nofoldenable
+    silent keepjumps $delete _
+    set foldenable
+  else
+    silent keepjumps $delete _
+  endif
   call delete(temp)
   if s:cpath(fnamemodify(bufname('$'), ':p'), temp)
     silent! execute bufnr('$') . 'bwipeout'
@@ -1942,7 +1948,7 @@ function! fugitive#BufReadStatus() abort
     if &bufhidden ==# ''
       setlocal bufhidden=delete
     endif
-    let b:dispatch = ':Gfetch --all'
+    let b:dispatch = ':Git fetch --all'
     call fugitive#MapJumps()
     call s:Map('n', '-', ":<C-U>execute <SID>Do('Toggle',0)<CR>", '<silent>')
     call s:Map('x', '-', ":<C-U>execute <SID>Do('Toggle',1)<CR>", '<silent>')
@@ -2375,8 +2381,9 @@ function! fugitive#PagerFor(argv, ...) abort
   endif
   if args[0] ==# 'config' && (s:HasOpt(args, '-e', '--edit') ||
         \   !s:HasOpt(args, '--list', '--get-all', '--get-regexp', '--get-urlmatch')) ||
-        \ args[0] =~# '^\%(tag\|branch\)$' && (s:HasOpt(args, '--edit-description', '--unset-upstream') ||
-        \   len(filter(args[1:-1], 'v:val =~# "^[^-]\|^--set-upstream-to="')) &&
+        \ args[0] =~# '^\%(tag\|branch\)$' && (
+        \    s:HasOpt(args, '--edit-description', '--unset-upstream', '-m', '-M', '--move', '-c', '-C', '--copy', '-d', '-D', '--delete') ||
+        \   len(filter(args[1:-1], 'v:val =~# "^[^-]\\|^--set-upstream-to="')) &&
         \   !s:HasOpt(args, '--contains', '--no-contains', '--merged', '--no-merged', '--points-at'))
     return 0
   endif
@@ -2407,39 +2414,53 @@ function! fugitive#Command(line1, line2, range, bang, mods, arg) abort
   let config = copy(fugitive#Config(dir))
   let [args, after] = s:SplitExpandChain(a:arg, s:Tree(dir))
   let flags = []
-  while len(args) > 1
-    if args[0] ==# '-c'
+  let pager = -1
+  while len(args)
+    if args[0] ==# '-c' && len(args) > 1
       call extend(flags, remove(args, 0, 1))
+    elseif args[0] =~# '^-p$\|^--paginate$'
+      let pager = 1
+      call remove(args, 0)
+    elseif args[0] =~# '^-P$\|^--no-pager$'
+      let pager = 0
+      call remove(args, 0)
+    elseif args[0] =~# '^--\%([[:lower:]-]\+-pathspecs\|no-optional-locks\)$'
+      call add(flags, remove(args, 0))
+    elseif args[0] =~# '^-C$\|^--\%(exec-path=\|git-dir=\|work-tree=\|bare$\)'
+      return 'echoerr ' . string('fugitive: ' . args[0] . ' is not supported')
     else
       break
     endif
   endwhile
-  if empty(args)
+  if pager is# 0
+    call add(flags, '--no-pager')
+  endif
+  if empty(args) && pager is# -1
     let cmd = s:StatusCommand(a:line1, a:line2, a:range, a:line2, a:bang, a:mods, '', '', [])
     return (empty(cmd) ? 'exe' : cmd) . after
   endif
-  let alias = get(s:Aliases(dir), args[0], '!')
-  if get(args, 1, '') !=# '--help' && alias !~# '^!\|[\"'']' && !filereadable(s:ExecPath() . '/git-' . args[0])
+  let alias = fugitive#Config('alias.' . get(args, 0, ''), config)
+  if get(args, 1, '') !=# '--help' && alias !~# '^$\|^!\|[\"'']' && !filereadable(s:ExecPath() . '/git-' . args[0])
         \ && !(has('win32') && filereadable(s:ExecPath() . '/git-' . args[0] . '.exe'))
     call remove(args, 0)
     call extend(args, split(alias, '\s\+'), 'keep')
   endif
-  let name = substitute(args[0], '\%(^\|-\)\(\l\)', '\u\1', 'g')
+  let name = substitute(get(args, 0, ''), '\%(^\|-\)\(\l\)', '\u\1', 'g')
   let git = split(get(g:, 'fugitive_git_command', g:fugitive_git_executable), '\s\+')
   let options = {'git': git, 'dir': dir, 'flags': flags}
-  if exists('*s:' . name . 'Subcommand') && get(args, 1, '') !=# '--help'
+  if pager is# -1 && exists('*s:' . name . 'Subcommand') && get(args, 1, '') !=# '--help'
     try
       let overrides = s:{name}Subcommand(a:line1, a:line2, a:range, a:bang, a:mods, extend({'command': args[0], 'args': args[1:-1]}, options))
       if type(overrides) == type('')
         return 'exe ' . string(overrides) . after
       endif
+      let args = [get(overrides, 'command', args[0])] + get(overrides, 'insert_args', []) + args[1:-1]
     catch /^fugitive:/
       return 'echoerr ' . string(v:exception)
     endtry
   else
     let overrides = {}
   endif
-  let args = [get(overrides, 'command', args[0])] + get(overrides, 'insert_args', []) + args[1:-1]
   let env = get(overrides, 'env', {})
   let i = 0
   while i < len(flags) - 1
@@ -2458,15 +2479,13 @@ function! fugitive#Command(line1, line2, range, bang, mods, arg) abort
     let i += 1
   endwhile
   let editcmd = (a:line2 > 0 ? a:line2 : '') . (a:line2 ? 'split' : 'edit')
-  if args[0] =~# '^-p$\|^--paginate$'
-    call remove(args, 0)
-    let pager = 1
+  if pager is# 1
     if a:bang && a:line2 >= 0
       let editcmd = 'read'
     elseif a:bang
       let editcmd = 'pedit'
     endif
-  else
+  elseif pager is# -1
     let pager = fugitive#PagerFor(args, config)
     if a:bang && pager isnot# 1
       return 'echoerr ' .  string('fugitive: :Git! for temp buffer output has been replaced by :Git --paginate')
@@ -3601,7 +3620,7 @@ function! s:DoToggleUnpulled(record) abort
 endfunction
 
 function! s:DoUnstageUnpushed(record) abort
-  call feedkeys(':Git rebase --autosquash ' . a:record.commit . '^')
+  call feedkeys(':Git -c sequence.editor=true rebase --interactive --autosquash ' . a:record.commit . '^')
 endfunction
 
 function! s:DoToggleStagedHeading(...) abort
@@ -3716,7 +3735,7 @@ function! s:StagePatch(lnum1,lnum2) abort
   return s:ReloadStatus()
 endfunction
 
-" Section: :Gcommit, :Grevert
+" Section: :Git commit, :Git revert
 
 function! s:CommitInteractive(line1, line2, range, bang, mods, options, patch) abort
   let status = s:StatusCommand(a:line1, a:line2, a:range, a:line2, a:bang, a:mods, '', '', [], a:options.dir)
@@ -3773,7 +3792,7 @@ function! fugitive#RevertComplete(A, L, P) abort
   return s:CompleteSub('revert', a:A, a:L, a:P, function('s:CompleteRevision'))
 endfunction
 
-" Section: :Gmerge, :Grebase, :Gpull
+" Section: :Git merge, :Git rebase, :Git pull
 
 function! fugitive#MergeComplete(A, L, P) abort
   return s:CompleteSub('merge', a:A, a:L, a:P, function('s:CompleteRevision'))
@@ -4533,7 +4552,7 @@ function! fugitive#WriteCommand(line1, line2, range, bang, mods, arg, args) abor
   elseif expand('%:t') == 'COMMIT_EDITMSG' && $GIT_INDEX_FILE != ''
     return 'wq'
   elseif get(b:, 'fugitive_type', '') ==# 'index'
-    return 'Gcommit'
+    return 'Git commit'
   elseif &buftype ==# 'nowrite' && getline(4) =~# '^[+-]\{3\} '
     return 'echoerr ' . string('fugitive: :Gwrite from :Git diff has been removed in favor of :Git add --edit')
   endif
@@ -4671,7 +4690,7 @@ function! fugitive#WqCommand(...) abort
   endif
 endfunction
 
-" Section: :Gpush, :Gfetch
+" Section: :Git push, :Git fetch
 
 function! fugitive#PushComplete(A, L, P) abort
   return s:CompleteSub('push', a:A, a:L, a:P, function('s:CompleteRemote'))
@@ -4980,9 +4999,7 @@ function! s:Move(force, rename, destination) abort
   if s:DirCommitFile(@%)[1] !~# '^0\=$' || empty(@%)
     return 'echoerr ' . string('fugitive: mv not supported for this buffer')
   endif
-  if a:destination =~# '^\.\.\=\%(/\|$\)'
-    let destination = simplify(getcwd() . '/' . a:destination)
-  elseif a:destination =~# '^\a\+:\|^/'
+  if a:destination =~# '^\a\+:\|^/'
     let destination = a:destination
   elseif a:destination =~# '^:/:\='
     let destination = s:Tree(dir) . substitute(a:destination, '^:/:\=', '', '')
@@ -4991,7 +5008,9 @@ function! s:Move(force, rename, destination) abort
   elseif a:destination =~# '^:(literal)'
     let destination = simplify(getcwd() . '/' . matchstr(a:destination, ')\zs.*'))
   elseif a:rename
-    let destination = expand('%:p:s?[\/]$??:h') . '/' . a:destination
+    let destination = simplify(expand('%:p:s?[\/]$??:h') . '/' . a:destination)
+  elseif a:destination =~# '^\.\.\=\%(/\|$\)'
+    let destination = simplify(getcwd() . '/' . a:destination)
   else
     let destination = s:Tree(dir) . '/' . a:destination
   endif
@@ -5066,7 +5085,7 @@ function! fugitive#DeleteCommand(line1, line2, range, bang, mods, arg, args) abo
   return s:Remove('bdelete', a:bang)
 endfunction
 
-" Section: :Gblame
+" Section: :Git blame
 
 function! s:Keywordprg() abort
   let args = ' --git-dir='.escape(s:Dir(),"\\\"' ")
@@ -5437,30 +5456,28 @@ function! s:BlameJump(suffix, ...) abort
     execute 'Gedit' s:fnameescape(commit . suffix . ':' . path)
     execute lnum
   endif
-  if exists(':Gblame')
-    let my_bufnr = bufnr('')
-    if blame_bufnr < 0
-      let blame_args = flags + [commit . suffix, '--', path]
-      let result = s:BlameSubcommand(0, 0, 0, 0, '', extend({'args': blame_args}, state.options, 'keep'))
-    else
-      let blame_args = flags
-      let result = s:BlameSubcommand(-1, -1, 0, 0, '', extend({'args': blame_args}, state.options, 'keep'))
-    endif
-    if bufnr('') == my_bufnr
-      return result
-    endif
-    execute result
-    execute lnum
-    let delta = line('.') - line('w0') - offset
-    if delta > 0
-      execute 'normal! '.delta."\<C-E>"
-    elseif delta < 0
-      execute 'normal! '.(-delta)."\<C-Y>"
-    endif
-    keepjumps syncbind
-    redraw
-    echo ':Gblame' s:fnameescape(blame_args)
+  let my_bufnr = bufnr('')
+  if blame_bufnr < 0
+    let blame_args = flags + [commit . suffix, '--', path]
+    let result = s:BlameSubcommand(0, 0, 0, 0, '', extend({'args': blame_args}, state.options, 'keep'))
+  else
+    let blame_args = flags
+    let result = s:BlameSubcommand(-1, -1, 0, 0, '', extend({'args': blame_args}, state.options, 'keep'))
   endif
+  if bufnr('') == my_bufnr
+    return result
+  endif
+  execute result
+  execute lnum
+  let delta = line('.') - line('w0') - offset
+  if delta > 0
+    execute 'normal! '.delta."\<C-E>"
+  elseif delta < 0
+    execute 'normal! '.(-delta)."\<C-Y>"
+  endif
+  keepjumps syncbind
+  redraw
+  echo ':Git blame' s:fnameescape(blame_args)
   return ''
 endfunction
 
@@ -5549,10 +5566,10 @@ function! s:BlameFileType() abort
   if &modifiable
     return ''
   endif
-  call s:Map('n', '<F1>', ':help :Gblame<CR>', '<silent>')
-  call s:Map('n', 'g?',   ':help :Gblame<CR>', '<silent>')
+  call s:Map('n', '<F1>', ':help :Git_blame<CR>', '<silent>')
+  call s:Map('n', 'g?',   ':help :Git_blame<CR>', '<silent>')
   if mapcheck('q', 'n') =~# '^$\|bdelete'
-    call s:Map('n', 'q',  ':exe <SID>BlameQuit()<Bar>echohl WarningMsg<Bar>echo ":Gblame q is deprecated in favor of gq"<Bar>echohl NONE<CR>', '<silent>')
+    call s:Map('n', 'q',  ':exe <SID>BlameQuit()<Bar>echohl WarningMsg<Bar>echo ":Git blame q is deprecated in favor of gq"<Bar>echohl NONE<CR>', '<silent>')
   endif
   call s:Map('n', 'gq',   ':exe <SID>BlameQuit()<CR>', '<silent>')
   call s:Map('n', '<2-LeftMouse>', ':<C-U>exe <SID>BlameCommit("exe <SID>BlameLeave()<Bar>edit")<CR>', '<silent>')
@@ -5805,6 +5822,8 @@ endfunction
 
 " Section: Go to file
 
+let s:ref_header = '\%(Head\|Merge\|Rebase\|Upstream\|Pull\|Push\)'
+
 nnoremap <SID>: :<C-U><C-R>=v:count ? v:count : ''<CR>
 function! fugitive#MapCfile(...) abort
   exe 'cnoremap <buffer> <expr> <Plug><cfile>' (a:0 ? a:1 : 'fugitive#Cfile()')
@@ -5825,7 +5844,7 @@ endfunction
 
 function! s:SquashArgument(...) abort
   if &filetype == 'fugitive'
-    let commit = matchstr(getline('.'), '^\%(\%(\x\x\x\)\@!\l\+\s\+\)\=\zs[0-9a-f]\{4,\}\ze ')
+    let commit = matchstr(getline('.'), '^\%(\%(\x\x\x\)\@!\l\+\s\+\)\=\zs[0-9a-f]\{4,\}\ze \|^' . s:ref_header . ': \zs\S\+')
   elseif has_key(s:temp_files, s:cpath(expand('%:p')))
     let commit = matchstr(getline('.'), '\<\x\{4,\}\>')
   else
@@ -5867,7 +5886,7 @@ endfunction
 function! fugitive#MapJumps(...) abort
   if !&modifiable
     if get(b:, 'fugitive_type', '') ==# 'blob'
-      let blame_map = 'Gblame<C-R>=v:count ? " --reverse" : ""<CR><CR>'
+      let blame_map = 'Git blame<C-R>=v:count ? " --reverse" : ""<CR><CR>'
       call s:Map('n', '<2-LeftMouse>', ':<C-U>0,1' . blame_map, '<silent>')
       call s:Map('n', '<CR>', ':<C-U>0,1' . blame_map, '<silent>')
       call s:Map('n', 'o',    ':<C-U>0,2' . blame_map, '<silent>')
@@ -5931,26 +5950,26 @@ function! fugitive#MapJumps(...) abort
     nnoremap <buffer>          c<CR> :Git commit<CR>
     nnoremap <buffer>      cv<Space> :tab Git commit -v<Space>
     nnoremap <buffer>         cv<CR> :tab Git commit -v<CR>
-    nnoremap <buffer> <silent> ca    :<C-U>Gcommit --amend<CR>
-    nnoremap <buffer> <silent> cc    :<C-U>Gcommit<CR>
-    nnoremap <buffer> <silent> ce    :<C-U>Gcommit --amend --no-edit<CR>
-    nnoremap <buffer> <silent> cw    :<C-U>Gcommit --amend --only<CR>
-    nnoremap <buffer> <silent> cva   :<C-U>tab Gcommit -v --amend<CR>
-    nnoremap <buffer> <silent> cvc   :<C-U>tab Gcommit -v<CR>
-    nnoremap <buffer> <silent> cRa   :<C-U>Gcommit --reset-author --amend<CR>
-    nnoremap <buffer> <silent> cRe   :<C-U>Gcommit --reset-author --amend --no-edit<CR>
-    nnoremap <buffer> <silent> cRw   :<C-U>Gcommit --reset-author --amend --only<CR>
+    nnoremap <buffer> <silent> ca    :<C-U>Git commit --amend<CR>
+    nnoremap <buffer> <silent> cc    :<C-U>Git commit<CR>
+    nnoremap <buffer> <silent> ce    :<C-U>Git commit --amend --no-edit<CR>
+    nnoremap <buffer> <silent> cw    :<C-U>Git commit --amend --only<CR>
+    nnoremap <buffer> <silent> cva   :<C-U>tab Git commit -v --amend<CR>
+    nnoremap <buffer> <silent> cvc   :<C-U>tab Git commit -v<CR>
+    nnoremap <buffer> <silent> cRa   :<C-U>Git commit --reset-author --amend<CR>
+    nnoremap <buffer> <silent> cRe   :<C-U>Git commit --reset-author --amend --no-edit<CR>
+    nnoremap <buffer> <silent> cRw   :<C-U>Git commit --reset-author --amend --only<CR>
     nnoremap <buffer>          cf    :<C-U>Git commit --fixup=<C-R>=<SID>SquashArgument()<CR>
-    nnoremap <buffer>          cF    :<C-U><Bar>Git rebase --autosquash<C-R>=<SID>RebaseArgument()<CR><Home>Git commit --fixup=<C-R>=<SID>SquashArgument()<CR>
+    nnoremap <buffer>          cF    :<C-U><Bar>Git -c sequence.editor=true rebase --interactive --autosquash<C-R>=<SID>RebaseArgument()<CR><Home>Git commit --fixup=<C-R>=<SID>SquashArgument()<CR>
     nnoremap <buffer>          cs    :<C-U>Git commit --no-edit --squash=<C-R>=<SID>SquashArgument()<CR>
-    nnoremap <buffer>          cS    :<C-U><Bar>Git rebase --autosquash<C-R>=<SID>RebaseArgument()<CR><Home>Git commit --no-edit --squash=<C-R>=<SID>SquashArgument()<CR>
+    nnoremap <buffer>          cS    :<C-U><Bar>Git -c sequence.editor=true rebase --interactive --autosquash<C-R>=<SID>RebaseArgument()<CR><Home>Git commit --no-edit --squash=<C-R>=<SID>SquashArgument()<CR>
     nnoremap <buffer>          cA    :<C-U>Git commit --edit --squash=<C-R>=<SID>SquashArgument()<CR>
     nnoremap <buffer> <silent> c?    :<C-U>help fugitive_c<CR>
 
     nnoremap <buffer>      cr<Space> :Git revert<Space>
     nnoremap <buffer>         cr<CR> :Git revert<CR>
-    nnoremap <buffer> <silent> crc   :<C-U>Grevert <C-R>=<SID>SquashArgument()<CR><CR>
-    nnoremap <buffer> <silent> crn   :<C-U>Grevert --no-commit <C-R>=<SID>SquashArgument()<CR><CR>
+    nnoremap <buffer> <silent> crc   :<C-U>Git revert <C-R>=<SID>SquashArgument()<CR><CR>
+    nnoremap <buffer> <silent> crn   :<C-U>Git revert --no-commit <C-R>=<SID>SquashArgument()<CR><CR>
     nnoremap <buffer> <silent> cr?   :help fugitive_cr<CR>
 
     nnoremap <buffer>      cm<Space> :Git merge<Space>
@@ -5980,19 +5999,19 @@ function! fugitive#MapJumps(...) abort
 
     nnoremap <buffer>       r<Space> :Git rebase<Space>
     nnoremap <buffer>          r<CR> :Git rebase<CR>
-    nnoremap <buffer> <silent> ri    :<C-U>Grebase --interactive<C-R>=<SID>RebaseArgument()<CR><CR>
-    nnoremap <buffer> <silent> rf    :<C-U>Grebase --autosquash<C-R>=<SID>RebaseArgument()<CR><CR>
-    nnoremap <buffer> <silent> ru    :<C-U>Grebase --interactive @{upstream}<CR>
-    nnoremap <buffer> <silent> rp    :<C-U>Grebase --interactive @{push}<CR>
-    nnoremap <buffer> <silent> rw    :<C-U>Grebase --interactive<C-R>=<SID>RebaseArgument()<CR><Bar>s/^pick/reword/e<CR>
-    nnoremap <buffer> <silent> rm    :<C-U>Grebase --interactive<C-R>=<SID>RebaseArgument()<CR><Bar>s/^pick/edit/e<CR>
-    nnoremap <buffer> <silent> rd    :<C-U>Grebase --interactive<C-R>=<SID>RebaseArgument()<CR><Bar>s/^pick/drop/e<CR>
-    nnoremap <buffer> <silent> rk    :<C-U>Grebase --interactive<C-R>=<SID>RebaseArgument()<CR><Bar>s/^pick/drop/e<CR>
-    nnoremap <buffer> <silent> rx    :<C-U>Grebase --interactive<C-R>=<SID>RebaseArgument()<CR><Bar>s/^pick/drop/e<CR>
-    nnoremap <buffer> <silent> rr    :<C-U>Grebase --continue<CR>
-    nnoremap <buffer> <silent> rs    :<C-U>Grebase --skip<CR>
-    nnoremap <buffer> <silent> re    :<C-U>Grebase --edit-todo<CR>
-    nnoremap <buffer> <silent> ra    :<C-U>Grebase --abort<CR>
+    nnoremap <buffer> <silent> ri    :<C-U>Git rebase --interactive<C-R>=<SID>RebaseArgument()<CR><CR>
+    nnoremap <buffer> <silent> rf    :<C-U>Git -c sequence.editor=true rebase --interactive --autosquash<C-R>=<SID>RebaseArgument()<CR><CR>
+    nnoremap <buffer> <silent> ru    :<C-U>Git rebase --interactive @{upstream}<CR>
+    nnoremap <buffer> <silent> rp    :<C-U>Git rebase --interactive @{push}<CR>
+    nnoremap <buffer> <silent> rw    :<C-U>Git rebase --interactive<C-R>=<SID>RebaseArgument()<CR><Bar>s/^pick/reword/e<CR>
+    nnoremap <buffer> <silent> rm    :<C-U>Git rebase --interactive<C-R>=<SID>RebaseArgument()<CR><Bar>s/^pick/edit/e<CR>
+    nnoremap <buffer> <silent> rd    :<C-U>Git rebase --interactive<C-R>=<SID>RebaseArgument()<CR><Bar>s/^pick/drop/e<CR>
+    nnoremap <buffer> <silent> rk    :<C-U>Git rebase --interactive<C-R>=<SID>RebaseArgument()<CR><Bar>s/^pick/drop/e<CR>
+    nnoremap <buffer> <silent> rx    :<C-U>Git rebase --interactive<C-R>=<SID>RebaseArgument()<CR><Bar>s/^pick/drop/e<CR>
+    nnoremap <buffer> <silent> rr    :<C-U>Git rebase --continue<CR>
+    nnoremap <buffer> <silent> rs    :<C-U>Git rebase --skip<CR>
+    nnoremap <buffer> <silent> re    :<C-U>Git rebase --edit-todo<CR>
+    nnoremap <buffer> <silent> ra    :<C-U>Git rebase --abort<CR>
     nnoremap <buffer> <silent> r?    :<C-U>help fugitive_r<CR>
 
     call s:Map('n', '.',     ":<C-U> <C-R>=<SID>fnameescape(fugitive#Real(@%))<CR><Home>")
@@ -6019,7 +6038,7 @@ function! s:StatusCfile(...) abort
     return [lead . info.relative[0]]
   elseif len(info.commit)
     return [info.commit]
-  elseif line =~# '^\%(Head\|Merge\|Rebase\|Upstream\|Pull\|Push\): '
+  elseif line =~# '^' . s:ref_header . ': '
     return [matchstr(line, ' \zs.*')]
   else
     return ['']
