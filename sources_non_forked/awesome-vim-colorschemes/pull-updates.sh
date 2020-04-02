@@ -42,6 +42,8 @@ function _main() {
 	_dl gilgigilgil/anderson.vim
 	_dl gregsexton/Atom
 	_dl jacoborus/tender.vim
+	_dl jaredgorski/fogbell.vim
+	_dl jaredgorski/SpaceCamp
 	_dl jdsimcoe/abstract.vim
 	_dl jonathanfilip/vim-lucius
 	_dl joshdick/onedark.vim
@@ -74,6 +76,7 @@ function _main() {
 	_dl vim-scripts/twilight256.vim
 	_dl vim-scripts/wombat256.vim
 	_dl w0ng/vim-hybrid
+	_dl wadackel/vim-dogrun
 	_dl whatyouhide/vim-gotham
 	_dl wimstefan/Lightning
 	_dl yorickpeterse/happy_hacking.vim
