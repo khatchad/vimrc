@@ -8,3 +8,4 @@ my_configs.vim
 tags
 .DS_Store
 *.swp
+__pycache__
