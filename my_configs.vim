@@ -142,7 +142,7 @@ augroup END
 "
 "======
 "
-let g:Tex_ViewRule_pdf = 'Skim'
+let g:Tex_ViewRule_pdf = 'evince'
 filetype indent on
 let g:tex_flavor='latex'
 let g:syntastic_tex_checkers = ["chktex"]
