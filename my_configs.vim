@@ -53,6 +53,7 @@ set spellfile=~/.dict.en.utf-8.add
 map <silent> <F11>
 \    :call system("wmctrl -ir " . v:windowid . " -b toggle,fullscreen")<CR>
 set gfn=Monospace\ 12
+set listchars=trail:c
 
 """"""""""""""""""""""""""""""
 " => Reread vimrc
