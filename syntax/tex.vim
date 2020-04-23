@@ -26,5 +26,7 @@ if s:tex_fast =~# 'b'
    else                                                                                              
     syn region texItalStyle matchgroup=texTypeStyle start="\\emph\s*{" matchgroup=texTypeStyle  end="}" concealends contains=@texItalGroup
    endif
+   syntax match texStatement '\\command' nextgroup=texMyCommand
+   syntax region texMyCommand matchgroup=Delimiter start='{' end='}' contained contains=@NoSpell
   endif
 endif
