@@ -238,4 +238,4 @@ if has("autocmd")
 endif
 
 let g:netrw_browsex_viewer= "/usr/bin/xdg-open"
-colorscheme wombat
+colorscheme PaperColor
