@@ -307,6 +307,10 @@ function! go#config#FmtAutosave() abort
 	return get(g:, "go_fmt_autosave", 1)
 endfunction
 
+function! go#config#ImportsAutosave() abort
+  return get(g:, 'go_imports_autosave', 1)
+endfunction
+
 function! go#config#SetFmtAutosave(value) abort
   let g:go_fmt_autosave = a:value
 endfunction
@@ -540,6 +544,14 @@ endfunction
 
 function! go#config#GoplsTempModfile() abort
   return get(g:, 'go_gopls_temp_modfile', v:null)
+endfunction
+
+function! go#config#GoplsAnalyses() abort
+  return get(g:, 'go_gopls_analyses', v:null)
+endfunction
+
+function! go#config#GoplsLocal() abort
+  return get(g:, 'go_gopls_local', v:null)
 endfunction
 
 function! go#config#GoplsEnabled() abort

@@ -9,25 +9,19 @@ endfunction
 function! gitgutter#utility#setbufvar(buffer, varname, val)
   let buffer = +a:buffer
   " Default value for getbufvar() was introduced in Vim 7.3.831.
-  let bvars = getbufvar(buffer, '')
-  if empty(bvars)
-    let bvars = {}
+  let ggvars = getbufvar(buffer, 'gitgutter')
+  if type(ggvars) == type('')
+    unlet ggvars
+    let ggvars = {}
+    call setbufvar(buffer, 'gitgutter', ggvars)
   endif
-  let dict = get(bvars, 'gitgutter', {})
-  let needs_setting = empty(dict)
-  let dict[a:varname] = a:val
-  if needs_setting
-    call setbufvar(buffer, 'gitgutter', dict)
-  endif
+  let ggvars[a:varname] = a:val
 endfunction
 
 function! gitgutter#utility#getbufvar(buffer, varname, ...)
-  let bvars = getbufvar(a:buffer, '')
-  if !empty(bvars)
-    let dict = get(bvars, 'gitgutter', {})
-    if has_key(dict, a:varname)
-      return dict[a:varname]
-    endif
+  let ggvars = getbufvar(a:buffer, 'gitgutter')
+  if type(ggvars) == type({}) && has_key(ggvars, a:varname)
+    return ggvars[a:varname]
   endif
   if a:0
     return a:1
@@ -190,12 +184,13 @@ function! s:restore_shell() abort
   endif
 endfunction
 
-function! gitgutter#utility#set_diff_base_if_fugitive(bufnr)
+function! gitgutter#utility#get_diff_base(bufnr)
   let p = resolve(expand('#'.a:bufnr.':p'))
   let ml = matchlist(p, '\v^fugitive:/.*/(\x{40,})/')
   if !empty(ml) && !empty(ml[1])
-    let g:gitgutter_diff_base = ml[1].'^'
+    return ml[1].'^'
   endif
+  return g:gitgutter_diff_base
 endfunction
 
 function! s:abs_path(bufnr, shellesc)

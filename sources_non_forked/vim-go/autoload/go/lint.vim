@@ -83,9 +83,11 @@ function! go#lint#Gometa(bang, autosave, ...) abort
   endif
 
   if a:autosave
-    let l:listtype = go#list#Type("GoMetaLinterAutoSave")
+    let l:listtype = go#list#Type('GoMetaLinterAutoSave')
+    let l:for = 'GoMetaLinterAutoSave'
   else
-    let l:listtype = go#list#Type("GoMetaLinter")
+    let l:listtype = go#list#Type('GoMetaLinter')
+    let l:for = 'GoMetaLinterAuto'
   endif
 
   if l:err == 0
@@ -100,7 +102,7 @@ function! go#lint#Gometa(bang, autosave, ...) abort
     if a:autosave
       call s:metalinterautosavecomplete(l:metalinter, fnamemodify(expand('%:p'), ":."), 0, 1, l:messages)
     endif
-    call go#list#ParseFormat(l:listtype, errformat, l:messages, 'GoMetaLinter', s:preserveerrors(a:autosave, l:listtype))
+    call go#list#ParseFormat(l:listtype, errformat, l:messages, l:for, s:preserveerrors(a:autosave, l:listtype))
 
     let errors = go#list#Get(l:listtype)
     call go#list#Window(l:listtype, len(errors))
@@ -175,12 +177,12 @@ function! go#lint#Golint(bang, ...) abort
 
   let l:status.state = 'success'
   let l:state = 'PASS'
+  let l:listtype = go#list#Type("GoLint")
   if !empty(l:out)
     let l:status.state = 'failed'
     let l:state = 'FAIL'
 
     let l:winid = win_getid(winnr())
-    let l:listtype = go#list#Type("GoLint")
     call go#list#Parse(l:listtype, l:out, "GoLint", 0)
     let l:errors = go#list#Get(l:listtype)
     call go#list#Window(l:listtype, len(l:errors))
@@ -194,6 +196,7 @@ function! go#lint#Golint(bang, ...) abort
       call go#util#EchoError(printf('[%s] %s', l:type, l:state))
     endif
   else
+    call go#list#Clean(l:listtype)
     if go#config#EchoCommandInfo()
       call go#util#EchoSuccess(printf('[%s] %s', l:type, l:state))
     endif
@@ -370,15 +373,15 @@ function! s:lint_job(metalinter, args, bang, autosave)
   let l:opts = {
         \ 'statustype': a:args.statustype,
         \ 'errorformat': a:args.errformat,
-        \ 'for': "GoMetaLinter",
+        \ 'for': 'GoMetaLinter',
         \ 'bang': a:bang,
       \ }
 
   if a:autosave
-    let l:opts.for = "GoMetaLinterAutoSave"
+    let l:opts.for = 'GoMetaLinterAutoSave'
     " s:metalinterautosavecomplete is really only needed for golangci-lint
     let l:opts.complete = funcref('s:metalinterautosavecomplete', [a:metalinter, expand('%:p:t')])
-    let l:opts.preserveerrors = function('s:preserveerrors')
+    let l:opts.preserveerrors = funcref('s:preserveerrors', [a:autosave])
   endif
 
   " autowrite is not enabled for jobs
@@ -439,18 +442,44 @@ endfunction
 
 function! s:errorformat(metalinter) abort
   if a:metalinter == 'golangci-lint'
-    " Golangci-lint can output the following:
-    "   <file>:<line>:<column>: <message> (<linter>)
-    " This can be defined by the following errorformat:
-    return 'level=%tarning\ msg="%m:\ [%f:%l:%c:\ %.%#]",level=%tarning\ msg="%m",level=%trror\ msg="%m:\ [%f:%l:%c:\ %.%#]",level=%trror\ msg="%m",%f:%l:%c:\ %m,%f:%l\ %m'
+    let l:efm = ''
+
+    " Golangci-lint can several formats, all of which seem to be undocumented.
+    " Based on trial and error, these error format strings seem to catch all
+    " the relevant combinations.
+
+    " When the actual locations and error message is wrapped in parentheses
+    " within brackets (there is usually duplicated location information in
+    " this form). This usually happens when the linter can't do its job
+    " because of compiler or AST problems.
+    let l:efm .= 'level=%tarning\ msg="%.%#(%f:%l:%c:\ %m)\ %.%#]"'
+    let l:efm .= ',level=%trror\ msg="%.%#(%f:%l:%c:\ %m)\ %.%#]"'
+
+    " When the actual locations and error message are not wrapped in
+    " in bracked without the inner parenthetical. This usually happens when
+    " the linter can't do its job because of compiler or AST problems.
+    let l:efm .= ',level=%tarning\ msg="%.%#:\ [%f:%l:%c:\ %m]"'
+    let l:efm .= ',level=%trror\ msg="%.%#:\ [%f:%l:%c:\ %m]"'
+
+    " When the file location is not provided. The usually happens when the
+    " linter can't do its job because of some other problem.
+    let l:efm .= ',level=%tarning\ msg="%m"'
+    let l:efm .= ',level=%trror\ msg="%m"'
+
+    " when the linter was able to compile and/or create the AST, and the
+    " linter found some problems.
+    let l:efm .= ',%f:%l:%c:\ %m'
+    let l:efm .= ',%f:%l\ %m'
   elseif a:metalinter == 'gopls'
-    return '%f:%l:%c:%t:\ %m,%f:%l:%c::\ %m'
+    let l:efm = '%f:%l:%c:%t:\ %m'
+    let l:efm .= ',%f:%l:%c::\ %m'
   endif
 
+  return l:efm
 endfunction
 
-function! s:preserveerrors(listtype) abort
-  return a:listtype == go#list#Type("GoFmt") && go#config#FmtAutosave() && isdirectory(expand('%:p:h'))
+function! s:preserveerrors(autosave, listtype) abort
+  return a:autosave && a:listtype == go#list#Type("GoFmt") && go#config#FmtAutosave() && isdirectory(expand('%:p:h'))
 endfunction
 
 " restore Vi compatibility settings
