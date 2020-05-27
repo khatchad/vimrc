@@ -157,17 +157,14 @@ let g:tex_verbspell= 0
 au FileType java setl fp=astyle\ --mode=java\ --indent=tab
 au Filetype java setl makeprg=javac\ %
 au Filetype java setl diffopt+=iwhite, number
-au FileType java setl tabstop=8
 
 """"""""""""""""""""""""""""""
 " => Ruby section
 """""""""""""""""""""""""""""""
-au FileType ruby setl tabstop=8
 
 """"""""""""""""""""""""""""""
 " => Groovy section
 """""""""""""""""""""""""""""""
-au FileType groovy setl tabstop=8
 
 """"""""""""""""""""""""""""""
 " => AspectJ section

@@ -186,15 +186,16 @@ set noswapfile
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Text, tab and indent related
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Use spaces instead of tabs
-set expandtab
+" Don't use spaces instead of tabs
+set noexpandtab
 
 " Be smart when using tabs ;)
 set smarttab
 
-" 1 tab == 4 spaces
+" Always keep 'tabstop' at 8, set 'softtabstop' and 'shiftwidth' to  (or 3 or whatever you prefer) and use 'noexpandtab'.  Then Vim will use a mix of tabs and spaces, but typing <Tab> and <BS> will behave like a tab appears every 4 (or 3) characters.
+set tabstop=8
+set softtabstop=4
 set shiftwidth=4
-set tabstop=4
 
 " Linebreak on 500 characters
 set lbr
