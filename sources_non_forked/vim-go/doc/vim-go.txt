@@ -77,7 +77,7 @@ experience.
 ==============================================================================
 INSTALL                                                           *go-install*
 
-vim-go requires at least Vim 8.0.1453 or Neovim 0.3.2. On macOS, if you are
+vim-go requires at least Vim 8.0.1453 or Neovim 0.4.0. On macOS, if you are
 still using your system version of vim, you can use homebrew to keep your
 version of Vim up-to-date with the following terminal command:
 >
@@ -216,7 +216,7 @@ COMMANDS                                                         *go-commands*
 
     Open the relevant GoDoc in browser for either the word[s] passed to the
     command or by default, the word under the cursor. By default it opens the
-    documentation in 'https://godoc.org'. To change it see |'g:go_doc_url'|.
+    documentation in 'https://pkg.go.dev'. To change it see |'g:go_doc_url'|.
 
                                                                       *:GoFmt*
 :GoFmt
@@ -342,6 +342,9 @@ CTRL-t
 
     If using neovim then `:GoRun` will run in a new terminal according to
     |'g:go_term_mode'|.
+
+    The working directory will be the directory containing the current buffer.
+
 
                                                                     *:GoBuild*
 :GoBuild[!] [expand]
@@ -1326,17 +1329,21 @@ value from 'updatetime'. By default it's set to 800ms.
                                                         *'g:go_jump_to_error'*
 
 Use this option to enable/disable passing the bang attribute to the mappings
-|(go-build)|, |(go-run)|, etc..  When enabled it will jump to the first error
-automatically (means it will NOT pass the bang attribute to the appropriate
-command, i.e: (go-run) -> :GoRun ). Note, that calling this doesn't have any
-affect on calling the commands manually. This setting is only useful for
-changing the behaviour of our custom static mappings. By default it's enabled.
+(e.g. |(go-build)|, |(go-run)|, etc.) and the metalinter on save.  When
+enabled it will jump to the first error automatically (means it will NOT pass
+the bang attribute to the appropriate command, i.e: (go-run) -> :GoRun ).
+Note, that calling this doesn't have any affect on calling the commands
+manually. This setting is only useful for changing the behaviour of our custom
+static mappings. By default it's enabled.
 >
   let g:go_jump_to_error = 1
 <
                                                          *'g:go_fmt_autosave'*
 
-Use this option to auto |:GoFmt| on save. By default it's enabled >
+Use this option to auto |:GoFmt| on save. When both 'g:go_imports_autosave'
+and 'g:go_fmt_autosave' are enabled and both 'g:go_fmt_command' and
+'g:go_imports_command' are set to `goimports`, `goimports` will be run only
+once. By default it's enabled >
 
   let g:go_fmt_autosave = 1
 <
@@ -1403,14 +1410,18 @@ it's causing problems on some Vim versions. This has no effect if
 
                                                      *'g:go_imports_autosave'*
 
-Use this option to auto |:GoImports| on save. By default it's enabled.
+Use this option to auto |:GoImports| on save. When both
+'g:go_imports_autosave' and 'g:go_fmt_autosave' are enabled and both
+'g:go_fmt_command' and 'g:go_imports_command' are set to `goimports`,
+`goimports` will be run only once. By default it's disabled.
 >
-  let g:go_imports_autosave = 1
+  let g:go_imports_autosave = 0
 <
                                                          *'g:go_imports_mode'*
 
 Use this option to define which tool is used to adjust imports. Valid options
-are `goimports` and `gopls`. By default `goimports` is used.
+are `goimports` and `gopls`. The buffer will not be formatted when this is set
+to `gopls`. By default `goimports` is used.
 >
 
   let g:go_imports_mode = "goimports"
@@ -1441,9 +1452,9 @@ Maximum height for the GoDoc window created with |:GoDoc|. Default is 20. >
                                                               *'g:go_doc_url'*
 
 godoc server URL used when |:GoDocBrowser| is used. Change if you want to use
-a private internal service. Default is 'https://godoc.org'.
+a private internal service. Default is 'https://pkg.go.dev'.
 >
-  let g:go_doc_url = 'https://godoc.org'
+  let g:go_doc_url = 'https://pkg.go.dev'
 <
 
                                                      *'g:go_doc_popup_window'*
@@ -1475,7 +1486,7 @@ other packages. Valid options are `gopls` and `guru`. By default it's `gopls`.
 <
                                                       *'g:go_implements_mode'*
 
-Use this option to define the command to be used for |:GoImplements|. 
+Use this option to define the command to be used for |:GoImplements|.
 The Implements feature in gopls is still new and being worked upon.
 Valid options are `gopls` and `guru`. By default it's `guru`.
 >
@@ -1741,10 +1752,10 @@ default it is set to edit.
 <
                                                        *'g:go_rename_command'*
 
-Use this option to define which tool is used to rename. By default `gorename`
+Use this option to define which tool is used to rename. By default `gopls`
 is used. Valid options are `gorename` and `gopls`.
 >
-  let g:go_rename_command = 'gorename'
+  let g:go_rename_command = 'gopls'
 <
                                                      *'g:go_gorename_prefill'*
 
@@ -1771,7 +1782,7 @@ options may also need to be adjusted.
 
                                                         *'g:go_gopls_options'*
 
-The commandline arguments to pass to gopls. By default, it's an empty array.
+The commandline arguments to pass to gopls. By default, it's `-remote=auto`.
 >
   let g:go_gopls_options = []
 <

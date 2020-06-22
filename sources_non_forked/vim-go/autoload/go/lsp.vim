@@ -620,10 +620,7 @@ function! go#lsp#DidOpen(fname) abort
     let l:lsp.notificationQueue[l:fname] = []
   endif
 
-  if !has_key(l:lsp.fileVersions, l:fname)
-    let l:lsp.fileVersions[l:fname] = 0
-  endif
-  let l:lsp.fileVersions[l:fname] = l:lsp.fileVersions[l:fname] + 1
+  let l:lsp.fileVersions[l:fname] = getbufvar(l:fname, 'changedtick')
 
   let l:msg = go#lsp#message#DidOpen(l:fname, join(go#util#GetLines(), "\n") . "\n", l:lsp.fileVersions[l:fname])
   let l:state = s:newHandlerState('')
@@ -653,10 +650,11 @@ function! go#lsp#DidChange(fname) abort
 
   let l:lsp = s:lspfactory.get()
 
-  if !has_key(l:lsp.fileVersions, l:fname)
-    let l:lsp.fileVersions[l:fname] = 0
+  let l:version = getbufvar(l:fname, 'changedtick')
+  if has_key(l:lsp.fileVersions, l:fname) && l:lsp.fileVersions[l:fname] == l:version
+    return
   endif
-  let l:lsp.fileVersions[l:fname] = l:lsp.fileVersions[l:fname] + 1
+  let l:lsp.fileVersions[l:fname] = l:version
 
   let l:msg = go#lsp#message#DidChange(l:fname, join(go#util#GetLines(), "\n") . "\n", l:lsp.fileVersions[l:fname])
   let l:state = s:newHandlerState('')
@@ -703,7 +701,7 @@ function! s:completionHandler(next, msg) abort dict
   for l:item in a:msg.items
     let l:start = l:item.textEdit.range.start.character
 
-    let l:match = {'abbr': l:item.label, 'word': l:item.textEdit.newText, 'info': '', 'kind': go#lsp#completionitemkind#Vim(l:item.kind)}
+    let l:match = {'abbr': l:item.label, 'word': l:item.textEdit.newText, 'info': '', 'kind': go#lsp#completionitemkind#Vim(l:item.kind), 'user_data': ''}
     if has_key(l:item, 'detail')
         let l:match.menu = l:item.detail
         if go#lsp#completionitemkind#IsFunction(l:item.kind) || go#lsp#completionitemkind#IsMethod(l:item.kind)
@@ -721,6 +719,7 @@ function! s:completionHandler(next, msg) abort dict
         endif
     endif
 
+    let l:match.user_data = l:match.info
     if has_key(l:item, 'documentation')
       let l:match.info .= "\n\n" . l:item.documentation
     endif
@@ -1487,7 +1486,7 @@ function s:applyTextEdits(msg) abort
 
     " handle the deletion of whole lines
     if len(l:text) == 0 && l:msg.range.start.character == 0 && l:msg.range.end.character == 0 && l:startline < l:endline
-      call deletebufline('', l:startline, l:endline-1)
+      call s:deleteline(l:startline, l:endline-1)
       continue
     endif
 
@@ -1519,7 +1518,7 @@ function s:applyTextEdits(msg) abort
     " TODO(bc): deal with the undo file
     " TODO(bc): deal with folds
 
-    call execute(printf('%d,%d d_', l:startline, l:endline))
+    call s:deleteline(l:startline, l:endline)
     for l:line in split(l:text, "\n")
       call append(l:startline-1, l:line)
       let l:startline += 1
@@ -1568,6 +1567,15 @@ function! s:textEditLess(left, right) abort
   " return 0, because a:left an a:right refer to the same position.
   return 0
 endfunction
+
+function! s:deleteline(start, end) abort
+  if exists('*deletebufline')
+    call deletebufline('', a:start, a:end)
+  else
+    call execute(printf('%d,%d d_', a:start, a:end))
+  endif
+endfunction
+
 " restore Vi compatibility settings
 let &cpo = s:cpo_save
 unlet s:cpo_save
