@@ -50,6 +50,7 @@ lightline.vim https://github.com/itchyny/lightline.vim
 vim-tex-syntax https://github.com/gerw/vim-tex-syntax
 awesome-vim-colorschemes https://github.com/rafi/awesome-vim-colorschemes
 ultisnips https://github.com/SirVer/ultisnips
+vim-snippets https://github.com/honza/vim-snippets
 FastFold https://github.com/Konfekt/FastFold
 """.strip()
 
