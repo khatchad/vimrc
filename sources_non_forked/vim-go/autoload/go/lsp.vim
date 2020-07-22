@@ -576,6 +576,10 @@ function! go#lsp#Definition(fname, line, col, handler) abort
 endfunction
 
 function! s:definitionHandler(next, msg) abort dict
+  if a:msg is v:null || len(a:msg) == 0
+    return
+  endif
+
   " gopls returns a []Location; just take the first one.
   let l:msg = a:msg[0]
   let l:args = [[printf('%s:%d:%d: %s', go#path#FromURI(l:msg.uri), l:msg.range.start.line+1, go#lsp#lsp#PositionOf(getline(l:msg.range.start.line+1), l:msg.range.start.character), 'lsp does not supply a description')]]
@@ -598,6 +602,10 @@ function! go#lsp#TypeDef(fname, line, col, handler) abort
 endfunction
 
 function! s:typeDefinitionHandler(next, msg) abort dict
+  if a:msg is v:null || len(a:msg) == 0
+    return
+  endif
+
   " gopls returns a []Location; just take the first one.
   let l:msg = a:msg[0]
   let l:args = [[printf('%s:%d:%d: %s', go#path#FromURI(l:msg.uri), l:msg.range.start.line+1, go#lsp#lsp#PositionOf(getline(l:msg.range.start.line+1), l:msg.range.start.character), 'lsp does not supply a description')]]
@@ -1290,11 +1298,16 @@ function! go#lsp#AnalyzeFile(fname) abort
 
   let l:lsp = s:lspfactory.get()
 
-  let l:version = l:lsp.fileVersions[l:fname]
+  let l:lastdiagnostics = get(l:lsp.diagnostics, l:fname, [])
+
+  let l:version = l:lsp.fileVersions[a:fname]
+  if l:version == getbufvar(a:fname, 'changedtick')
+    return l:lastdiagnostics
+  endif
 
   call go#lsp#DidChange(a:fname)
 
-  let l:diagnostics = go#promise#New(function('s:setDiagnostics', []), 10000, get(l:lsp.diagnostics, l:fname, []))
+  let l:diagnostics = go#promise#New(function('s:setDiagnostics', []), 10000, l:lastdiagnostics)
   let l:lsp.notificationQueue[l:fname] = add(l:lsp.notificationQueue[l:fname], l:diagnostics.wrapper)
   return l:diagnostics.await()
 endfunction
@@ -1311,7 +1324,11 @@ function! s:errorFromDiagnostic(diagnostic, bufname, fname) abort
   let l:range = a:diagnostic.range
 
   let l:line = l:range.start.line + 1
-  let l:col = go#lsp#lsp#PositionOf(getbufline(a:bufname, l:line)[0], l:range.start.character)
+  let l:buflines = getbufline(a:bufname, l:line)
+  let l:col = ''
+  if len(l:buflines) > 0
+    let l:col = go#lsp#lsp#PositionOf(l:buflines[0], l:range.start.character)
+  endif
   let l:error = printf('%s:%s:%s:%s: %s', a:fname, l:line, l:col, go#lsp#lsp#SeverityToErrorType(a:diagnostic.severity), a:diagnostic.message)
 
   if !(a:diagnostic.severity == 1 || a:diagnostic.severity == 2)

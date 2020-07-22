@@ -25,6 +25,27 @@ IMPROVEMENTS:
   [[GH-2930]](https://github.com/fatih/vim-go/pull/2930)
 * Stop the debugger when the process being debugged exits.
   [[GH-2921]](https://github.com/fatih/vim-go/pull/2921)
+* Use the module package cache as a source of packages candidates when trying
+  to complete package names.
+  [[GH-2936]](https://github.com/fatih/vim-go/pull/2936)
+  [[GH-2939]](https://github.com/fatih/vim-go/pull/2939)
+* Allow interaction with Vim while waiting for a breakpoint to be hit while
+  debugging.
+  [[GH-2932]](https://github.com/fatih/vim-go/pull/2932)
+* Refactor Vim signs used for debugging breakpoints to avoid id collision with
+  other plugins.
+  [[GH-2943]](https://github.com/fatih/vim-go/pull/2943)
+* Refactor debugger's rpc response handling to be asynchronous so that Vim will
+  be responsive while the program being debugged is executing.
+  [[GH-2948]](https://github.com/fatih/vim-go/pull/2948)
+  [[GH-2952]](https://github.com/fatih/vim-go/pull/2952)
+* Warn when the debugger breaks in a file that has changed since debugging started.
+  [[GH-2950]](https://github.com/fatih/vim-go/pull/2950)
+* Enable `go-run` mappings that use the terminal to work with Vim in addition to Neovim.
+  [[GH-2956]](https://github.com/fatih/vim-go/pull/2956)
+* Use existing diagnostics for the file when the file hasn't changed and
+  `g:go_metalinter_command` is `gopls`.
+  [[GH-2960]](https://github.com/fatih/vim-go/pull/2960)
 
 BUG FIXES:
 * Fix call to non-existent function in terminal mode edge case.
@@ -46,6 +67,16 @@ BUG FIXES:
 * Handle breakpoints that are already set before calling `:GoDebugStart` or
   `:GoDebugTest` in some locales that cause the `sign place` output to vary.
   [[GH-2921]](https://github.com/fatih/vim-go/pull/2921)
+* Handle diagnostic errors at the end of a .go file.
+  [[GH-2942]](https://github.com/fatih/vim-go/pull/2942)
+* Fix the `go-implements` mapping to use respect `g:go_implements_mode`.
+  [[GH-2944]](https://github.com/fatih/vim-go/pull/2944)
+* Handle null results from `gopls` when getting definitions or type definitions
+  from virtual files.
+  [[GH-2951]](https://github.com/fatih/vim-go/pull/2951)
+* Fix warning when Neovim is older than v0.4.0.
+  [[GH-2959]](https://github.com/fatih/vim-go/pull/2959)
+
 
 ## v1.23 - (May 16, 2020)
 
