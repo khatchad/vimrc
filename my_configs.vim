@@ -89,6 +89,9 @@ autocmd FileType tex,plaintex setlocal foldmethod=syntax
 autocmd FileType tex,plaintex syntax spell toplevel
 " search in a singe file. This will confuse latex-suite. Set your grep program
 " to alway generate a file-name.
+autocmd FileType tex,plaintex syntax region texZone start='\\begin\s*{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\begin\s*{.*}{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\end\s*{' end='}'
 autocmd FileType tex,plaintex setlocal grepprg=grep\ -nH\ $*
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{lstlisting}' end='\\end{lstlisting}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{minted}' end='\\end{minted}'
@@ -115,6 +118,8 @@ autocmd FileType tex,plaintex syntax region texZone start='\\citet{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\citeauthor{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\citetitle{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='%' end='\n'
+autocmd FileType tex,plaintex syntax region texRefZone start='\\lref{' end='}'
+autocmd FileType tex,plaintex syntax region texRefZone start='\\Lref{' end='}'
 
 "===== For custom mappings
 augroup MyTeXIMAPs
