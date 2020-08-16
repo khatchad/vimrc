@@ -5,6 +5,10 @@
         - **.PATCH**: Pull Request Title (PR Author) [PR Number](Link to PR)
 -->
 #### 6.9
+- **.8**: Refactor sort comparison functions, removing redundancy (PhilRunninger) [#1166](https://github.com/preservim/nerdtree/pull/1166)
+- **.7**: Fix argument of `exists()` function calls checking for autocommands. (PhilRunninger) [#1165](https://github.com/preservim/nerdtree/pull/1165)
+- **.6**: Don't use silent when raising User events (PhilRunninger) [#1164](https://github.com/preservim/nerdtree/pull/1164)
+- **.5**: Fix highlight for file node.  (pirey) [#1157](https://github.com/preservim/nerdtree/pull/1157)
 - **.4**: Make sure symbolic links' flags are highlighted correctly.  (PhilRunninger) [#1156](https://github.com/preservim/nerdtree/pull/1156)
 - **.3**: Fix new NERDTrees' width when previous one was in the only window. (PhilRunninger) [#1153](https://github.com/preservim/nerdtree/pull/1153)
 - **.2**: Fix the scope of several key mappings (lifecrisis, PhilRunninger) [#1151](https://github.com/preservim/nerdtree/pull/1151)

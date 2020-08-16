@@ -13,7 +13,8 @@ function _dl() {
 		| tar xz --strip=1 -C "$tmp"/
 
 	rsync -avh "$tmp"/"$rtp" --include='after/***' \
-		--include='autoload/***' --include='colors/***' --exclude='*' .
+		--include='autoload/***' --include='colors/***' \
+		--include='plugin/***' --exclude='*' .
 
 	cp -r "$tmp"/"$rtp"/README* "$docs"/"${1//\//-}".md
 	rm -rf "$tmp"
@@ -35,12 +36,12 @@ function _main() {
 	_dl cseelus/vim-colors-lucid
 	_dl danilo-augusto/vim-afterglow
 	_dl dikiaap/minimalist
-	_dl dracula/vim
 	_dl endel/vim-github-colorscheme
 	_dl fcpg/vim-orbital
 	_dl fmoralesc/molokayo
 	_dl gilgigilgil/anderson.vim
 	_dl gregsexton/Atom
+	_dl hardcoreplayers/oceanic-material
 	_dl jacoborus/tender.vim
 	_dl jaredgorski/fogbell.vim
 	_dl jaredgorski/SpaceCamp
@@ -61,12 +62,14 @@ function _main() {
 	_dl nanotech/jellybeans.vim
 	_dl nightsense/carbonized
 	_dl nightsense/stellarized
+	_dl nikolvs/vim-sunbather
 	_dl owickstrom/vim-colors-paramount
 	_dl rakr/vim-colors-rakr
 	_dl rakr/vim-one
 	_dl rakr/vim-two-firewatch
 	_dl romainl/Apprentice
 	_dl romainl/flattened
+	_dl sainnhe/sonokai
 	_dl scheakur/vim-scheakur
 	_dl sts10/vim-pink-moon
 	_dl tomasr/molokai
