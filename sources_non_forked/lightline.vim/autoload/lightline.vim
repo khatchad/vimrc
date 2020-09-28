@@ -2,7 +2,7 @@
 " Filename: autoload/lightline.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2020/06/19 11:08:46.
+" Last Change: 2020/09/25 10:56:16.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -290,6 +290,7 @@ function! lightline#highlight(...) abort
     endfor
     exec printf('hi LightlineMiddle_%s guifg=%s guibg=%s ctermfg=%s ctermbg=%s %s', mode, ms[0], ms[1], ms[2], ms[3], s:term(ms))
   endfor
+  if !a:0 | let s:mode = '' | endif
 endfunction
 
 function! s:subseparator(components, subseparator, expanded) abort
@@ -409,9 +410,9 @@ function! s:line(tabline, inactive) abort
   let [c, f, t, w] = [s:lightline.component, s:lightline.component_function, s:lightline.component_type, s:lightline.component_raw]
   let mode = a:tabline ? 'tabline' : a:inactive ? 'inactive' : 'active'
   let l_ = has_key(s:lightline, mode) ? s:lightline[mode].left : s:lightline.active.left
-  let [lt, lc, ll] = s:expand(copy(l_))
+  let [lt, lc, ll] = s:expand(l_)
   let r_ = has_key(s:lightline, mode) ? s:lightline[mode].right : s:lightline.active.right
-  let [rt, rc, rl] = s:expand(copy(r_))
+  let [rt, rc, rl] = s:expand(r_)
   for i in range(len(lt))
     let _ .= '%#LightlineLeft_' . mode . '_' . ll[i] . '#'
     for j in range(len(lt[i]))
