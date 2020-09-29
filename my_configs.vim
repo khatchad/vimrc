@@ -108,6 +108,7 @@ autocmd FileType tex,plaintex syntax region texZone start='\\javainline{' end='}
 autocmd FileType tex,plaintex syntax region texZone start='\\jl{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\csharpinline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\pythoninline{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\cppinline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\lstinline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\url{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\httplink{' end='}'
@@ -120,6 +121,9 @@ autocmd FileType tex,plaintex syntax region texZone start='\\citetitle{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='%' end='\n'
 autocmd FileType tex,plaintex syntax region texRefZone start='\\lref{' end='}'
 autocmd FileType tex,plaintex syntax region texRefZone start='\\Lref{' end='}'
+autocmd FileType tex,plaintex syntax region texRefZone start='\\newcounter{' end='}'
+autocmd FileType tex,plaintex syntax region texRefZone start='\\newmdenv{' end='}'
+autocmd FileType tex,plaintex syntax region texRefZone start='\\setminted{' end='}'
 
 "===== For custom mappings
 augroup MyTeXIMAPs
@@ -239,5 +243,5 @@ if has("autocmd")
   endif
 endif
 
-let g:netrw_browsex_viewer= "/usr/bin/xdg-open"
-colorscheme PaperColor
+let g:netrw_browsex_viewer= "/usr/bin/google-chrome-stable"
+colorscheme jellybeans
