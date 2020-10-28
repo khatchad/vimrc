@@ -32,7 +32,7 @@ endfunction
 function! s:clearOptions() abort
   " clear all the vim-go options
   for l:k in keys(g:)
-    if l:k =~ '^go_'
+    if l:k =~ '^go_' && l:k !~ '^go_loaded_'
       call execute(printf('unlet g:%s', l:k))
     endif
   endfor
@@ -42,10 +42,9 @@ endfunction
 source %
 
 " cd into the folder of the test file.
-let s:cd = exists('*haslocaldir') && haslocaldir() ? 'lcd ' : 'cd '
 let s:testfile = expand('%:t')
 let s:dir = expand('%:p:h')
-execute s:cd . s:dir
+call go#util#Chdir(s:dir)
 
 " Export root path to vim-go dir.
 let g:vim_go_root = fnamemodify(getcwd(), ':p')
@@ -88,7 +87,7 @@ for s:test in sort(s:tests)
     " in 'stream closed' errors when the events were run _after_ gopls exited.
     sleep 50m
   catch
-    let v:errors += [v:exception]
+    call assert_report(printf('at %s: %s', v:throwpoint, v:exception))
   finally
     call s:clearOptions()
   endtry
@@ -98,7 +97,7 @@ for s:test in sort(s:tests)
   " Restore GOPATH after each test.
   let $GOPATH = s:gopath
   " Restore the working directory after each test.
-  execute s:cd . s:dir
+  call go#util#Chdir(s:dir)
 
   try
     " exit gopls after each test
@@ -121,6 +120,8 @@ for s:test in sort(s:tests)
     if g:test_verbose is 1
       call s:logmessages()
       call add(s:logs, printf("--- PASS %s (%ss)", s:test[:-3], s:elapsed_time))
+    else
+      silent messages clear
     endif
   endif
 endfor
