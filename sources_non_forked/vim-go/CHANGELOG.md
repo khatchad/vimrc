@@ -21,6 +21,7 @@ IMPROVEMENTS:
   [[GH-3133]](https://github.com/fatih/vim-go/pull/3133)
 * Add `g:go_debug_mappings` to allow the debug key mappings to be customized.
   [[GH-3035]](https://github.com/fatih/vim-go/pull/3035)
+  [[GH-3143]](https://github.com/fatih/vim-go/pull/3143)
 * Use `gopls` as the default instead of `guru` to satisfy `:GoImplements`.
   [[GH-3034]](https://github.com/fatih/vim-go/pull/3034)
 * Deprecate g:go_diagnostics_enabled` and add `g:go_diagnostics_level` to allow
@@ -41,6 +42,8 @@ IMPROVEMENTS:
 * Use `gopls` for `:GoCallers`.
   [[GH-3088]](https://github.com/fatih/vim-go/pull/3088)
   [[GH-3090]](https://github.com/fatih/vim-go/pull/3090)
+  [[GH-3141]](https://github.com/fatih/vim-go/pull/3141)
+  [[GH-3142]](https://github.com/fatih/vim-go/pull/3142)
 * Update denite integration to work with python3.9.
   [[GH-3097]](https://github.com/fatih/vim-go/pull/3097)
 * Add syntax highlighting for go.sum files.
@@ -50,6 +53,8 @@ IMPROVEMENTS:
 * Add `g:go_debug_preserve_layout` to prevent `:GoDebug` and friends from
   closing windows.
   [[GH-3125]](https://github.com/fatih/vim-go/pull/3125)
+* Add support for `fillstruct`'s new `-tags` flag.
+  [[GH-3156]](https://github.com/fatih/vim-go/pull/3156)
 
 BUG FIXES:
 * Remove implications that terminal mode is only applied for Neovim.
@@ -78,6 +83,8 @@ BUG FIXES:
 * Remove implication that `g:go_def_reuse_buffer` only applies to split variant
   of jumping to a definition.
   [[GH-3128]](https://github.com/fatih/vim-go/pull/3128)
+* Organize imports correctly when `gopls` formatting uses `gofumpt`.
+  [[GH-3154]](https://github.com/fatih/vim-go/pull/3154)
 
 ## v1.24 - (September 15, 2020)
 
