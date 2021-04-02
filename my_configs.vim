@@ -107,7 +107,7 @@ autocmd FileType tex,plaintex setlocal grepprg=grep\ -nH\ $*
 " autocmd FileType tex,plaintex syntax region texZone start='\\javainline{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\jl{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\csharpinline{' end='}'
-" autocmd FileType tex,plaintex syntax region texZone start='\\pythoninline{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\pythoninline{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\cppinline{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\lstinline{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\url{' end='}'
