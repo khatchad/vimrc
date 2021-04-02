@@ -55,6 +55,20 @@ IMPROVEMENTS:
   [[GH-3125]](https://github.com/fatih/vim-go/pull/3125)
 * Add support for `fillstruct`'s new `-tags` flag.
   [[GH-3156]](https://github.com/fatih/vim-go/pull/3156)
+* Display map key and slice elements more usefully in the local vars window in
+  debug mode.
+  [[GH-3170]](https://github.com/fatih/vim-go/pull/3170)
+* Add support for go.mod's `retract` directive.
+  [[GH-3166]](https://github.com/fatih/vim-go/pull/3166)
+* Do not execute disabled code actions.
+  [[GH-3155]](https://github.com/fatih/vim-go/pull/3155)
+* Add `:GoDebugConnect` to support connecting to an instance of delve started
+  outside of vim-go.
+  [[GH-3179]](https://github.com/fatih/vim-go/pull/3179)
+* Use gopls to adjust imports and formatting by default.
+  [[GH-2986]](https://github.com/fatih/vim-go/pull/2986)
+* Set the filetype for .tmpl files to gohtmltmpl even if it's already been set.
+  [[GH-3146]](https://github.com/fatih/vim-go/pull/3146)
 
 BUG FIXES:
 * Remove implications that terminal mode is only applied for Neovim.
@@ -85,6 +99,11 @@ BUG FIXES:
   [[GH-3128]](https://github.com/fatih/vim-go/pull/3128)
 * Organize imports correctly when `gopls` formatting uses `gofumpt`.
   [[GH-3154]](https://github.com/fatih/vim-go/pull/3154)
+* Rename all instances of an identifier when `g:go_rename_mode` is `gopls`.
+  [[GH-3181]](https://github.com/fatih/vim-go/pull/3181)
+  [[GH-3182]](https://github.com/fatih/vim-go/pull/3182)
+* Terminate a case statement in the select snippet with a colon.
+  [[GH-3185]](https://github.com/fatih/vim-go/pull/3185)
 
 ## v1.24 - (September 15, 2020)
 
