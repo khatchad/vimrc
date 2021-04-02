@@ -118,6 +118,7 @@ autocmd FileType tex,plaintex setlocal grepprg=grep\ -nH\ $*
 " autocmd FileType tex,plaintex syntax region texZone start='\\citet{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\citeauthor{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\citetitle{' end='}'
+autocmd FileType tex,plaintex syntax match texRefZone '\\citetitle\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 " autocmd FileType tex,plaintex syntax region texZone start='%' end='\n'
 " autocmd FileType tex,plaintex syntax region texRefZone start='\\lref{' end='}'
 " autocmd FileType tex,plaintex syntax region texRefZone start='\\Lref{' end='}'
