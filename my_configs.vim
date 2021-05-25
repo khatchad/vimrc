@@ -239,12 +239,12 @@ au FileType help setl nospell
 """"""""""""""""""""""""""""""
 " => Highlight TODO, FIXME, NOTE, etc.
 """""""""""""""""""""""""""""""
-if has("autocmd")
-  if v:version > 701
+" if has("autocmd")
+"   if v:version > 701
     autocmd Syntax * call matchadd('Todo',  '\W\zs\(TODO\|todo\|FIXME\|CHANGED\|XXX\|BUG\|HACK\)')
     autocmd Syntax * call matchadd('Debug', '\W\zs\(NOTE\|INFO\|IDEA\)')
-  endif
-endif
+  " endif
+" endif
 
-let g:netrw_browsex_viewer= "/usr/bin/google-chrome-stable"
+let g:netrw_browsex_viewer= "google-chrome"
 colorscheme jellybeans
