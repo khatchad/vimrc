@@ -6,12 +6,6 @@ if exists('g:autoloaded_fugitive')
 endif
 let g:autoloaded_fugitive = 1
 
-if !exists('g:fugitive_git_executable')
-  let g:fugitive_git_executable = 'git'
-elseif g:fugitive_git_executable =~# '^\w\+='
-  let g:fugitive_git_executable = 'env ' . g:fugitive_git_executable
-endif
-
 " Section: Utility
 
 function! s:function(name) abort
@@ -233,6 +227,41 @@ endfunction
 
 " Section: Git
 
+function! s:GitCmd() abort
+  if !exists('g:fugitive_git_executable')
+    return ['git']
+  elseif type(g:fugitive_git_executable) == type([])
+    return g:fugitive_git_executable
+  else
+    let dquote = '"\%([^"]\|""\|\\"\)*"\|'
+    let string = g:fugitive_git_executable
+    let list = []
+    if string =~# '^\w\+='
+      call add(list, 'env')
+    endif
+    while string =~# '\S'
+      let arg = matchstr(string, '^\s*\%(' . dquote . '''[^'']*''\|\\.\|[^[:space:] |]\)\+')
+      let string = strpart(string, len(arg))
+      let arg = substitute(arg, '^\s\+', '', '')
+      let arg = substitute(arg,
+            \ '\(' . dquote . '''\%(''''\|[^'']\)*''\|\\[' . s:fnameescape . ']\|^\\[>+-]\|!\d*\)\|' . s:expand,
+            \ '\=submatch(0)[0] ==# "\\" ? submatch(0)[1] : submatch(0)[1:-2]', 'g')
+      call add(list, arg)
+    endwhile
+    return list
+  endif
+endfunction
+
+function! s:GitShellCmd() abort
+  if !exists('g:fugitive_git_executable')
+    return 'git'
+  elseif type(g:fugitive_git_executable) == type([])
+    return s:shellesc(g:fugitive_git_executable)
+  else
+    return g:fugitive_git_executable
+  endif
+endfunction
+
 function! s:UserCommandCwd(dir) abort
   let tree = s:Tree(a:dir)
   return len(tree) ? FugitiveVimPath(tree) : getcwd()
@@ -242,7 +271,13 @@ function! s:UserCommandList(...) abort
   if !fugitive#GitVersion(1, 8, 5)
     throw 'fugitive: Git 1.8.5 or higher required'
   endif
-  let git = split(get(g:, 'fugitive_git_command', g:fugitive_git_executable), '\s\+')
+  if !exists('g:fugitive_git_command')
+    let git = s:GitCmd()
+  elseif type(g:fugitive_git_command) == type([])
+    let git = g:fugitive_git_command
+  else
+    let git = split(g:fugitive_git_command, '\s\+')
+  endif
   let flags = []
   if a:0 && type(a:1) == type({})
     let git = copy(get(a:1, 'git', git))
@@ -270,13 +305,14 @@ endfunction
 
 let s:git_versions = {}
 function! fugitive#GitVersion(...) abort
-  if !has_key(s:git_versions, g:fugitive_git_executable)
-    let s:git_versions[g:fugitive_git_executable] = matchstr(s:SystemError(g:fugitive_git_executable.' --version')[0], '\d[^[:space:]]\+')
+  let git = s:GitShellCmd()
+  if !has_key(s:git_versions, git)
+    let s:git_versions[git] = matchstr(s:SystemError(git.' --version')[0], '\d[^[:space:]]\+')
   endif
   if !a:0
-    return s:git_versions[g:fugitive_git_executable]
+    return s:git_versions[git]
   endif
-  let components = split(s:git_versions[g:fugitive_git_executable], '\D\+')
+  let components = split(s:git_versions[git], '\D\+')
   if empty(components)
     return -1
   endif
@@ -368,7 +404,7 @@ function! fugitive#PrepareDirEnvGitArgv(...) abort
   if !fugitive#GitVersion(1, 8, 5)
     throw 'fugitive: Git 1.8.5 or higher required'
   endif
-  let git = split(g:fugitive_git_executable)
+  let git = s:GitCmd()
   if a:0 && type(a:1) ==# type([])
     let cmd = a:000[1:-1] + a:1
   else
@@ -845,7 +881,7 @@ function! s:repo_prepare(...) dict abort
 endfunction
 
 function! s:repo_git_command(...) dict abort
-  let git = g:fugitive_git_executable . ' --git-dir='.s:shellesc(self.git_dir)
+  let git = s:GitShellCmd() . ' --git-dir='.s:shellesc(self.git_dir)
   return git.join(map(copy(a:000),'" ".s:shellesc(v:val)'),'')
 endfunction
 
@@ -2095,7 +2131,7 @@ function! fugitive#BufReadStatus() abort
     if &bufhidden ==# ''
       setlocal bufhidden=delete
     endif
-    let b:dispatch = '-dir=' . fnameescape(len(s:Tree()) ? s:Tree() : s:Dir()) . ' ' . g:fugitive_git_executable . ' fetch --all'
+    let b:dispatch = '-dir=' . fnameescape(len(s:Tree()) ? s:Tree() : s:Dir()) . ' ' . s:GitShellCmd() . ' fetch --all'
     call fugitive#MapJumps()
     call s:Map('n', '-', ":<C-U>execute <SID>Do('Toggle',0)<CR>", '<silent>')
     call s:Map('x', '-', ":<C-U>execute <SID>Do('Toggle',1)<CR>", '<silent>')
@@ -2261,8 +2297,8 @@ function! fugitive#BufReadCmd(...) abort
     setlocal endofline
 
     try
-      if &foldmethod ==# 'marker' && b:fugitive_type !=# 'blob'
-        setlocal foldmethod=manual
+      if b:fugitive_type !=# 'blob'
+        setlocal foldmarker=<<<<<<<<,>>>>>>>>
       endif
       silent exe s:DoAutocmd('BufReadPre')
       if b:fugitive_type ==# 'tree'
@@ -2405,7 +2441,7 @@ function! s:TempReadPost(file) abort
     if has_key(dict, 'filetype')
       let &l:filetype = dict.filetype
     endif
-    setlocal foldmarker=<<<<<<<,>>>>>>>
+    setlocal foldmarker=<<<<<<<<,>>>>>>>>
     if !&modifiable
       if empty(mapcheck('q', 'n'))
         nnoremap <buffer> <silent> q    :<C-U>echoerr "fugitive: q is removed in favor of gq (or :q)"<CR>
@@ -2822,7 +2858,7 @@ function! fugitive#Command(line1, line2, range, bang, mods, arg) abort
     call extend(args, split(alias, '\s\+'), 'keep')
   endif
   let name = substitute(get(args, 0, ''), '\%(^\|-\)\(\l\)', '\u\1', 'g')
-  let git = split(get(g:, 'fugitive_git_command', g:fugitive_git_executable), '\s\+')
+  let git = s:UserCommandList()
   let options = {'git': git, 'dir': dir, 'flags': flags}
   if pager is# -1 && exists('*s:' . name . 'Subcommand') && get(args, 1, '') !=# '--help'
     try
@@ -2981,10 +3017,11 @@ endfunction
 
 let s:exec_paths = {}
 function! s:ExecPath() abort
-  if !has_key(s:exec_paths, g:fugitive_git_executable)
-    let s:exec_paths[g:fugitive_git_executable] = s:sub(system(g:fugitive_git_executable.' --exec-path'),'\n$','')
+  let git = s:GitShellCmd()
+  if !has_key(s:exec_paths, git)
+    let s:exec_paths[git] = s:sub(system(git.' --exec-path'),'\n$','')
   endif
-  return s:exec_paths[g:fugitive_git_executable]
+  return s:exec_paths[git]
 endfunction
 
 let s:subcommands_before_2_5 = [
@@ -3101,7 +3138,7 @@ function! s:StatusCommand(line1, line2, range, count, bang, mods, reg, arg, args
   try
     let mods = s:Mods(a:mods, &splitbelow ? 'botright' : 'topleft')
     let file = fugitive#Find(':', dir)
-    let arg = ' +let\ w:fugitive_status=FugitiveGitDir() ' .
+    let arg = ' +setl\ foldmarker=<<<<<<<<,>>>>>>>>\|let\ w:fugitive_status=FugitiveGitDir() ' .
           \ s:fnameescape(file)
     for tabnr in [tabpagenr()] + (mods =~# '\<tab\>' ? range(1, tabpagenr('$')) : [])
       let bufs = tabpagebuflist(tabnr)
@@ -4457,10 +4494,7 @@ function! s:ToolStream(line1, line2, range, bang, mods, options, args, state) ab
   let a:state.mode = 'init'
   let a:state.from = ''
   let a:state.to = ''
-  let exec = s:UserCommandList({'git': a:options.git, 'dir': a:options.dir})
-  if !s:HasOpt(argv, '--name-status') && !prompt
-    let exec += ['-c', 'diff.context=0']
-  endif
+  let exec = s:UserCommandList({'git': a:options.git, 'dir': a:options.dir}) + ['-c', 'diff.context=0']
   let exec += a:options.flags + ['--no-pager', 'diff', '--no-ext-diff', '--no-color', '--no-prefix'] + argv
   if prompt
     let title = ':Git ' . s:fnameescape(a:options.flags + [a:options.subcommand] + a:options.subcommand_args)
@@ -5570,9 +5604,9 @@ endfunction
 function! s:Keywordprg() abort
   let args = ' --git-dir='.escape(s:Dir(),"\\\"' ")
   if has('gui_running') && !has('win32')
-    return g:fugitive_git_executable . ' --no-pager' . args . ' log -1'
+    return s:GitShellCmd() . ' --no-pager' . args . ' log -1'
   else
-    return g:fugitive_git_executable . args . ' show'
+    return s:GitShellCmd() . args . ' show'
   endif
 endfunction
 
@@ -6251,9 +6285,15 @@ function! fugitive#BrowseCommand(line1, count, range, bang, mods, arg, args) abo
         let remote = r
       endif
       if r ==# '.' || r ==# remote
-        let merge = m
-        if path =~# '^\.git/refs/heads/.'
-          let path = '.git/refs/heads/'.merge
+        let remote_ref = 'refs/remotes/' . remote . '/' . branch
+        if FugitiveConfigGet('push.default', dir) ==# 'upstream' ||
+              \ !filereadable(FugitiveFind('.git/' . remote_ref)) && s:ChompError(['rev-parse', '--verify', remote_ref, '--'], dir)[1]
+          let merge = m
+          if path =~# '^\.git/refs/heads/.'
+            let path = '.git/refs/heads/'.merge
+          endif
+        else
+          let merge = branch
         endif
       endif
     endif
