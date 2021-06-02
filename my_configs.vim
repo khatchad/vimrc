@@ -112,7 +112,7 @@ autocmd FileType tex,plaintex syntax region texZone start='\\textinline{' end='}
 autocmd FileType tex,plaintex syntax region texZone start='\\httplink{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\cppinline{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\lstinline{' end='}'
-" autocmd FileType tex,plaintex syntax region texZone start='\\url{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\url{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\httplink{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\href{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\cite{' end='}'
