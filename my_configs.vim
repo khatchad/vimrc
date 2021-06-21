@@ -248,3 +248,4 @@ au FileType help setl nospell
 
 let g:netrw_browsex_viewer= "google-chrome"
 colorscheme jellybeans
+set mouse-=a
