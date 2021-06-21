@@ -247,4 +247,4 @@ au FileType help setl nospell
 " endif
 
 let g:netrw_browsex_viewer= "google-chrome"
-colorscheme jellybeans
+colorscheme wombat
