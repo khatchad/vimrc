@@ -248,4 +248,4 @@ au FileType help setl nospell
 
 let g:netrw_browsex_viewer= "google-chrome"
 colorscheme wombat
-set mouse-=a
+" set mouse-=a
