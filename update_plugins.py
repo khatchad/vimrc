@@ -52,6 +52,7 @@ awesome-vim-colorschemes https://github.com/rafi/awesome-vim-colorschemes
 ultisnips https://github.com/SirVer/ultisnips
 vim-snippets https://github.com/honza/vim-snippets
 FastFold https://github.com/Konfekt/FastFold
+vim-better-whitespace https://github.com/ntpeters/vim-better-whitespace
 """.strip()
 
 GITHUB_ZIP = '%s/archive/master.zip'
