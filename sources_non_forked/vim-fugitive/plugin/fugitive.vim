@@ -180,7 +180,12 @@ function! FugitiveCommonDir(...) abort
 endfunction
 
 function! FugitiveWorkTree(...) abort
-  return s:Tree(FugitiveGitDir(a:0 ? a:1 : -1))
+  let tree = s:Tree(FugitiveGitDir(a:0 ? a:1 : -1))
+  if tree isnot# 0 || a:0 > 1
+    return tree
+  else
+    return ''
+  endif
 endfunction
 
 function! FugitiveIsGitDir(path) abort
@@ -204,9 +209,14 @@ function! s:Tree(path) abort
     let config_file = dir . '/config'
     if filereadable(config_file)
       let config = readfile(config_file,'',10)
-      call filter(config,'v:val =~# "^\\s*worktree *="')
-      if len(config) == 1
-        let worktree = FugitiveVimPath(matchstr(config[0], '= *\zs.*'))
+      let wt_config = filter(copy(config),'v:val =~# "^\\s*worktree *="')
+      if len(wt_config) == 1
+        let worktree = FugitiveVimPath(matchstr(wt_config[0], '= *\zs.*'))
+      else
+        call filter(config,'v:val =~# "^\\s*bare *= *false *$"')
+        if len(config)
+          let s:worktree_for_dir[dir] = 0
+        endif
       endif
     elseif filereadable(dir . '/gitdir')
       let worktree = fnamemodify(FugitiveVimPath(readfile(dir . '/gitdir')[0]), ':h')
@@ -358,7 +368,7 @@ function! s:ProjectionistDetect() abort
   if empty(base)
     let base = s:Tree(dir)
   endif
-  if len(base)
+  if !empty(base)
     if exists('+shellslash') && !&shellslash
       let base = tr(base, '/', '\')
     endif
@@ -422,22 +432,22 @@ exe 'command! -bar -bang -nargs=* -range=-1                -complete=customlist,
 
 exe 'command! -bar -bang -nargs=* -complete=customlist,fugitive#EditComplete Gdiffsplit  exe fugitive#Diffsplit(1, <bang>0, "<mods>", <q-args>, [<f-args>])'
 exe 'command! -bar -bang -nargs=* -complete=customlist,fugitive#EditComplete Ghdiffsplit exe fugitive#Diffsplit(0, <bang>0, "<mods>", <q-args>, [<f-args>])'
-exe 'command! -bar -bang -nargs=* -complete=customlist,fugitive#EditComplete Gvdiffsplit exe fugitive#Diffsplit(0, <bang>0, "vert <mods>", <q-args>, [<f-args>])'
+exe 'command! -bar -bang -nargs=* -complete=customlist,fugitive#EditComplete Gvdiffsplit exe fugitive#Diffsplit(0, <bang>0, "vertical <mods>", <q-args>, [<f-args>])'
 
 exe 'command! -bar -bang -nargs=* -complete=customlist,fugitive#EditComplete Gw     exe fugitive#WriteCommand(<line1>, <count>, +"<range>", <bang>0, "<mods>", <q-args>, [<f-args>])'
 exe 'command! -bar -bang -nargs=* -complete=customlist,fugitive#EditComplete Gwrite exe fugitive#WriteCommand(<line1>, <count>, +"<range>", <bang>0, "<mods>", <q-args>, [<f-args>])'
 exe 'command! -bar -bang -nargs=* -complete=customlist,fugitive#EditComplete Gwq    exe fugitive#WqCommand(   <line1>, <count>, +"<range>", <bang>0, "<mods>", <q-args>, [<f-args>])'
 
-exe 'command! -bar -bang -nargs=0 -complete=customlist,fugitive#CompleteObject GRemove exe fugitive#RemoveCommand(<line1>, <count>, +"<range>", <bang>0, "<mods>", <q-args>, [<f-args>])'
-exe 'command! -bar -bang -nargs=0 -complete=customlist,fugitive#CompleteObject GDelete exe fugitive#DeleteCommand(<line1>, <count>, +"<range>", <bang>0, "<mods>", <q-args>, [<f-args>])'
+exe 'command! -bar -bang -nargs=0 GRemove exe fugitive#RemoveCommand(<line1>, <count>, +"<range>", <bang>0, "<mods>", <q-args>, [<f-args>])'
+exe 'command! -bar -bang -nargs=0 GDelete exe fugitive#DeleteCommand(<line1>, <count>, +"<range>", <bang>0, "<mods>", <q-args>, [<f-args>])'
 exe 'command! -bar -bang -nargs=1 -complete=customlist,fugitive#CompleteObject GMove   exe fugitive#MoveCommand(  <line1>, <count>, +"<range>", <bang>0, "<mods>", <q-args>, [<f-args>])'
 exe 'command! -bar -bang -nargs=1 -complete=customlist,fugitive#RenameComplete GRename exe fugitive#RenameCommand(<line1>, <count>, +"<range>", <bang>0, "<mods>", <q-args>, [<f-args>])'
 if exists(':Gremove') != 2 && get(g:, 'fugitive_legacy_commands', 1)
-  exe 'command! -bar -bang -nargs=0 -complete=customlist,fugitive#CompleteObject Gremove exe fugitive#RemoveCommand(<line1>, <count>, +"<range>", <bang>0, "<mods>", <q-args>, [<f-args>])'
+  exe 'command! -bar -bang -nargs=0 Gremove exe fugitive#RemoveCommand(<line1>, <count>, +"<range>", <bang>0, "<mods>", <q-args>, [<f-args>])'
         \ '|echohl WarningMSG|echo ":Gremove is deprecated in favor of :GRemove"|echohl NONE'
 endif
 if exists(':Gdelete') != 2 && get(g:, 'fugitive_legacy_commands', 1)
-  exe 'command! -bar -bang -nargs=0 -complete=customlist,fugitive#CompleteObject Gdelete exe fugitive#DeleteCommand(<line1>, <count>, +"<range>", <bang>0, "<mods>", <q-args>, [<f-args>])'
+  exe 'command! -bar -bang -nargs=0 Gdelete exe fugitive#DeleteCommand(<line1>, <count>, +"<range>", <bang>0, "<mods>", <q-args>, [<f-args>])'
         \ '|echohl WarningMSG|echo ":Gdelete is deprecated in favor of :GDelete"|echohl NONE'
 endif
 if exists(':Gmove') != 2 && get(g:, 'fugitive_legacy_commands', 1)
