@@ -222,7 +222,7 @@ au FileType javascript setl fp=json_xs\ -f\ json\ -t\ json-pretty
 """"""""""""""""""""""""""""""
 " => C++ section
 """""""""""""""""""""""""""""""
-au FileType cpp setl fp=astyle\ --mode=c\ --indent=tab 
+au FileType cpp setl fp=astyle\ --mode=c\ --indent=tab
 
 """"""""""""""""""""""""""""""
 " => C section
@@ -245,7 +245,7 @@ au FileType help setl nospell
 " if has("autocmd")
 "   if v:version > 701
     autocmd Syntax * call matchadd('Todo',  '\W\zs\(TODO\|todo\|FIXME\|CHANGED\|XXX\|BUG\|HACK\)')
-    autocmd Syntax * call matchadd('Debug', '\W\zs\(NOTE\|INFO\|IDEA\)')
+    autocmd Syntax * call matchadd('Debug', '\W\zs\(NOTE\|note\|INFO\|IDEA\)')
   " endif
 " endif
 
