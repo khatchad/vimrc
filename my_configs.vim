@@ -66,23 +66,23 @@ augroup END
 """"""""""""""""""""""""""""""
 " => Text section
 """""""""""""""""""""""""""""""
-autocmd FileType text,markdown,mail setlocal diffopt+=iwhite,icase 
-autocmd FileType text,markdown,mail setlocal formatoptions+=nt 
-autocmd FileType text,markdown,mail setlocal spell 
-autocmd FileType text,markdown setlocal nolist  " list disables linebreak 
-autocmd FileType text,markdown setlocal textwidth=0 
+autocmd FileType text,markdown,mail setlocal diffopt+=iwhite,icase
+autocmd FileType text,markdown,mail setlocal formatoptions+=nt
+autocmd FileType text,markdown,mail setlocal spell
+autocmd FileType text,markdown setlocal nolist  " list disables linebreak
+autocmd FileType text,markdown setlocal textwidth=9999999999
 autocmd FileType text,markdown setlocal wrapmargin=0
 
 """"""""""""""""""""""""""""""
 " => Mail section
 """""""""""""""""""""""""""""""
-autocmd FileType mail setlocal tw=0 nocursorline
+autocmd FileType mail setlocal tw=9999999999 nocursorline
 autocmd FileType mail let g:nerdtree_tabs_open_on_gui_startup = 0
 
 """"""""""""""""""""""""""""""
 " => TeX section
 """""""""""""""""""""""""""""""
-" autocmd FileType tex,plaintex setlocal textwidth=78 
+autocmd FileType tex,plaintex setlocal textwidth=9999999999
 autocmd FileType tex,plaintex setlocal formatoptions+=t, noexpandtab
 autocmd FileType tex,plaintex setlocal spell
 autocmd FileType tex,plaintex setlocal foldmethod=syntax
