@@ -1,6 +1,9 @@
 " Location:     autoload/fugitive.vim
 " Maintainer:   Tim Pope <http://tpo.pe/>
 
+" The functions contained within this file are for internal use only.  For the
+" official API, see the commented functions in plugin/fugitive.vim.
+
 if exists('g:autoloaded_fugitive')
   finish
 endif
@@ -230,6 +233,12 @@ function! fugitive#Autowrite() abort
   return ''
 endfunction
 
+function! s:add_methods(namespace, method_names) abort
+  for name in a:method_names
+    let s:{a:namespace}_prototype[name] = s:function('s:'.a:namespace.'_'.name)
+  endfor
+endfunction
+
 " Section: Git
 
 function! s:GitCmd() abort
@@ -312,7 +321,7 @@ let s:git_versions = {}
 function! fugitive#GitVersion(...) abort
   let git = s:GitShellCmd()
   if !has_key(s:git_versions, git)
-    let s:git_versions[git] = matchstr(s:SystemError(git.' --version')[0], '\d[^[:space:]]\+')
+    let s:git_versions[git] = matchstr(s:SystemError([git, '--version'])[0], '\d[^[:space:]]\+')
   endif
   if !a:0
     return s:git_versions[git]
@@ -465,7 +474,7 @@ function! s:BuildEnvPrefix(env) abort
   let env = items(a:env)
   if empty(env)
     return ''
-  elseif &shellcmdflag =~# '-Command'
+  elseif &shell =~? '\%(powershell\|pwsh\)\%(\.exe\)\=$'
     return join(map(env, '"$Env:" . v:val[0] . " = ''" . substitute(v:val[1], "''", "''''", "g") . "''; "'), '')
   elseif s:winshell()
     return join(map(env, '"set " . substitute(join(v:val, "="), "[&|<>^]", "^^^&", "g") . "& "'), '')
@@ -524,7 +533,7 @@ function! s:SystemError(cmd, ...) abort
       let guioptions = &guioptions
       set guioptions-=!
     endif
-    let out = call('system', [type(a:cmd) ==# type([]) ? fugitive#Prepare(a:cmd) : a:cmd] + a:000)
+    let out = call('system', [type(a:cmd) == type([]) ? s:shellesc(a:cmd) : a:cmd] + a:000)
     return [out, v:shell_error]
   catch /^Vim\%((\a\+)\)\=:E484:/
     let opts = ['shell', 'shellcmdflag', 'shellredir', 'shellquote', 'shellxquote', 'shellxescape', 'shellslash']
@@ -630,13 +639,14 @@ function! s:ConfigTimestamps(dir, dict) abort
   return join(map(files, 'getftime(expand(v:val))'), ',')
 endfunction
 
+let s:config_prototype = {}
+
 let s:config = {}
 function! fugitive#Config(...) abort
   let name = ''
   let default = get(a:, 3, '')
-  if a:0 >= 2 && type(a:2) == type({}) && !has_key(a:2, 'git_dir')
-    let name = substitute(a:1, '^[^.]\+\|[^.]\+$', '\L&', 'g')
-    return len(a:1) ? get(get(a:2, name, []), 0, default) : a:2
+  if a:0 >= 2 && type(a:2) == type({}) && has_key(a:2, 'GetAll')
+    return fugitive#ConfigGetAll(a:1, a:2)
   elseif a:0 >= 2
     let dir = s:Dir(a:2)
     let name = a:1
@@ -655,7 +665,8 @@ function! fugitive#Config(...) abort
   if has_key(s:config, dir_key) && s:config[dir_key][0] ==# s:ConfigTimestamps(dir, s:config[dir_key][1])
     let dict = s:config[dir_key][1]
   else
-    let dict = {}
+    let dict = copy(s:config_prototype)
+    let dict.git_dir = dir
     let [lines, message, exec_error] = s:NullError([dir, 'config', '--list', '-z'])
     if exec_error
       return {}
@@ -698,6 +709,25 @@ function! fugitive#ConfigGetRegexp(pattern, ...) abort
   endfor
   return transformed
 endfunction
+
+function! s:config_GetAll(name) dict abort
+  let name = substitute(a:name, '^[^.]\+\|[^.]\+$', '\L&', 'g')
+  if name =~# '\.'
+    return get(self, name, [])
+  else
+    return []
+  endif
+endfunction
+
+function! s:config_Get(name, ...) dict abort
+  return get(self.GetAll(a:name), 0, a:0 ? a:1 : '')
+endfunction
+
+function! s:config_GetRegexp(pattern) dict abort
+  return fugitive#ConfigGetRegexp(self, a:pattern)
+endfunction
+
+call s:add_methods('config', ['GetAll', 'Get', 'GetRegexp'])
 
 function! s:Remote(dir) abort
   let head = FugitiveHead(0, a:dir)
@@ -796,8 +826,8 @@ function! fugitive#ResolveRemote(remote) abort
   if a:remote =~# '^https\=://' && s:executable('curl')
     if !has_key(s:redirects, a:remote)
       let s:redirects[a:remote] = matchstr(s:SystemError(
-            \ 'curl --disable --silent --max-time 5 -I ' .
-            \ s:shellesc(a:remote . '/info/refs?service=git-upload-pack'))[0],
+            \ ['curl', '--disable', '--silent', '--max-time', '5', '-I',
+            \ a:remote . '/info/refs?service=git-upload-pack'])[0],
             \ 'Location: \zs\S\+\ze/info/refs?')
     endif
     if len(s:redirects[a:remote])
@@ -823,7 +853,7 @@ function! fugitive#ResolveRemote(remote) abort
 endfunction
 
 function! fugitive#RemoteUrl(...) abort
-  let dir = a:0 > 1 ? a:2 : s:Dir()
+  let dir = a:0 > 1 ? s:Dir(a:2) : s:Dir()
   let url = !a:0 || a:1 =~# '^\.\=$' ? s:Remote(dir) : a:1
   if url !~# ':\|^/\|^\.\.\=/'
     if !fugitive#GitVersion(2, 7)
@@ -878,7 +908,7 @@ function! s:QuickfixStream(nr, event, title, cmd, first, mods, callback, ...) ab
   endif
 
   let buffer = []
-  let lines = split(s:SystemError(s:shellesc(a:cmd))[0], "\n")
+  let lines = split(s:SystemError(a:cmd)[0], "\n")
   for line in lines
     call extend(buffer, call(a:callback, a:000 + [line]))
     if len(buffer) >= 20
@@ -917,12 +947,6 @@ function! fugitive#Cwindow() abort
 endfunction
 
 " Section: Repository Object
-
-function! s:add_methods(namespace, method_names) abort
-  for name in a:method_names
-    let s:{a:namespace}_prototype[name] = s:function('s:'.a:namespace.'_'.name)
-  endfor
-endfunction
 
 let s:repo_prototype = {}
 let s:repos = {}
@@ -1587,8 +1611,8 @@ endfunction
 
 function! s:UpdateIndex(dir, info) abort
   let info = join(a:info[0:-2]) . "\t" . a:info[-1] . "\n"
-  let [error, exec_error] = s:SystemError([a:dir, 'update-index', '--index-info'], info)
-  return !exec_error ? '' : len(error) ? error : 'fugitive: unknown update-index error'
+  let [error, exec_error] = s:SystemError(fugitive#Prepare([a:dir, 'update-index', '--index-info']), info)
+  return !exec_error ? '' : len(error) ? error : 'unknown update-index error'
 endfunction
 
 function! fugitive#setfperm(url, perm) abort
@@ -1607,9 +1631,11 @@ function! s:TempCmd(out, cmd) abort
   try
     let cmd = (type(a:cmd) == type([]) ? fugitive#Prepare(a:cmd) : a:cmd)
     let redir = ' > ' . a:out
-    if (s:winshell() || &shellcmdflag ==# '-Command') && !has('nvim')
+    if s:winshell() && !has('nvim')
       let cmd_escape_char = &shellxquote == '(' ?  '^' : '^^^'
       return s:SystemError('cmd /c "' . s:gsub(cmd, '[<>%]', cmd_escape_char . '&') . redir . '"')
+    elseif &shell =~? '\%(powershell\|pwsh\)\%(\.exe\)\=$'
+      return s:SystemError(&shell . ' ' . &shellcmdflag . ' ' . s:shellesc(cmd . redir))
     elseif &shell =~# 'fish'
       return s:SystemError(' begin;' . cmd . redir . ';end ')
     else
@@ -2346,7 +2372,7 @@ function! fugitive#FileWriteCmd(...) abort
     endif
     silent execute "'[,']write !".fugitive#Prepare(dir, 'hash-object', '-w', '--stdin', '--').' > '.tmp
     let sha1 = readfile(tmp)[0]
-    let old_mode = matchstr(s:SystemError([dir, 'ls-files', '--stage', '.' . file])[0], '^\d\+')
+    let old_mode = matchstr(s:ChompError(['ls-files', '--stage', '.' . file], dir)[0], '^\d\+')
     if empty(old_mode)
       let old_mode = executable(s:Tree(dir) . file) ? '100755' : '100644'
     endif
@@ -4642,7 +4668,7 @@ function! s:ToolStream(line1, line2, range, bang, mods, options, args, state) ab
     let filename = ''
     let cmd = []
     let tabnr = tabpagenr() + 1
-    for line in split(s:SystemError(s:shellesc(exec))[0], "\n")
+    for line in split(s:SystemError(exec)[0], "\n")
       for item in s:ToolParse(a:state, line)
         if len(get(item, 'filename', '')) && item.filename != filename
           call add(cmd, 'tabedit ' . s:fnameescape(item.filename))
@@ -6465,7 +6491,7 @@ function! fugitive#BrowseCommand(line1, count, range, bang, mods, arg, args) abo
             let blame_list = tempname()
             call writefile([commit, ''], blame_list, 'b')
             let blame_in = tempname()
-            silent exe '%write' blame_in
+            silent exe 'noautocmd keepalt %write' blame_in
             let [blame, exec_error] = s:LinesError(['-c', 'blame.coloring=none', 'blame', '--contents', blame_in, '-L', line1.','.line2, '-S', blame_list, '-s', '--show-number', './' . path], dir)
             if !exec_error
               let blame_regex = '^\^\x\+\s\+\zs\d\+\ze\s'
