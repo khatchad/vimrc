@@ -118,8 +118,7 @@ command! -bar GitGutterBufferDisable call gitgutter#buffer_disable()
 command! -bar GitGutterBufferEnable  call gitgutter#buffer_enable()
 command! -bar GitGutterBufferToggle  call gitgutter#buffer_toggle()
 
-command! -bar GitGutterQuickFix call gitgutter#quickfix(0)
-command! -bar GitGutterQuickFixCurrentFile call gitgutter#quickfix(1)
+command! -bar GitGutterQuickFix call gitgutter#quickfix()
 
 " }}}
 

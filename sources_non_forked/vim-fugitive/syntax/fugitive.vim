@@ -7,9 +7,8 @@ syn spell notoplevel
 
 syn include @fugitiveDiff syntax/diff.vim
 
-syn match fugitiveHeader /^[A-Z][a-z][^:]*:/
-syn match fugitiveHeader /^Head:/ nextgroup=fugitiveHash,fugitiveSymbolicRef skipwhite
-syn match fugitiveHeader /^Pull:\|^Rebase:\|^Merge:\|^Push:/ nextgroup=fugitiveSymbolicRef skipwhite
+syn match fugitiveHeader /^[A-Z][a-z][^:]*:/ nextgroup=fugitiveHash,fugitiveSymbolicRef skipwhite
+syn match fugitiveBareHeader /^Bare:/
 syn match fugitiveHelpHeader /^Help:/ nextgroup=fugitiveHelpTag skipwhite
 syn match fugitiveHelpTag    /\S\+/ contained
 
@@ -37,6 +36,7 @@ for s:section in ['Untracked', 'Unstaged', 'Staged']
 endfor
 unlet s:section
 
+hi def link fugitiveBareHeader fugitiveHeader
 hi def link fugitiveHelpHeader fugitiveHeader
 hi def link fugitiveHeader Label
 hi def link fugitiveHelpTag Tag
