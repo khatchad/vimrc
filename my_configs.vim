@@ -3,7 +3,7 @@
 set nocompatible
 
 " Display incomplete commands
-set showcmd	
+set showcmd
 
 " Don't use Ex mode, use Q for formatting
 map Q gq
