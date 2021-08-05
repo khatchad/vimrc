@@ -66,6 +66,7 @@ vim-snippets https://github.com/honza/vim-snippets
 FastFold https://github.com/Konfekt/FastFold
 vim-better-whitespace https://github.com/ntpeters/vim-better-whitespace
 badwolf https://github.com/sjl/badwolf
+TaskList.vim https://github.com/vim-scripts/TaskList.vim
 """.strip()
 
 GITHUB_ZIP = "%s/archive/master.zip"
