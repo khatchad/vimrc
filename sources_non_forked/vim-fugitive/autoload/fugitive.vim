@@ -474,7 +474,7 @@ function! s:BuildEnvPrefix(env) abort
   let env = items(a:env)
   if empty(env)
     return ''
-  elseif &shell =~? '\%(powershell\|pwsh\)\%(\.exe\)\=$'
+  elseif &shell =~# '\%(powershell\|pwsh\)\%(\.exe\)\=$'
     return join(map(env, '"$Env:" . v:val[0] . " = ''" . substitute(v:val[1], "''", "''''", "g") . "''; "'), '')
   elseif s:winshell()
     return join(map(env, '"set " . substitute(join(v:val, "="), "[&|<>^]", "^^^&", "g") . "& "'), '')
@@ -520,6 +520,7 @@ function! fugitive#Prepare(...) abort
 endfunction
 
 function! s:SystemError(cmd, ...) abort
+  let cmd = type(a:cmd) == type([]) ? s:shellesc(a:cmd) : a:cmd
   try
     if &shellredir ==# '>' && &shell =~# 'sh\|cmd'
       let shellredir = &shellredir
@@ -533,13 +534,13 @@ function! s:SystemError(cmd, ...) abort
       let guioptions = &guioptions
       set guioptions-=!
     endif
-    let out = call('system', [type(a:cmd) == type([]) ? s:shellesc(a:cmd) : a:cmd] + a:000)
+    let out = call('system', [cmd] + a:000)
     return [out, v:shell_error]
   catch /^Vim\%((\a\+)\)\=:E484:/
     let opts = ['shell', 'shellcmdflag', 'shellredir', 'shellquote', 'shellxquote', 'shellxescape', 'shellslash']
     call filter(opts, 'exists("+".v:val) && !empty(eval("&".v:val))')
     call map(opts, 'v:val."=".eval("&".v:val)')
-    call s:throw('failed to run `' . a:cmd . '` with ' . join(opts, ' '))
+    call s:throw('failed to run `' . cmd . '` with ' . join(opts, ' '))
   finally
     if exists('shellredir')
       let &shellredir = shellredir
@@ -1645,11 +1646,12 @@ function! s:TempCmd(out, cmd) abort
   try
     let cmd = (type(a:cmd) == type([]) ? fugitive#Prepare(a:cmd) : a:cmd)
     let redir = ' > ' . a:out
-    if s:winshell() && !has('nvim')
+    let pwsh = &shell =~# '\%(powershell\|pwsh\)\%(\.exe\)\=$'
+    if pwsh && has('patch-8.2.3079')
+      return s:SystemError(&shell . ' ' . &shellcmdflag . ' ' . s:shellesc(cmd . redir))
+    elseif (s:winshell() || pwsh) && !has('nvim')
       let cmd_escape_char = &shellxquote == '(' ?  '^' : '^^^'
       return s:SystemError('cmd /c "' . s:gsub(cmd, '[<>%]', cmd_escape_char . '&') . redir . '"')
-    elseif &shell =~? '\%(powershell\|pwsh\)\%(\.exe\)\=$'
-      return s:SystemError(&shell . ' ' . &shellcmdflag . ' ' . s:shellesc(cmd . redir))
     elseif &shell =~# 'fish'
       return s:SystemError(' begin;' . cmd . redir . ';end ')
     else
