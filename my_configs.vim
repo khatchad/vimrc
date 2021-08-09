@@ -54,6 +54,7 @@ map <silent> <F11>
 \    :call system("wmctrl -ir " . v:windowid . " -b toggle,fullscreen")<CR>
 set gfn=Monospace\ 12
 set listchars=trail:c
+nmap gx :silent execute "!google-chrome " . shellescape("<cWORD>") . " &"<CR>
 
 """"""""""""""""""""""""""""""
 " => Reread vimrc
