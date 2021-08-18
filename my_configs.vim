@@ -123,7 +123,9 @@ autocmd FileType tex,plaintex syntax region texZone start='\\href{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\citet{' end='}'
 autocmd FileType tex,plaintex syntax match texRefZone '\\citetitle\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax match texRefZone '\\citeauthor\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
+autocmd FileType tex,plaintex syntax match texRefZone '\\citeyear\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax match texRefZone '\\citeseries\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
+autocmd FileType tex,plaintex syntax match texRefZone '\\citejournaltitle\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax region texRefZone start='\\citefield{.*}{' end='}' nextgroup=texRefOption,texCite
 " autocmd FileType tex,plaintex syntax region texZone start='%' end='\n'
 " autocmd FileType tex,plaintex syntax region texRefZone start='\\lref{' end='}'
