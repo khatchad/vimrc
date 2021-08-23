@@ -56,6 +56,8 @@ set gfn=Monospace\ 12
 set listchars=trail:c
 nmap gx :silent execute "!google-chrome " . shellescape("<cWORD>") . " &"<CR>
 vmap gx <Esc>:silent execute "!google-chrome " . shellescape("<C-r>*") . " &"<CR>
+nmap gy :silent execute "!google-chrome http://google.com/search?q=" . shellescape("<cWORD>") . " &"<CR>
+vmap gy <Esc>:silent execute "!google-chrome http://google.com/search?q=" . shellescape("<C-r>*") . " &"<CR>
 
 """"""""""""""""""""""""""""""
 " => Reread vimrc
