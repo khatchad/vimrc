@@ -2645,7 +2645,7 @@ function! fugitive#BufReadStatus() abort
     call s:Map('x', 's', ":<C-U>execute <SID>Do('Stage',1)<CR>", '<silent>')
     call s:Map('n', 'u', ":<C-U>execute <SID>Do('Unstage',0)<CR>", '<silent>')
     call s:Map('x', 'u', ":<C-U>execute <SID>Do('Unstage',1)<CR>", '<silent>')
-    call s:Map('n', 'U', ":<C-U>Git --no-pager reset -q<CR>", '<silent>')
+    call s:Map('n', 'U', ":<C-U>Git reset -q<CR>", '<silent>')
     call s:MapMotion('gu', "exe <SID>StageJump(v:count, 'Untracked', 'Unstaged')")
     call s:MapMotion('gU', "exe <SID>StageJump(v:count, 'Unstaged', 'Untracked')")
     call s:MapMotion('gs', "exe <SID>StageJump(v:count, 'Staged')")
@@ -2752,6 +2752,7 @@ function! fugitive#FileWriteCmd(...) abort
       if exists('#' . autype . 'WritePost')
         execute s:DoAutocmd(autype . 'WritePost ' . s:fnameescape(amatch))
       endif
+      exe s:DoAutocmdChanged(dir)
       return ''
     else
       return 'echoerr '.string('fugitive: '.error)
@@ -2960,6 +2961,9 @@ function! s:TempReadPost(file) abort
       call fugitive#MapJumps()
     endif
     if has_key(dict, 'filetype')
+      if dict.filetype ==# 'man' && has('nvim')
+        let b:man_sect = matchstr(getline(1), '^\w\+(\zs\d\+\ze)')
+      endif
       let &l:filetype = dict.filetype
     endif
     setlocal foldmarker=<<<<<<<<,>>>>>>>>
@@ -3431,9 +3435,10 @@ function! fugitive#Command(line1, line2, range, bang, mods, arg) abort
   if pager is# -1
     let pager = fugitive#PagerFor(args, config)
   endif
-  if type(pager) ==# type('') ||
-        \ (s:HasOpt(args, ['add', 'checkout', 'commit', 'stage', 'stash', 'reset'], '-p', '--patch') ||
+  let wants_terminal = type(pager) ==# type('') ||
+        \ (s:HasOpt(args, ['add', 'checkout', 'commit', 'reset', 'restore', 'stage', 'stash'], '-p', '--patch') ||
         \ s:HasOpt(args, ['add', 'clean', 'stage'], '-i', '--interactive')) && pager is# 0
+  if wants_terminal
     let mods = substitute(s:Mods(a:mods), '\<tab\>', '-tab', 'g')
     let assign = len(dir) ? '|let b:git_dir = ' . string(options.git_dir) : ''
     let argv = s:UserCommandList(options) + args
@@ -3487,7 +3492,7 @@ function! fugitive#Command(line1, line2, range, bang, mods, arg) abort
       let args = s:AskPassArgs(dir) + args
     endif
     let tmp = {
-          \ 'no_more': no_pager,
+          \ 'no_more': no_pager || get(overrides, 'no_more'),
           \ 'line_count': 0,
           \ 'err': '',
           \ 'out': '',
@@ -3587,7 +3592,7 @@ function! fugitive#Command(line1, line2, range, bang, mods, arg) abort
     endif
     let cmd = s:BuildEnvPrefix(env) . s:shellesc(s:UserCommandList(options) + args)
     let after = '|call fugitive#ReloadStatus(' . string(dir) . ', 1)' . after
-    if no_pager
+    if !wants_terminal && (no_pager || index(['add', 'clean', 'reset', 'restore', 'stage'], get(args, 0, '')) >= 0 || s:HasOpt(args, ['checkout'], '-q', '--quiet', '--no-progress'))
       let output = substitute(s:SystemError(cmd)[0], "\n$", '', '')
       if len(output)
         try
@@ -3595,7 +3600,7 @@ function! fugitive#Command(line1, line2, range, bang, mods, arg) abort
             let more = 1
             set nomore
           endif
-          echo output
+          echo substitute(output, "\n$", "", "")
         finally
           if exists('l:more')
             set more
@@ -5973,6 +5978,14 @@ endfunction
 
 function! fugitive#FetchComplete(A, L, P, ...) abort
   return s:CompleteSub('fetch', a:A, a:L, a:P, function('s:CompleteRemote'), a:000)
+endfunction
+
+function! s:PushSubcommand(...) abort
+  return {'no_more': 1}
+endfunction
+
+function! s:FetchSubcommand(...) abort
+  return {'no_more': 1}
 endfunction
 
 " Section: :Gdiff
