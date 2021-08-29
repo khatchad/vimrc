@@ -74,7 +74,7 @@ autocmd FileType text,markdown,mail setlocal diffopt+=iwhite,icase
 autocmd FileType text,markdown,mail setlocal formatoptions+=nt
 autocmd FileType text,markdown,mail setlocal spell
 autocmd FileType text,markdown setlocal nolist  " list disables linebreak
-autocmd FileType text,markdown setlocal textwidth=9999999999
+autocmd FileType text,markdown,mail setlocal textwidth=9999999999
 autocmd FileType text,markdown setlocal wrapmargin=0
 
 """"""""""""""""""""""""""""""
