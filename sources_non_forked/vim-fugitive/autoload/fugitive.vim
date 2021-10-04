@@ -125,7 +125,15 @@ function! s:Mods(mods, ...) abort
   let mods = substitute(a:mods, '\C<mods>', '', '')
   let mods = mods =~# '\S$' ? mods . ' ' : mods
   if a:0 && mods !~# '\<\%(aboveleft\|belowright\|leftabove\|rightbelow\|topleft\|botright\|tab\)\>'
-    let mods = a:1 . ' ' . mods
+    if a:1 ==# 'Edge'
+      if mods =~# '\<vertical\>' ? &splitright : &splitbelow
+        let mods = 'botright ' . mods
+      else
+        let mods = 'topleft ' . mods
+      endif
+    else
+      let mods = a:1 . ' ' . mods
+    endif
   endif
   return substitute(mods, '\s\+', ' ', 'g')
 endfunction
@@ -219,7 +227,7 @@ function! s:Map(mode, lhs, rhs, ...) abort
       let head = substitute(head, '<[^<>]*>$\|.$', '', '')
     endwhile
     if !skip && (flags !~# '<unique>' || empty(mapcheck(head.tail, mode)))
-      call add(maps, mode.'map <buffer>' . s:nowait . flags . ' ' . head.tail . ' ' . a:rhs)
+      call add(maps, mode.'map <buffer>' . s:nowait . substitute(flags, '<unique>', '', '') . ' ' . head.tail . ' ' . a:rhs)
       if a:0 > 1
         let b:undo_ftplugin = get(b:, 'undo_ftplugin', 'exe') .
               \ '|sil! exe "' . mode . 'unmap <buffer> ' . head.tail . '"'
@@ -420,7 +428,7 @@ function! s:UserCommandList(...) abort
     if empty(tree)
       call add(git, '--git-dir=' . FugitiveGitPath(dir))
     else
-      if !s:cpath(tree . '/.git', dir)
+      if !s:cpath(tree . '/.git', dir) || len($GIT_DIR)
         call add(git, '--git-dir=' . FugitiveGitPath(dir))
       endif
       if !s:cpath(tree, getcwd())
@@ -547,6 +555,9 @@ function! s:PrepareEnv(env, dir) abort
       let a:env['GIT_INDEX_FILE'] = FugitiveGitPath(fugitive#Find('.git/index', a:dir))
     endif
   endif
+  if len($GIT_WORK_TREE)
+    let a:env['GIT_WORK_TREE'] = '.'
+  endif
 endfunction
 
 let s:prepare_env = {
@@ -626,8 +637,10 @@ function! fugitive#PrepareDirEnvGitFlagsArgs(...) abort
   if !exists('dir')
     let dir = s:Dir()
   endif
-  if !has_key(env, 'GIT_INDEX_FILE')
-    call s:PrepareEnv(autoenv, dir)
+  call extend(autoenv, env)
+  call s:PrepareEnv(autoenv, dir)
+  if len($GPG_TTY) && !has_key(autoenv, 'GPG_TTY')
+    let autoenv.GPG_TTY = ''
   endif
   call s:PreparePathArgs(cmd, dir, literal_pathspecs, explicit_pathspec_option)
   return [s:GitDir(dir), env, extend(autoenv, env), git, cmd[0 : -arg_count-1], arg_count ? cmd[-arg_count : -1] : []]
@@ -702,7 +715,7 @@ function! fugitive#PrepareJob(...) abort
   else
     let dict.cwd = FugitiveVimPath(tree)
     call extend(cmd, ['-C', FugitiveGitPath(tree)], 'keep')
-    if !s:cpath(tree . '/.git', dir)
+    if !s:cpath(tree . '/.git', dir) || len($GIT_DIR)
       call extend(cmd, ['--git-dir=' . FugitiveGitPath(dir)], 'keep')
     endif
   endif
@@ -740,7 +753,7 @@ function! s:BuildShell(dir, env, git, args) abort
     call insert(cmd, '--git-dir=' . FugitiveGitPath(a:dir))
   else
     call extend(cmd, ['-C', FugitiveGitPath(tree)], 'keep')
-    if !s:cpath(tree . '/.git', a:dir)
+    if !s:cpath(tree . '/.git', a:dir) || len($GIT_DIR)
       call extend(cmd, ['--git-dir=' . FugitiveGitPath(a:dir)], 'keep')
     endif
   endif
@@ -1108,7 +1121,7 @@ endfunction
 
 call s:add_methods('config', ['GetAll', 'Get', 'GetRegexp'])
 
-function! s:Remote(dir) abort
+function! s:RemoteDefault(dir) abort
   let head = FugitiveHead(0, a:dir)
   let remote = len(head) ? FugitiveConfigGet('branch.' . head . '.remote', a:dir) : ''
   let i = 10
@@ -1220,7 +1233,7 @@ let s:remote_headers = {}
 
 function! fugitive#RemoteHttpHeaders(remote) abort
   let remote = type(a:remote) ==# type({}) ? get(a:remote, 'remote', '') : a:remote
-  if type(remote) !=# type('') || remote !~# '^https\=://.' || !s:executable('cremote')
+  if type(remote) !=# type('') || remote !~# '^https\=://.' || !s:executable('curl')
     return {}
   endif
   if !has_key(s:remote_headers, remote)
@@ -1234,57 +1247,101 @@ function! fugitive#RemoteHttpHeaders(remote) abort
   return s:remote_headers[remote]
 endfunction
 
-function! fugitive#ResolveRemote(remote) abort
-  let scp_authority = matchstr(a:remote, '^[^:/]\+\ze:\%(//\)\@!')
+function! s:UrlParse(url) abort
+  let scp_authority = matchstr(a:url, '^[^:/]\+\ze:\%(//\)\@!')
   if len(scp_authority) && !(has('win32') && scp_authority =~# '^\a:[\/]')
-    let path = strpart(a:remote, len(scp_authority) + 1)
-    let authority = fugitive#SshHostAlias(scp_authority)
-    if path =~# '^/'
-      return 'ssh://' . authority . path
-    elseif path =~# '^\~'
-      return 'ssh://' . authority . '/' . path
-    elseif authority !~# ':'
-      return authority . ':' . path
-    endif
-  elseif a:remote =~# '^https\=://'
-    let headers = fugitive#RemoteHttpHeaders(a:remote)
+    return {'scheme': 'ssh', 'authority': scp_authority,
+          \ 'path': strpart(a:url, len(scp_authority) + 1)}
+  endif
+  let match = matchlist(a:url, '^\([[:alnum:].+-]\+\)://\([^/]*\)\(/.*\)\=\%(#\|$\)')
+  if empty(match)
+    return {'scheme': 'file', 'authority': '', 'path': a:url}
+  endif
+  let remote = {'scheme': match[1], 'authority': match[2]}
+  let remote.path = empty(match[3]) ? '/' : match[3]
+  if (remote.scheme ==# 'ssh' || remote.scheme ==# 'git') && remote.path[0:1] ==# '/~'
+    let remote.path = strpart(remote.path, 1)
+  endif
+  return remote
+endfunction
+
+function! s:ResolveRemote(url) abort
+  let remote = s:UrlParse(a:url)
+  if remote.scheme =~# '^https\=$'
+    let headers = fugitive#RemoteHttpHeaders(remote.scheme . '://' . remote.authority . remote.path)
     let loc = matchstr(get(headers, 'location', ''), '^https\=://.\{-\}\ze/info/refs?')
     if len(loc)
-      return loc
+      let remote = s:UrlParse(loc)
+    else
+      let remote.http_headers = headers
     endif
-  elseif a:remote =~# '^ssh://'
-    let authority = matchstr(a:remote, '[^/?#]*', 6)
-    return 'ssh://' . fugitive#SshHostAlias(authority) . strpart(a:remote, 6 + len(authority))
+  elseif remote.scheme ==# 'ssh'
+    let remote.authority = fugitive#SshHostAlias(remote.authority)
   endif
-  return a:remote
+  return remote
+endfunction
+
+function! fugitive#ResolveRemote(url) abort
+  let remote = s:ResolveRemote(a:url)
+  if remote.scheme ==# 'file' || remote.scheme ==# ''
+    return remote.path
+  elseif remote.path =~# '^/'
+    return remote.scheme . '://' . remote.authority . remote.path
+  elseif remote.path =~# '^\~'
+    return remote.scheme . '://' . remote.authority . '/' . remote.path
+  elseif remote.scheme ==# 'ssh' && remote.authority !~# ':'
+    return remote.authority . ':' . remote.path
+  else
+    return a:url
+  endif
 endfunction
 
 function! s:ConfigLengthSort(i1, i2) abort
   return len(a:i2[0]) - len(a:i1[0])
 endfunction
 
-function! fugitive#RemoteUrl(...) abort
-  let args = a:000
-  if a:0 && (type(a:1) !=# type('') || a:1 =~# '^/\|^\a:[\\/]' && get(a:, 2, '') !~# '^/\|^\a:[\\/]')
-    let config = fugitive#Config(a:1)
-    let args = a:000[1:-1]
-    if type(a:1) ==# type({}) && has_key(a:1, 'remote_name') && (type(get(args, 0, 0)) !=# type('') || args[0] =~# '^:')
-      call insert(args, a:1.remote_name)
+function! s:RemoteParseArgs(args) abort
+  " Extract ':noresolve' style flags and an optional callback
+  let args = []
+  let flags = []
+  let cb = copy(a:args)
+  while len(cb)
+    if type(cb[0]) ==# type(function('tr'))
+      break
+    elseif len(args) > 1 || type(cb[0]) ==# type('') && cb[0] =~# '^:'
+      call add(flags, remove(cb, 0))
+    else
+      call add(args, remove(cb, 0))
     endif
-  elseif a:0 > 1 && a:2 !~# '^:'
-    let config = fugitive#Config(a:2)
-    let args = [a:1] + a:000[2:-1]
+  endwhile
+
+  " From the remaining 0-2 arguments, extract the remote and Git config
+  let remote = ''
+  if empty(args)
+    let dir_or_config = s:Dir()
+  elseif len(args) == 1 && type(args[0]) ==# type('') && args[0] !~# '^/\|^\a:[\\/]'
+    let dir_or_config = s:Dir()
+    let remote = args[0]
+  elseif len(args) == 1
+    let dir_or_config = args[0]
+    if type(args[0]) ==# type({}) && has_key(args[0], 'remote_name')
+      let remote = args[0].remote_name
+    endif
+  elseif type(args[1]) !=# type('') || args[1] =~# '^/\|^\a:[\\/]'
+    let dir_or_config = args[1]
+    let remote = args[0]
   else
-    let config = fugitive#Config()
-    let args = copy(a:000)
+    let dir_or_config = args[0]
+    let remote = args[1]
   endif
-  if empty(args) || args[0] =~# '^:'
-    let url = s:Remote(config)
-  elseif args[0] =~# '^\.\=$'
-    call remove(args, 0)
-    let url = s:Remote(config)
-  else
-    let url = remove(args, 0)
+  return [dir_or_config, remote, flags, cb]
+endfunction
+
+function! fugitive#RemoteUrl(...) abort
+  let [dir_or_config, url, flags, cb] = s:RemoteParseArgs(a:000)
+  let config = fugitive#Config(dir_or_config)
+  if url =~# '^\.\=$'
+    let url = s:RemoteDefault(config)
   endif
   if url ==# '.git'
     let url = s:GitDir(config)
@@ -1304,7 +1361,7 @@ function! fugitive#RemoteUrl(...) abort
       break
     endif
   endfor
-  if index(args, 1) < 0 && index(args, get(v:, 'true', 1)) < 0 && index(args, ':noresolve') < 0
+  if index(flags, 1) < 0 && index(flags, get(v:, 'true', 1)) < 0 && index(flags, ':noresolve') < 0
     let url = fugitive#ResolveRemote(url)
   endif
   return url
@@ -1336,15 +1393,19 @@ function! s:QuickfixCreate(nr, opts) abort
   endif
 endfunction
 
+function! s:QuickfixOpen(nr, mods) abort
+  let mods = substitute(s:Mods(a:mods), '\<tab\>', '', '')
+  return mods . (a:nr < 0 ? 'c' : 'l').'open' . (mods =~# '\<vertical\>' ? ' 20' : '')
+endfunction
+
 function! s:QuickfixStream(nr, event, title, cmd, first, mods, callback, ...) abort
   call s:BlurStatus()
-  let mods = s:Mods(a:mods)
   let opts = {'title': a:title, 'context': {'items': []}}
   call s:QuickfixCreate(a:nr, opts)
   let event = (a:nr < 0 ? 'c' : 'l') . 'fugitive-' . a:event
   silent exe s:DoAutocmd('QuickFixCmdPre ' . event)
   let winnr = winnr()
-  exe a:nr < 0 ? 'copen' : 'lopen'
+  exe s:QuickfixOpen(a:nr, a:mods)
   if winnr != winnr()
     wincmd p
   endif
@@ -1359,7 +1420,7 @@ function! s:QuickfixStream(nr, event, title, cmd, first, mods, callback, ...) ab
       call extend(opts.context.items, contexts)
       unlet contexts
       call s:QuickfixSet(a:nr, remove(buffer, 0, -1), 'a')
-      if mods !~# '\<silent\>'
+      if a:mods !~# '\<silent\>'
         redraw
       endif
     endif
@@ -1371,7 +1432,7 @@ function! s:QuickfixStream(nr, event, title, cmd, first, mods, callback, ...) ab
 
   silent exe s:DoAutocmd('QuickFixCmdPost ' . event)
   if a:first && len(s:QuickfixGet(a:nr))
-    return mods . (a:nr < 0 ? 'cfirst' : 'lfirst')
+    return (a:nr < 0 ? 'cfirst' : 'lfirst')
   else
     return 'exe'
   endif
@@ -1868,7 +1929,7 @@ endfunction
 function! s:Expand(rev, ...) abort
   if a:rev =~# '^>\=:[0-3]$'
     let file = len(expand('%')) ? a:rev[-2:-1] . ':%' : '%'
-  elseif a:rev ==# '>'
+  elseif a:rev =~# '^>\%(:\=/\)\=$'
     let file = '%'
   elseif a:rev ==# '>:'
     let file = empty(s:DirCommitFile(@%)[0]) ? ':0:%' : '%'
@@ -2105,7 +2166,8 @@ function! s:BlobTemp(url) abort
   endif
   if commit =~# '^\d$' || !filereadable(tempfile)
     let rev = s:DirRev(a:url)[1]
-    let exec_error = s:StdoutToFile(tempfile, [dir, 'cat-file', 'blob', rev])[1]
+    let blob_or_filters = fugitive#GitVersion(2, 11) ? '--filters' : 'blob'
+    let exec_error = s:StdoutToFile(tempfile, [dir, 'cat-file', blob_or_filters, rev])[1]
     if exec_error
       call delete(tempfile)
       return ''
@@ -2403,8 +2465,8 @@ function! s:ReplaceCmd(cmd) abort
   endif
 endfunction
 
-function! s:QueryLog(refspec) abort
-  let lines = s:LinesError(['log', '-n', '256', '--pretty=format:%h%x09%s', a:refspec, '--'])[0]
+function! s:QueryLog(refspec, limit) abort
+  let lines = s:LinesError(['log', '-n', '' . a:limit, '--pretty=format:%h%x09%s', a:refspec, '--'])[0]
   call map(lines, 'split(v:val, "\t", 1)')
   call map(lines, '{"type": "Log", "commit": v:val[0], "subject": join(v:val[1 : -1], "\t")}')
   return lines
@@ -2452,6 +2514,20 @@ function! s:AddSection(label, lines, ...) abort
     return
   endif
   call append(line('$'), ['', a:label . (len(note) ? ': ' . note : ' (' . len(a:lines) . ')')] + s:Format(a:lines))
+endfunction
+
+function! s:AddLogSection(label, a, b) abort
+  let limit = 256
+  let log = s:QueryLog(a:a . '..' . a:b, limit)
+  if empty(log)
+    return
+  elseif len(log) == limit
+    call remove(log, -1)
+    let label = a:label . ' (' . (limit - 1). '+)'
+  else
+    let label = a:label . ' (' . len(log) . ')'
+  endif
+  call append(line('$'), ['', label] + s:Format(log))
 endfunction
 
 let s:rebase_abbrevs = {
@@ -2676,6 +2752,9 @@ function! fugitive#BufReadStatus() abort
           \ s:LinesError(['diff', '--color=never', '--no-ext-diff', '--no-prefix'])[0]
     endif
     let b:fugitive_diff = diff
+    if v:cmdbang
+      unlet! b:fugitive_expanded
+    endif
     let expanded = get(b:, 'fugitive_expanded', {'Staged': {}, 'Unstaged': {}})
     let b:fugitive_expanded = {'Staged': {}, 'Unstaged': {}}
 
@@ -2705,16 +2784,16 @@ function! fugitive#BufReadStatus() abort
     let staged_end = len(staged) ? line('$') : 0
 
     if len(pull) && get(props, 'branch.ab') !~# ' -0$'
-      call s:AddSection('Unpulled from ' . pull, s:QueryLog(head . '..' . pull))
+      call s:AddLogSection('Unpulled from ' . pull, head, pull)
     endif
     if len(push) && push !=# pull
-      call s:AddSection('Unpulled from ' . push, s:QueryLog(head . '..' . push))
+      call s:AddLogSection('Unpulled from ' . push, head, push)
     endif
     if len(pull) && push !=# pull
-      call s:AddSection('Unpushed to ' . pull, s:QueryLog(pull . '..' . head))
+      call s:AddLogSection('Unpushed to ' . pull, pull, head)
     endif
     if len(push) && !(push ==# pull && get(props, 'branch.ab') =~# '^+0 ')
-      call s:AddSection('Unpushed to ' . push, s:QueryLog(push . '..' . head))
+      call s:AddLogSection('Unpushed to ' . push, push, head)
     endif
 
     setlocal nomodified readonly noswapfile
@@ -2948,7 +3027,8 @@ function! fugitive#BufReadCmd(...) abort
       elseif b:fugitive_type ==# 'stage'
         call s:ReplaceCmd([dir, 'ls-files', '--stage'])
       elseif b:fugitive_type ==# 'blob'
-        call s:ReplaceCmd([dir, 'cat-file', b:fugitive_type, rev])
+        let blob_or_filters = rev =~# ':' && fugitive#GitVersion(2, 11) ? '--filters' : 'blob'
+        call s:ReplaceCmd([dir, 'cat-file', blob_or_filters, rev])
       endif
     finally
       keepjumps call setpos('.',pos)
@@ -3145,8 +3225,18 @@ function! s:RunEdit(state, tmp, job) abort
   let file = FugitiveVimPath(readfile(sentinel, '', 1)[0])
   exe substitute(a:state.mods, '\<tab\>', '-tab', 'g') 'keepalt split' s:fnameescape(file)
   set bufhidden=wipe
-  let s:edit_jobs[bufnr('')] = [a:state, a:tmp, a:job, sentinel]
+  let bufnr = bufnr('')
+  let s:edit_jobs[bufnr] = [a:state, a:tmp, a:job, sentinel]
   call fugitive#DidChange(a:state.git_dir)
+  if bufnr == bufnr('') && !exists('g:fugitive_event')
+    try
+      let g:fugitive_event = a:state.git_dir
+      let g:fugitive_result = a:state
+      exe s:DoAutocmd('User FugitiveEditor')
+    finally
+      unlet! g:fugitive_event g:fugitive_result
+    endtry
+  endif
   return 1
 endfunction
 
@@ -3200,11 +3290,7 @@ function! s:RunReceive(state, tmp, type, job, data, ...) abort
       call setbufline(a:state.capture_bufnr, line_count + 1, lines)
     endif
     call setbufvar(a:state.capture_bufnr, '&modifiable', 0)
-    if !getwinvar(bufwinid(a:state.capture_bufnr), '&previewwindow')
-      " no-op
-    elseif exists('*win_execute')
-      call win_execute(bufwinid(a:state.capture_bufnr), '$')
-    else
+    if getwinvar(bufwinid(a:state.capture_bufnr), '&previewwindow')
       let winnr = bufwinnr(a:state.capture_bufnr)
       if winnr > 0
         let old_winnr = winnr()
@@ -3421,6 +3507,11 @@ augroup fugitive_job
         \ endfor
 augroup END
 
+function! fugitive#CanPty() abort
+  return get(g:, 'fugitive_pty_debug_override',
+        \ has('unix') && !has('win32unix') && (has('patch-8.0.0744') || has('nvim')) && fugitive#GitVersion() !~# '\.windows\>')
+endfunction
+
 function! fugitive#PagerFor(argv, ...) abort
   let args = a:argv
   if empty(args)
@@ -3580,7 +3671,7 @@ function! fugitive#Command(line1, line2, range, bang, mods, arg) abort
   if a:bang && pager isnot# 2
     let pager = 1
     let stream = exists('*setbufline')
-    let do_edit = substitute(s:Mods(a:mods, &splitbelow ? 'botright' : 'topleft'), '\<tab\>', '-tab', 'g') . 'pedit!'
+    let do_edit = substitute(s:Mods(a:mods, 'Edge'), '\<tab\>', '-tab', 'g') . 'pedit!'
   elseif pager
     let allow_pty = 0
     if pager is# 2 && a:bang && a:line2 >= 0
@@ -3597,7 +3688,7 @@ function! fugitive#Command(line1, line2, range, bang, mods, arg) abort
   endif
   if s:run_jobs
     call extend(env, {'COLUMNS': '' . (&columns - 1)}, 'keep')
-    let state.pty = allow_pty && get(g:, 'fugitive_pty', has('unix') && !has('win32unix') && (has('patch-8.0.0744') || has('nvim')) && fugitive#GitVersion() !~# '\.windows\>')
+    let state.pty = allow_pty && fugitive#CanPty()
     if !state.pty
       let args = s:AskPassArgs(dir) + args
     endif
@@ -3620,6 +3711,10 @@ function! fugitive#Command(line1, line2, range, bang, mods, arg) abort
           \ 'GIT_SEQUENCE_EDITOR': editor,
           \ 'GIT_PAGER': 'cat',
           \ 'PAGER': 'cat'}, 'keep')
+    if len($GPG_TTY) && !has_key(env, 'GPG_TTY')
+      let env.GPG_TTY = ''
+      let did_override_gpg_tty = 1
+    endif
     if stream
       call writefile(['fugitive: aborting edit due to background operation.'], state.file . '.exit')
     elseif pager
@@ -3699,6 +3794,9 @@ function! fugitive#Command(line1, line2, range, bang, mods, arg) abort
   else
     if !explicit_pathspec_option && get(options.flags, 0, '') ==# '--no-literal-pathspecs'
       call remove(options.flags, 0)
+    endif
+    if exists('l:did_override_gpg_tty')
+      call remove(env, 'GPG_TTY')
     endif
     let cmd = s:BuildEnvPrefix(env) . s:shellesc(s:UserCommandList(options) + args)
     let after = '|call fugitive#DidChange(' . string(dir) . ')' . after
@@ -3801,8 +3899,12 @@ function! fugitive#Complete(lead, ...) abort
   let dir = a:0 == 1 ? a:1 : a:0 >= 3 ? s:Dir(a:3) : s:Dir()
   let root = a:0 >= 4 ? a:4 : s:Tree(s:Dir())
   let pre = a:0 > 1 ? strpart(a:1, 0, a:2) : ''
-  let subcmd = matchstr(pre, '\u\w*[! ] *\zs[[:alnum:]-]\+\ze ')
-  if empty(subcmd)
+  let subcmd = matchstr(pre, '\u\w*[! ] *\%(\%(++\S\+\|--\S\+-pathspecs\|-c\s\+\S\+\)\s\+\)*\zs[[:alnum:]][[:alnum:]-]*\ze ')
+  if empty(subcmd) && a:lead =~# '^+'
+    let results = ['++curwin']
+  elseif empty(subcmd) && a:lead =~# '^-'
+    let results = ['--literal-pathspecs', '--no-literal-pathspecs', '--glob-pathspecs', '--noglob-pathspecs', '--icase-pathspecs', '--no-optional-locks']
+  elseif empty(subcmd)
     let results = s:CompletableSubcommands(dir)
   elseif a:0 ==# 2 && subcmd =~# '^\%(commit\|revert\|push\|fetch\|pull\|merge\|rebase\)$'
     let cmdline = substitute(a:1, '\u\w*\([! ] *\)' . subcmd, 'G' . subcmd, '')
@@ -3845,7 +3947,7 @@ function! s:StatusCommand(line1, line2, range, count, bang, mods, reg, arg, args
   let dir = a:0 ? s:Dir(a:1) : s:Dir()
   exe s:DirCheck(dir)
   try
-    let mods = s:Mods(a:mods, &splitbelow ? 'botright' : 'topleft')
+    let mods = s:Mods(a:mods, 'Edge')
     let file = fugitive#Find(':', dir)
     let arg = ' +setl\ foldmarker=<<<<<<<<,>>>>>>>>\|let\ w:fugitive_status=FugitiveGitDir() ' .
           \ s:fnameescape(file)
@@ -3910,7 +4012,7 @@ function! s:StageSeek(info, fallback) abort
   if empty(info.heading)
     return a:fallback
   endif
-  let line = search('^' . escape(info.heading, '^$.*[]~\') . ' (\d\+)$', 'wn')
+  let line = search('^' . escape(info.heading, '^$.*[]~\') . ' (\d\++\=)$', 'wn')
   if !line
     for section in get({'Staged': ['Unstaged', 'Untracked'], 'Unstaged': ['Untracked', 'Staged'], 'Untracked': ['Unstaged', 'Staged']}, info.section, [])
       let line = search('^' . section, 'wn')
@@ -4093,7 +4195,8 @@ endfunction
 
 augroup fugitive_status
   autocmd!
-  autocmd BufWritePost         * call fugitive#DidChange(+expand('<abuf>'))
+  autocmd BufWritePost         * call fugitive#DidChange(+expand('<abuf>'), 0)
+  autocmd User FileChmodPost,FileUnlinkPost call fugitive#DidChange(+expand('<abuf>'), 0)
   autocmd ShellCmdPost,ShellFilterPost * nested call fugitive#DidChange(0)
   autocmd BufDelete * nested
         \ if getbufvar(+expand('<abuf>'), 'buftype') ==# 'terminal' |
@@ -4139,7 +4242,7 @@ function! s:StageInfo(...) abort
   let index = 0
   while len(getline(slnum - 1)) && empty(heading)
     let slnum -= 1
-    let heading = matchstr(getline(slnum), '^\u\l\+.\{-\}\ze (\d\+)$')
+    let heading = matchstr(getline(slnum), '^\u\l\+.\{-\}\ze (\d\++\=)$')
     if empty(heading) && getline(slnum) !~# '^[ @\+-]'
       let index += 1
     endif
@@ -4194,7 +4297,7 @@ function! s:Selection(arg1, ...) abort
   let index = 0
   while empty(heading)
     let slnum -= 1
-    let heading = matchstr(getline(slnum), '^\u\l\+.\{-\}\ze (\d\+)$')
+    let heading = matchstr(getline(slnum), '^\u\l\+.\{-\}\ze (\d\++\=)$')
     if empty(heading) && getline(slnum) !~# '^[ @\+-]'
       let index += 1
     endif
@@ -4214,7 +4317,7 @@ function! s:Selection(arg1, ...) abort
   let lnum = first - (arg1 == flnum ? 0 : 1)
   let root = s:Tree() . '/'
   while lnum <= last
-    let heading = matchstr(line, '^\u\l\+\ze.\{-\}\ze (\d\+)$')
+    let heading = matchstr(line, '^\u\l\+\ze.\{-\}\ze (\d\++\=)$')
     if len(heading)
       let template.heading = heading
       let template.section = matchstr(heading, '^\u\l\+')
@@ -4720,9 +4823,13 @@ function! s:StageDelete(lnum1, lnum2, count) abort
 
   let err = ''
   let did_conflict_err = 0
+  let reset_commit = matchstr(getline(a:lnum1), '^Un\w\+ \%(to\| from\) \zs\S\+')
   try
     for info in s:Selection(a:lnum1, a:lnum2)
       if empty(info.paths)
+        if len(info.commit)
+          let reset_commit = info.commit . '^'
+        endif
         continue
       endif
       let sub = get(get(get(b:fugitive_files, info.section, {}), info.filename, {}), 'submodule')
@@ -4788,15 +4895,14 @@ function! s:StageDelete(lnum1, lnum2, count) abort
     let err .= '|echoerr ' . string(v:exception)
   endtry
   if empty(restore)
+    if len(reset_commit) && empty(err)
+      call feedkeys(':Git reset ' . reset_commit)
+    endif
     return err[1:-1]
   endif
   exe s:ReloadStatus()
   call s:StageReveal()
-  if len(restore)
-    return 'checktime|redraw|echomsg ' . string('To restore, ' . join(restore, '|')) . err
-  else
-    return 'checktime|redraw' . err
-  endif
+  return 'checktime|redraw|echomsg ' . string('To restore, ' . join(restore, '|')) . err
 endfunction
 
 function! s:StageIgnore(lnum1, lnum2, count) abort
@@ -4972,11 +5078,11 @@ function! s:StagePatch(lnum1,lnum2) abort
   for lnum in range(a:lnum1,a:lnum2)
     let info = s:StageInfo(lnum)
     if empty(info.paths) && info.section ==# 'Staged'
-      return 'Git reset --patch'
+      return 'tab Git reset --patch'
     elseif empty(info.paths) && info.section ==# 'Unstaged'
-      return 'Git add --patch'
+      return 'tab Git add --patch'
     elseif empty(info.paths) && info.section ==# 'Untracked'
-      return 'Git add --interactive'
+      return 'tab Git add --interactive'
     elseif empty(info.paths)
       continue
     endif
@@ -4994,10 +5100,10 @@ function! s:StagePatch(lnum1,lnum2) abort
       call s:TreeChomp(['add', '--intent-to-add', '--'] + intend)
     endif
     if !empty(add)
-      execute "Git add --patch -- ".join(map(add,'s:fnameescape(v:val)'))
+      execute "tab Git add --patch -- ".join(map(add,'fnameescape(v:val)'))
     endif
     if !empty(reset)
-      execute "Git reset --patch -- ".join(map(reset,'s:fnameescape(v:val)'))
+      execute "tab Git reset --patch -- ".join(map(reset,'fnameescape(v:val)'))
     endif
   catch /^fugitive:/
     return 'echoerr ' . string(v:exception)
@@ -5082,7 +5188,7 @@ function! s:MergeSubcommand(line1, line2, range, bang, mods, options) abort
         \ filereadable(fugitive#Find('.git/MERGE_MSG', a:options)) ||
         \ isdirectory(fugitive#Find('.git/rebase-apply', a:options)) ||
         \  !empty(s:TreeChomp([a:options.git_dir, 'diff-files', '--diff-filter=U'])))
-    return 'echoerr ":Git merge for loading conflicts hase been removed in favor of :Git mergetool"'
+    return 'echoerr ":Git merge for loading conflicts has been removed in favor of :Git mergetool"'
   endif
   return {}
 endfunction
@@ -5531,7 +5637,7 @@ function! s:GrepSubcommand(line1, line2, range, bang, mods, options) abort
   silent exe s:DoAutocmd('QuickFixCmdPost ' . event)
   if quiet
     let bufnr = bufnr('')
-    silent exe substitute(s:Mods(a:mods), '\<tab\>', '', '') (listnr < 0 ? 'c' : 'l').'open'
+    exe s:QuickfixOpen(listnr, a:mods)
     if bufnr != bufnr('') && !a:bang
       wincmd p
     endif
@@ -5851,7 +5957,7 @@ function! s:BlurStatus() abort
 endfunction
 
 let s:bang_edits = {'split': 'Git', 'vsplit': 'vertical Git', 'tabedit': 'tab Git', 'pedit': 'Git!'}
-function! fugitive#Open(cmd, bang, mods, arg, args) abort
+function! fugitive#Open(cmd, bang, mods, arg, ...) abort
   exe s:VersionCheck()
   if a:bang
     return 'echoerr ' . string(':G' . a:cmd . '! for temp buffer output has been replaced by :' . get(s:bang_edits, a:cmd, 'Git') . ' --paginate')
@@ -5891,7 +5997,7 @@ function! s:ReadPrepare(line1, count, range, mods) abort
   return [pre . 'keepalt ' . mods . after . 'read', '|' . delete . 'diffupdate' . (a:count < 0 ? '|' . line('.') : '')]
 endfunction
 
-function! fugitive#ReadCommand(line1, count, range, bang, mods, arg, args) abort
+function! fugitive#ReadCommand(line1, count, range, bang, mods, arg, ...) abort
   exe s:VersionCheck()
   if a:bang
     return 'echoerr ' . string(':Gread! for temp buffer output has been replaced by :{range}Git! --paginate')
@@ -5926,7 +6032,7 @@ endfunction
 
 " Section: :Gwrite, :Gwq
 
-function! fugitive#WriteCommand(line1, line2, range, bang, mods, arg, args) abort
+function! fugitive#WriteCommand(line1, line2, range, bang, mods, arg, ...) abort
   exe s:VersionCheck()
   if s:cpath(expand('%:p'), fugitive#Find('.git/COMMIT_EDITMSG')) && empty(a:arg)
     return (empty($GIT_INDEX_FILE) ? 'write|bdelete' : 'wq') . (a:bang ? '!' : '')
@@ -6203,7 +6309,7 @@ function! s:IsConflicted() abort
   return len(@%) && !empty(s:ChompDefault('', ['ls-files', '--unmerged', '--', expand('%:p')]))
 endfunction
 
-function! fugitive#Diffsplit(autodir, keepfocus, mods, arg, args) abort
+function! fugitive#Diffsplit(autodir, keepfocus, mods, arg, ...) abort
   exe s:VersionCheck()
   let args = s:ArgSplit(a:arg)
   let post = ''
@@ -6414,11 +6520,11 @@ function! fugitive#RenameComplete(A,L,P) abort
   endif
 endfunction
 
-function! fugitive#MoveCommand(line1, line2, range, bang, mods, arg, args) abort
+function! fugitive#MoveCommand(line1, line2, range, bang, mods, arg, ...) abort
   return s:Move(a:bang, 0, a:arg)
 endfunction
 
-function! fugitive#RenameCommand(line1, line2, range, bang, mods, arg, args) abort
+function! fugitive#RenameCommand(line1, line2, range, bang, mods, arg, ...) abort
   return s:Move(a:bang, 1, a:arg)
 endfunction
 
@@ -6444,11 +6550,11 @@ function! s:Remove(after, force) abort
   endif
 endfunction
 
-function! fugitive#RemoveCommand(line1, line2, range, bang, mods, arg, args) abort
+function! fugitive#RemoveCommand(line1, line2, range, bang, mods, arg, ...) abort
   return s:Remove('edit', a:bang)
 endfunction
 
-function! fugitive#DeleteCommand(line1, line2, range, bang, mods, arg, args) abort
+function! fugitive#DeleteCommand(line1, line2, range, bang, mods, arg, ...) abort
   return s:Remove('bdelete', a:bang)
 endfunction
 
@@ -7020,7 +7126,7 @@ function! s:BrowserOpen(url, mods, echo_copy) abort
   endif
 endfunction
 
-function! fugitive#BrowseCommand(line1, count, range, bang, mods, arg, args) abort
+function! fugitive#BrowseCommand(line1, count, range, bang, mods, arg, ...) abort
   exe s:VersionCheck()
   let dir = s:Dir()
   try
@@ -7061,12 +7167,10 @@ function! fugitive#BrowseCommand(line1, count, range, bang, mods, arg, args) abo
       for line in readfile(result.file, '', 4096)
         let rev = s:fnameescape(matchstr(line, '\<https\=://[^[:space:]<>]*[^[:space:]<>.,;:"''!?]'))
         if len(rev)
-          break
+          return s:BrowserOpen(rev, a:mods, a:bang)
         endif
       endfor
-      if empty(rev)
-        return 'echoerr ' . string('fugitive: no URL found in output of :Git')
-      endif
+      return 'echoerr ' . string('fugitive: no URL found in output of :Git')
     endif
     exe s:DirCheck(dir)
     if empty(expanded)
@@ -7117,6 +7221,7 @@ function! fugitive#BrowseCommand(line1, count, range, bang, mods, arg, args) abo
         let type = 'blob'
       endif
     endif
+    let config = fugitive#Config(dir)
     if type ==# 'tree' && !empty(path)
       let path = s:sub(path, '/\=$', '/')
     endif
@@ -7148,13 +7253,13 @@ function! fugitive#BrowseCommand(line1, count, range, bang, mods, arg, args) abo
       let branch = FugitiveHead(0, dir)
     endif
     if !empty(branch)
-      let r = FugitiveConfigGet('branch.'.branch.'.remote', dir)
-      let m = FugitiveConfigGet('branch.'.branch.'.merge', dir)[11:-1]
+      let r = FugitiveConfigGet('branch.'.branch.'.remote', config)
+      let m = FugitiveConfigGet('branch.'.branch.'.merge', config)[11:-1]
       if r ==# '.' && !empty(m)
-        let r2 = FugitiveConfigGet('branch.'.m.'.remote', dir)
+        let r2 = FugitiveConfigGet('branch.'.m.'.remote', config)
         if r2 !~# '^\.\=$'
           let r = r2
-          let m = FugitiveConfigGet('branch.'.m.'.merge', dir)[11:-1]
+          let m = FugitiveConfigGet('branch.'.m.'.merge', config)[11:-1]
         endif
       endif
       if empty(remote)
@@ -7162,7 +7267,7 @@ function! fugitive#BrowseCommand(line1, count, range, bang, mods, arg, args) abo
       endif
       if r ==# '.' || r ==# remote
         let remote_ref = 'refs/remotes/' . remote . '/' . branch
-        if FugitiveConfigGet('push.default', dir) ==# 'upstream' ||
+        if FugitiveConfigGet('push.default', config) ==# 'upstream' ||
               \ !filereadable(FugitiveFind('.git/' . remote_ref, dir)) && empty(s:ChompDefault('', ['rev-parse', '--verify', remote_ref, '--'], dir))
           let merge = m
           if path =~# '^\.git/refs/heads/.'
@@ -7218,12 +7323,12 @@ function! fugitive#BrowseCommand(line1, count, range, bang, mods, arg, args) abo
     endif
 
     if empty(remote) || remote ==# '.'
-      let remote = s:Remote(dir)
+      let remote = s:RemoteDefault(config)
     endif
     if remote =~# ':'
       let remote_url = remote
     else
-      let remote_url = fugitive#RemoteUrl(remote, dir)
+      let remote_url = fugitive#RemoteUrl(remote, config)
     endif
     let raw = empty(remote_url) ? remote : remote_url
     let git_dir = s:GitDir(dir)
@@ -7634,6 +7739,15 @@ function! s:cfile() abort
         let ref = matchstr(getline('.'),'\x\{40,\}')
         echoerr "warning: unknown context ".matchstr(getline('.'),'^\l*')
 
+      elseif getline('.') =~# '^[A-Z]\d*\t\S' && len(myhash)
+        let files = split(getline('.'), "\t")[1:-1]
+        let ref = 'b/' . files[-1]
+        if getline('.') =~# '^D'
+          let ref = 'a/' . files[0]
+        elseif getline('.') !~# '^A'
+          let dcmds = ['', 'Gdiffsplit! >' . myhash . '^:' . fnameescape(files[0])]
+        endif
+
       elseif getline('.') =~# '^[+-]\{3\} [abciow12]\=/'
         let ref = getline('.')[4:]
 
@@ -7725,9 +7839,15 @@ function! s:GF(mode) abort
     return 'echoerr ' . string(v:exception)
   endtry
   if len(results) > 1
-    return 'G' . a:mode .
+    let cmd = 'G' . a:mode .
           \ (empty(results[1]) ? '' : ' +' . escape(results[1], ' |')) . ' ' .
-          \ fnameescape(results[0]) . join(map(results[2:-1], '"|" . v:val'), '')
+          \ fnameescape(results[0])
+    let tail = join(map(results[2:-1], '"|" . v:val'), '')
+    if a:mode ==# 'pedit' && len(tail)
+      return cmd . '|wincmd P|exe ' . string(tail[1:-1]) . '|wincmd p'
+    else
+      return cmd . tail
+    endif
   elseif len(results) && len(results[0])
     return 'G' . a:mode . ' ' . s:fnameescape(results[0])
   else

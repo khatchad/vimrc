@@ -258,6 +258,7 @@ formatting.
   * [javalsp](https://github.com/georgewfraser/vscode-javac)
   * [uncrustify](https://github.com/uncrustify/uncrustify)
 * JavaScript
+  * [deno](https://deno.land/)
   * [eslint](http://eslint.org/)
   * [fecs](http://fecs.baidu.com/)
   * [flow](https://flowtype.org/)
@@ -280,6 +281,9 @@ formatting.
   * [eslint](http://eslint.org/)
 * JSONC
   * [eslint](http://eslint.org/)
+* Jsonnet
+  * [jsonnet-lint](https://jsonnet.org/learning/tools.html)
+  * [jsonnetfmt](https://jsonnet.org/learning/tools.html)
 * Julia
   * [languageserver](https://github.com/JuliaEditorSupport/LanguageServer.jl)
 * Kotlin
@@ -424,6 +428,7 @@ formatting.
   * [bandit](https://github.com/PyCQA/bandit) :warning:
   * [black](https://github.com/ambv/black)
   * [flake8](http://flake8.pycqa.org/en/latest/)
+  * [flakehell](https://github.com/flakehell/flakehell)
   * [isort](https://github.com/timothycrosley/isort)
   * [mypy](http://mypy-lang.org/)
   * [prospector](https://github.com/PyCQA/prospector) :warning: :floppy_disk:
@@ -463,6 +468,8 @@ formatting.
   * [textlint](https://textlint.github.io/)
   * [vale](https://github.com/ValeLint/vale)
   * [write-good](https://github.com/btford/write-good)
+* Robot
+  * [rflint](https://github.com/boakley/robotframework-lint)
 * RPM spec
   * [rpmlint](https://github.com/rpm-software-management/rpmlint) :warning: (see `:help ale-integration-spec`)
 * Ruby

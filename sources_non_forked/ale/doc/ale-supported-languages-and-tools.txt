@@ -249,6 +249,7 @@ Notes:
   * `javalsp`
   * `uncrustify`
 * JavaScript
+  * `deno`
   * `eslint`
   * `fecs`
   * `flow`
@@ -271,6 +272,9 @@ Notes:
   * `eslint`
 * JSONC
   * `eslint`
+* Jsonnet
+  * `jsonnet-lint`
+  * `jsonnetfmt`
 * Julia
   * `languageserver`
 * Kotlin
@@ -415,6 +419,7 @@ Notes:
   * `bandit`
   * `black`
   * `flake8`
+  * `flakehell`
   * `isort`
   * `mypy`
   * `prospector`!!
@@ -454,6 +459,8 @@ Notes:
   * `textlint`
   * `vale`
   * `write-good`
+* Robot
+  * `rflint`
 * RPM spec
   * `rpmlint`
 * Ruby
