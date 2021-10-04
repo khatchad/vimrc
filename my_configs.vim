@@ -93,9 +93,9 @@ autocmd FileType tex,plaintex setlocal foldmethod=syntax
 autocmd FileType tex,plaintex syntax spell toplevel
 " search in a singe file. This will confuse latex-suite. Set your grep program
 " to alway generate a file-name.
-" autocmd FileType tex,plaintex syntax region texZone start='\\begin\s*{' end='}'
-" autocmd FileType tex,plaintex syntax region texZone start='\\begin\s*{.*}{' end='}'
-" autocmd FileType tex,plaintex syntax region texZone start='\\end\s*{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\begin\s*{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\begin\s*{.*}{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\end\s*{' end='}'
 autocmd FileType tex,plaintex setlocal grepprg=grep\ -nH\ $*
 autocmd FileType tex,plaintex syntax region texComment start='\\begin{comment}' end='\\end{comment}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\begin{lstlisting}' end='\\end{lstlisting}'
@@ -128,7 +128,10 @@ autocmd FileType tex,plaintex syntax match texRefZone '\\citeauthor\%([tp]\*\=\)
 autocmd FileType tex,plaintex syntax match texRefZone '\\citeyear\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax match texRefZone '\\citeseries\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax match texRefZone '\\citejournaltitle\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
+autocmd FileType tex,plaintex syntax match texRefZone '\\citeurl\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax region texRefZone start='\\citefield{.*}{' end='}' nextgroup=texRefOption,texCite
+autocmd FileType tex,plaintex syntax region texZone start='\\newlist{.*}{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\setlist{.*}{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='%' end='\n'
 " autocmd FileType tex,plaintex syntax region texRefZone start='\\lref{' end='}'
 " autocmd FileType tex,plaintex syntax region texRefZone start='\\Lref{' end='}'
