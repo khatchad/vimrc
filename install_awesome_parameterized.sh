@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+sudo apt update
+sudo apt install vim-scripts
+
 echo 'Installing Awesome Vim from '$1
 cd $1
 
