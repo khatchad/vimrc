@@ -253,10 +253,10 @@ exec 'highlight WarningMsg guibg=bg guifg=' . s:orange
 
 " Auto-text-completion menu
 exec 'highlight Pmenu guibg=' . s:deep_blue . ' guifg=fg'
-exec 'highlight PmenuSel guibg=' . s:cyan_blue . ' guifg=fg'
+exec 'highlight PmenuSel guibg=' . s:cyan_blue . ' guifg=' . s:white_blue
 exec 'highlight PmenuSbar guibg=' . s:deep_blue
 exec 'highlight PmenuThumb guibg=' . s:steel_blue
-exec 'highlight WildMenu guibg=' . s:cyan_blue . ' guifg=fg'
+exec 'highlight WildMenu guibg=' . s:cyan_blue . ' guifg=' . s:white_blue
 
 " Spelling errors
 if g:nightflyUndercurls
@@ -303,8 +303,8 @@ highlight! link qfFileName NightflyEmerald
 " Color column (after line 80)
 exec 'highlight ColorColumn guibg=' . s:black_blue
 
-" Conceal color, as used by indentLine plugin
-exec 'highlight Conceal guibg=NONE guifg=' . s:deep_blue
+" Conceal color
+exec 'highlight Conceal guibg=NONE guifg=' . s:ash_blue
 
 " Neovim only highlight groups
 if has('nvim')
@@ -855,8 +855,13 @@ exec 'highlight User5 guibg=' . s:slate_blue . ' guifg=' . s:blue       . ' gui=
 exec 'highlight User6 guibg=' . s:slate_blue . ' guifg=' . s:watermelon . ' gui=none'
 exec 'highlight User7 guibg=' . s:slate_blue . ' guifg=' . s:blue       . ' gui=none'
 
-" Coc plugin
-highlight! link CocUnusedHighlight NightflyWhite
+" Coc plugin (see issue: https://github.com/bluz71/vim-nightfly-guicolors/issues/31)
+highlight! link CocUnusedHighlight NightflyAshBlue
+
+" indentLine plugin
+if !exists('g:indentLine_defaultGroup') && !exists('g:indentLine_color_gui')
+    let g:indentLine_color_gui = s:deep_blue
+endif
 
 " Neovim diagnostics
 if has('nvim-0.6')
@@ -982,7 +987,30 @@ if has('nvim')
     " nvim-cmp plugin
     highlight! link CmpItemAbbrMatch NightflyWhiteBlue
     highlight! link CmpItemAbbrMatchFuzzy NightflyOrange
-    highlight! link CmpItemKind NightflyBlue
+    highlight! link CmpItemKindDefault NightflyWhite
+    highlight! link CmpItemKindClass NightflyEmerald
+    highlight! link CmpItemKindColor NightflyTurquoise
+    highlight! link CmpItemKindConstant NightflyPurple
+    highlight! link CmpItemKindConstructor NightflyBlue
+    highlight! link CmpItemKindEnum NightflyViolet
+    highlight! link CmpItemKindEnumMember NightflyTurquoise
+    highlight! link CmpItemKindEvent NightflyViolet
+    highlight! link CmpItemKindField NightflyTurquoise
+    highlight! link CmpItemKindFile NightflyBlue
+    highlight! link CmpItemKindFolder NightflyBlue
+    highlight! link CmpItemKindFunction NightflyBlue
+    highlight! link CmpItemKindInterface NightflyEmerald
+    highlight! link CmpItemKindKeyword NightflyViolet
+    highlight! link CmpItemKindMethod NightflyBlue
+    highlight! link CmpItemKindModule NightflyEmerald
+    highlight! link CmpItemKindOperator NightflyViolet
+    highlight! link CmpItemKindProperty NightflyTurquoise
+    highlight! link CmpItemKindReference NightflyTurquoise
+    highlight! link CmpItemKindStruct NightflyEmerald
+    highlight! link CmpItemKindTypeParameter NightflyEmerald
+    highlight! link CmpItemKindUnit NightflyTurquoise
+    highlight! link CmpItemKindValue NightflyTurquoise
+    highlight! link CmpItemKindVariable NightflyTurquoise
     highlight! link CmpItemMenu NightflyCadetBlue
 endif
 
