@@ -109,11 +109,14 @@ autocmd FileType tex,plaintex syntax region texZone start='\\begin{pythoncode\*}
 " autocmd FileType tex,plaintex syntax region texZone start='\\begin{diffcode\*}' end='\\end{diffcode\*}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\begin{csharpcode}' end='\\end{csharpcode}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\begin{csharpcode\*}' end='\\end{csharpcode\*}'
-" autocmd FileType tex,plaintex syntax region texZone start='\\mintinline{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\mintinline{' end='}'
+autocmd FileType tex,plaintex syntax match texZone '\\mintinline\%([tp]\*\=\)\='
 autocmd FileType tex,plaintex syntax region texZone start='\\javainline{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\jl{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\csharpinline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\pythoninline{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\pyc{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\pyi{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\textinline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\ti{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\httplink{' end='}'
@@ -265,6 +268,7 @@ au FileType help setl nospell
 " endif
 
 let g:netrw_browsex_viewer= "google-chrome"
-colorscheme tender
+colorscheme PaperColor
+set background=light
 " colorscheme parsec
 " set mouse-=a
