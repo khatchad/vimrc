@@ -113,7 +113,7 @@ autocmd FileType tex,plaintex syntax region texZone start='\\mintinline{' end='}
 autocmd FileType tex,plaintex syntax match texZone '\\mintinline\[.*\]{.*}'
 autocmd FileType tex,plaintex syntax match texZone '\\mintinline\%([tp]\*\=\)\='
 autocmd FileType tex,plaintex syntax region texZone start='\\javainline{' end='}'
-" autocmd FileType tex,plaintex syntax region texZone start='\\jl{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\jl{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\csharpinline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\pythoninline{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\pyc{' end='}'
