@@ -2328,12 +2328,14 @@ call s:add_methods('buffer', ['repo', 'type'])
 
 function! s:FilterEscape(items, ...) abort
   let items = copy(a:items)
-  call map(items, 's:fnameescape(v:val)')
-  if a:0 && type(a:1) == type('')
-    let cmp = s:FileIgnoreCase(1) ? '==?' : '==#'
-    call filter(items, 'strpart(v:val, 0, strlen(a:1)) ' . cmp . ' a:1')
+  call map(items, 'fnameescape(v:val)')
+  if !a:0 || type(a:1) != type('')
+    let match = ''
+  else
+    let match = substitute(a:1, '^[+>]\|\\\@<![' . substitute(s:fnameescape, '\\', '', '') . ']', '\\&', 'g')
   endif
-  return items
+  let cmp = s:FileIgnoreCase(1) ? '==?' : '==#'
+  return filter(items, 'strpart(v:val, 0, strlen(match)) ' . cmp . ' match')
 endfunction
 
 function! s:GlobComplete(lead, pattern, ...) abort
@@ -6254,6 +6256,9 @@ function! s:CompletePush(A, L, P, ...) abort
     call map(matches, 'lead . s:sub(v:val, "^.*\t", "")')
   else
     let matches = s:CompleteHeads(dir)
+    if a:A =~# '^[\''"]\=+'
+      call map(matches, '"+" . v:val')
+    endif
   endif
   return s:FilterEscape(matches, a:A)
 endfunction
