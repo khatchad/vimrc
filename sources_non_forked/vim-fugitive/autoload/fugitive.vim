@@ -1240,29 +1240,48 @@ endfunction
 function! s:UrlParse(url) abort
   let scp_authority = matchstr(a:url, '^[^:/]\+\ze:\%(//\)\@!')
   if len(scp_authority) && !(has('win32') && scp_authority =~# '^\a:[\/]')
-    let url = {'scheme': 'ssh', 'authority': scp_authority,
-          \ 'path': strpart(a:url, len(scp_authority) + 1)}
+    let url = {'scheme': 'ssh', 'authority': scp_authority, 'hash': '',
+          \ 'path': substitute(strpart(a:url, len(scp_authority) + 1), '[#?]', '\=printf("%%%02X", char2nr(submatch(0)))', 'g')}
   elseif empty(a:url)
-    let url = {'scheme': '', 'authority': '', 'path': ''}
+    let url = {'scheme': '', 'authority': '', 'path': '', 'hash': ''}
   else
-    let match = matchlist(a:url, '^\([[:alnum:].+-]\+\)://\([^/]*\)\(/.*\)\=\%(#\|$\)')
+    let match = matchlist(a:url, '^\([[:alnum:].+-]\+\)://\([^/]*\)\(/[^#]*\)\=\(#.*\)\=$')
     if empty(match)
-      let url = {'scheme': 'file', 'authority': '', 'path': a:url}
+      let url = {'scheme': 'file', 'authority': '', 'hash': '',
+            \ 'path': substitute(a:url, '[#?]', '\=printf("%%%02X", char2nr(submatch(0)))', 'g')}
     else
-      let url = {'scheme': match[1], 'authority': match[2]}
+      let url = {'scheme': match[1], 'authority': match[2], 'hash': match[4]}
       let url.path = empty(match[3]) ? '/' : match[3]
     endif
   endif
+  let url.protocol = substitute(url.scheme, '.\zs$', ':', '')
+  let url.user = matchstr(url.authority, '.\{-\}\ze@', '', '')
+  let url.host = substitute(url.authority, '.\{-\}@', '', '')
+  let url.hostname = substitute(url.host, ':\d\+$', '', '')
+  let url.port = matchstr(url.host, ':\zs\d\+$', '', '')
+  let url.origin = substitute(url.scheme, '.\zs$', '://', '') . url.host
+  let url.search = matchstr(url.path, '?.*')
+  let url.pathname = '/' . matchstr(url.path, '^/\=\zs[^?]*')
   if (url.scheme ==# 'ssh' || url.scheme ==# 'git') && url.path[0:1] ==# '/~'
     let url.path = strpart(url.path, 1)
   endif
+  if url.path =~# '^/'
+    let url.href = url.scheme . '://' . url.authority . url.path . url.hash
+  elseif url.path =~# '^\~'
+    let url.href = url.scheme . '://' . url.authority . '/' . url.path . url.hash
+  elseif url.scheme ==# 'ssh' && url.authority !~# ':'
+    let url.href = url.authority . ':' . url.path . url.hash
+  else
+    let url.href = a:url
+  endif
+  let url.url = matchstr(url.href, '^[^#]*')
   return url
 endfunction
 
 function! s:RemoteResolve(url, flags) abort
   let remote = s:UrlParse(a:url)
   if remote.scheme =~# '^https\=$' && index(a:flags, ':nohttp') < 0
-    let headers = fugitive#RemoteHttpHeaders(remote.scheme . '://' . remote.authority . remote.path)
+    let headers = fugitive#RemoteHttpHeaders(remote.url)
     let loc = matchstr(get(headers, 'location', ''), '^https\=://.\{-\}\ze/info/refs?')
     if len(loc)
       let remote = s:UrlParse(loc)
@@ -1307,19 +1326,6 @@ function! s:RemoteCallback(config, into, flags, cb) abort
     call extend(a:into, s:RemoteResolve(url, a:flags))
   else
     call extend(a:into, s:UrlParse(url))
-  endif
-  let a:into.user = matchstr(a:into.authority, '.\{-\}\ze@', '', '')
-  let a:into.host = substitute(a:into.authority, '.\{-\}@', '', '')
-  let a:into.hostname = substitute(a:into.host, ':\d\+$', '', '')
-  let a:into.port = matchstr(a:into.host, ':\zs\d\+$', '', '')
-  if a:into.path =~# '^/'
-    let a:into.url = a:into.scheme . '://' . a:into.authority . a:into.path
-  elseif a:into.path =~# '^\~'
-    let a:into.url = a:into.scheme . '://' . a:into.authority . '/' . a:into.path
-  elseif a:into.scheme ==# 'ssh' && a:into.authority !~# ':'
-    let a:into.url = a:into.authority . ':' . a:into.path
-  else
-    let a:into.url = url
   endif
   if len(a:cb)
     call call(a:cb[0], [a:into] + a:cb[1:-1])
@@ -3948,7 +3954,7 @@ function! fugitive#Complete(lead, ...) abort
     let results = ['--literal-pathspecs', '--no-literal-pathspecs', '--glob-pathspecs', '--noglob-pathspecs', '--icase-pathspecs', '--no-optional-locks']
   elseif empty(subcmd)
     let results = s:CompletableSubcommands(dir)
-  elseif a:0 ==# 2 && subcmd =~# '^\%(commit\|revert\|push\|fetch\|pull\|merge\|rebase\)$'
+  elseif a:0 ==# 2 && subcmd =~# '^\%(commit\|revert\|push\|fetch\|pull\|merge\|rebase\|bisect\)$'
     let cmdline = substitute(a:1, '\u\w*\([! ] *\)' . subcmd, 'G' . subcmd, '')
     let caps_subcmd = substitute(subcmd, '\%(^\|-\)\l', '\u&', 'g')
     return fugitive#{caps_subcmd}Complete(a:lead, cmdline, a:2 + len(cmdline) - len(a:1), dir, root)
@@ -4324,7 +4330,7 @@ function! s:Selection(arg1, ...) abort
   else
     let last = first
   endif
-  while getline(first) =~# '^$\|^[A-Z][a-z]'
+  while first <= line('$') && getline(first) =~# '^$\|^[A-Z][a-z]'
     let first += 1
   endwhile
   if first > last || &filetype !=# 'fugitive'
@@ -5247,6 +5253,22 @@ function! s:RebaseSubcommand(line1, line2, range, bang, mods, options) abort
   return {}
 endfunction
 
+" Section: :Git bisect
+
+function! s:CompleteBisect(A, L, P, ...) abort
+  let bisect_subcmd = matchstr(a:L, '\u\w*[! ] *.\{-\}\s\@<=\zs[^-[:space:]]\S*\ze ')
+  if empty(bisect_subcmd)
+    let subcmds = ['start', 'bad', 'new', 'good', 'old', 'terms', 'skip', 'next', 'reset', 'replay', 'log', 'run']
+    return s:FilterEscape(subcmds, a:A)
+  endif
+  let dir = a:0 ? a:1 : s:Dir()
+  return fugitive#CompleteObject(a:A, dir)
+endfunction
+
+function fugitive#BisectComplete(A, L, P, ...) abort
+  return s:CompleteSub('bisect', a:A, a:L, a:P, function('s:CompleteBisect'), a:000)
+endfunction
+
 " Section: :Git difftool, :Git mergetool
 
 function! s:ToolItems(state, from, to, offsets, text, ...) abort
@@ -5889,9 +5911,13 @@ function! s:ArgSplit(string) abort
     let arg = matchstr(string, '^\s*\%(\\.\|[^[:space:]]\)\+')
     let string = strpart(string, len(arg))
     let arg = substitute(arg, '^\s\+', '', '')
-    call add(args, substitute(arg, '\\\@<!\\ ', ' ', 'g'))
+    call add(args, substitute(arg, '\\\+[|" ]', '\=submatch(0)[len(submatch(0))/2 : -1]', 'g'))
   endwhile
   return args
+endfunction
+
+function! s:PlusEscape(string) abort
+  return substitute(a:string, '\\*[|" ]', '\=repeat("\\", len(submatch(0))).submatch(0)', 'g')
 endfunction
 
 function! s:OpenParse(string, wants_cmd) abort
@@ -5900,7 +5926,7 @@ function! s:OpenParse(string, wants_cmd) abort
   let args = s:ArgSplit(a:string)
   while !empty(args)
     if args[0] =~# '^++'
-      call add(opts, ' ' . escape(remove(args, 0), ' |"'))
+      call add(opts, ' ' . s:PlusEscape(remove(args, 0)))
     elseif a:wants_cmd && args[0] =~# '^+'
       call add(cmds, remove(args, 0)[1:-1])
     else
@@ -5967,9 +5993,9 @@ function! s:OpenParse(string, wants_cmd) abort
 
   let pre = join(opts, '')
   if len(cmds) > 1
-    let pre .= ' +' . escape(join(map(cmds, '"exe ".string(v:val)'), '|'), ' |"')
+    let pre .= ' +' . s:PlusEscape(join(map(cmds, '"exe ".string(v:val)'), '|'))
   elseif len(cmds)
-    let pre .= ' +' . escape(cmds[0], ' |"')
+    let pre .= ' +' . s:PlusEscape(cmds[0])
   endif
   return [url, pre]
 endfunction
@@ -7577,9 +7603,10 @@ function! fugitive#MapJumps(...) abort
     call s:Map('n', 'czA', ':<C-U>Git stash apply --quiet stash@{<C-R>=v:count<CR>}<CR>')
     call s:Map('n', 'czp', ':<C-U>Git stash pop --quiet --index stash@{<C-R>=v:count<CR>}<CR>')
     call s:Map('n', 'czP', ':<C-U>Git stash pop --quiet stash@{<C-R>=v:count<CR>}<CR>')
+    call s:Map('n', 'czs', ':<C-U>Git stash push --staged<CR>')
     call s:Map('n', 'czv', ':<C-U>exe "Gedit" fugitive#RevParse("stash@{" . v:count . "}")<CR>', '<silent>')
-    call s:Map('n', 'czw', ':<C-U>Git stash --keep-index<C-R>=v:count > 1 ? " --all" : v:count ? " --include-untracked" : ""<CR><CR>')
-    call s:Map('n', 'czz', ':<C-U>Git stash <C-R>=v:count > 1 ? " --all" : v:count ? " --include-untracked" : ""<CR><CR>')
+    call s:Map('n', 'czw', ':<C-U>Git stash push --keep-index<C-R>=v:count > 1 ? " --all" : v:count ? " --include-untracked" : ""<CR><CR>')
+    call s:Map('n', 'czz', ':<C-U>Git stash push <C-R>=v:count > 1 ? " --all" : v:count ? " --include-untracked" : ""<CR><CR>')
     call s:Map('n', 'cz?', ':<C-U>help fugitive_cz<CR>', '<silent>')
 
     call s:Map('n', 'co<Space>', ':Git checkout<Space>')
@@ -7888,7 +7915,7 @@ function! s:GF(mode) abort
   endtry
   if len(results) > 1
     let cmd = 'G' . a:mode .
-          \ (empty(results[1]) ? '' : ' +' . escape(results[1], ' |')) . ' ' .
+          \ (empty(results[1]) ? '' : ' +' . s:PlusEscape(results[1])) . ' ' .
           \ fnameescape(results[0])
     let tail = join(map(results[2:-1], '"|" . v:val'), '')
     if a:mode ==# 'pedit' && len(tail)
