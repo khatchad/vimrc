@@ -340,6 +340,7 @@ if has('nvim')
     highlight! link cssTSType NightflyBlue
     highlight! link scssTSPunctDelimiter NightflyWatermelon
     highlight! link scssTSType NightflyBlue
+    highlight! link scssTSVariable NightflyTurquoise
     highlight! link yamlTSField NightflyBlue
     highlight! link yamlTSPunctDelimiter NightflyWatermelon
 endif
@@ -966,6 +967,7 @@ if has('nvim')
     highlight! link GitSignsDelete NightflyRedAlert
 
     " Hop plugin
+    highlight! link HopCursor IncSearch
     highlight! link HopNextKey NightflyYellow
     highlight! link HopNextKey1 NightflyBlue
     highlight! link HopNextKey2 NightflyWatermelon
