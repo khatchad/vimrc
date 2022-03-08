@@ -249,7 +249,7 @@ au FileType cpp setl fp=astyle\ --mode=c\ --indent=tab
 """"""""""""""""""""""""""""""
 " => C section
 """""""""""""""""""""""""""""""
-au FileType c setl fp=astyle\ --mode=c\ --indent=tab\ \colorcolumn=80
+au FileType c setl fp=astyle\ --mode=c\ --indent=tab
 
 """"""""""""""""""""""""""""""
 " => Python section
