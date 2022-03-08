@@ -249,7 +249,7 @@ au FileType cpp setl fp=astyle\ --mode=c\ --indent=tab
 """"""""""""""""""""""""""""""
 " => C section
 """""""""""""""""""""""""""""""
-au FileType c setl fp=astyle\ --mode=c\ --indent=tab\ \colorcolumn=80
+au FileType c setl fp=astyle\ --mode=c\ --indent=tab
 
 """"""""""""""""""""""""""""""
 " => Python section
@@ -272,7 +272,7 @@ au FileType help setl nospell
 " endif
 
 let g:netrw_browsex_viewer= "google-chrome"
-colorscheme PaperColor
+colorscheme manuscript
 set background=light
 " colorscheme parsec
 " set mouse-=a
