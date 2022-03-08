@@ -70,6 +70,7 @@ badwolf https://github.com/sjl/badwolf
 TaskList.vim https://github.com/vim-scripts/TaskList.vim
 dracula https://github.com/dracula/vim
 vim-nightfly-guicolors https://github.com/bluz71/vim-nightfly-guicolors
+shuffle https://github.com/khatchad/shuffle.vim
 """.strip()
 
 GITHUB_ZIP = "%s/archive/master.zip"
