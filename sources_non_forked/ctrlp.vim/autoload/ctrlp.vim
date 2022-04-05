@@ -95,7 +95,7 @@ let [s:pref, s:bpref, s:opts, s:new_opts, s:lc_opts] =
 	\ 'brief_prompt':          ['s:brfprt', 0],
 	\ 'match_current_file':    ['s:matchcrfile', 0],
 	\ 'match_natural_name':    ['s:matchnatural', 0],
-	\ 'compare_lim':           ['s:compare_lim', 3000],
+	\ 'compare_lim':           ['s:compare_lim', 0],
 	\ 'bufname_mod':           ['s:bufname_mod', ':t'],
 	\ 'bufpath_mod':           ['s:bufpath_mod', ':~:.:h'],
 	\ 'formatline_func':       ['s:flfunc', 's:formatline(v:val)'],
@@ -396,7 +396,7 @@ fu! ctrlp#files()
 		en
 		" Remove base directory
 		cal ctrlp#rmbasedir(g:ctrlp_allfiles)
-		if len(g:ctrlp_allfiles) <= s:compare_lim
+		if !s:compare_lim || len(g:ctrlp_allfiles) <= s:compare_lim
 			cal sort(g:ctrlp_allfiles, 'ctrlp#complen')
 		en
 		cal s:writecache(cafile)
@@ -425,14 +425,17 @@ fu! s:CloseCustomFuncs()
 	en
 endf
 
-if has('patch-8.2-0995')
+if has('patch-8.2-0995') && get(g:, 'ctrlp_use_readdir', 1)
 	fu! s:GlobPath(dirs, depth)
 		let entries = []
 		let dirs = substitute(a:dirs, '\\\([%# ]\)', '\1', 'g')
 		for e in split(dirs, ',')
-			sil let files = readdir(e, '1', {'sort': 'none'})
-			if !s:showhidden | cal filter(files, 'v:val[0] != "."') | en
-			let entries += map(files, 'e.s:lash.v:val')
+			try
+				let files = readdir(e, '1', {'sort': 'none'})
+				if !s:showhidden | cal filter(files, 'v:val[0] != "."') | en
+				let entries += map(files, 'e.s:lash.v:val')
+			cat
+			endt
 		endfo
 		let [dnf, depth] = [ctrlp#dirnfile(entries), a:depth + 1]
 		if &wig != '' | cal filter(dnf[1], 'glob(v:val) != ""') | en
