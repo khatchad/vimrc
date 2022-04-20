@@ -100,7 +100,7 @@ autocmd FileType tex,plaintex setlocal grepprg=grep\ -nH\ $*
 autocmd FileType tex,plaintex syntax region texComment start='\\begin{comment}' end='\\end{comment}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{CCSXML}' end='\\end{CCSXML}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\begin{lstlisting}' end='\\end{lstlisting}'
-" autocmd FileType tex,plaintex syntax region texZone start='\\begin{minted}' end='\\end{minted}'
+autocmd FileType tex,plaintex syntax region texZone start='\\begin{minted}' end='\\end{minted}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{javacode}' end='\\end{javacode}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{javacode\*}' end='\\end{javacode\*}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{pythoncode}' end='\\end{pythoncode}'
