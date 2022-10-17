@@ -1,68 +1,70 @@
 ![nightfly](https://raw.githubusercontent.com/bluz71/misc-binaries/master/headings/nightfly.png)
 ==========
 
-_nightfly_ is a dark GUI colorscheme for Vim & Neovim inspired by:
+_nightfly_ is a dark GUI colorscheme for Vim & Neovim.
 
-- [Night Owl](https://github.com/sdras/night-owl-vscode-theme)
+:point_right: I maintain another dark Vim theme named
+[moonfly](https://github.com/bluz71/vim-moonfly-colors) which may be of
+interest.
 
-- [moonfly](https://github.com/bluz71/vim-moonfly-colors) (note, this is a dark
-  Vim & Neovim colorscheme that I also maintain)
+Screenshot
+----------
 
-:zap: Prerequisites
--------------------
+![screenshot](https://raw.githubusercontent.com/bluz71/misc-binaries/master/nightfly/nightfly-screenshot.png)
+
+Styled Features & Plugins
+-------------------------
+
+Vim & Neovim compatible:
+
+- [ALE](https://github.com/dense-analysis/ale)
+- [BufExplorer](https://github.com/jlanzarotta/bufexplorer)
+- [clever-f](https://github.com/rhysd/clever-f.vim)
+- [CtrlP](https://github.com/ctrlpvim/ctrlp.vim)
+- [Fern](https://github.com/lambdalisue/fern.vim)
+- [fzf.vim](https://github.com/junegunn/fzf.vim) (works best with matching [fly16](https://github.com/bluz71/fly16-bat) [bat](https://github.com/sharkdp/bat) theme)
+- [GitGutter](https://github.com/airblade/vim-gitgutter)
+- [indentLine](https://github.com/Yggdroot/indentLine)
+- [lightline](https://github.com/itchyny/lightline.vim)
+- [NERDTree](https://github.com/scrooloose/nerdtree)
+- [Signify](https://github.com/mhinz/vim-signify)
+- [Tagbar](https://github.com/majutsushi/tagbar)
+- [vim-airline](https://github.com/vim-airline/vim-airline)
+
+Neovim-only:
+
+- [Neovim Treesitter](https://github.com/nvim-treesitter/nvim-treesitter)
+- [Neovim Diagnostic](https://neovim.io/doc/user/diagnostic.html)
+- [Barbar](https://github.com/romgrk/barbar.nvim)
+- [Bufferline](https://github.com/akinsho/bufferline.nvim)
+- [Dashboard](https://github.com/glepnir/dashboard-nvim)
+- [Gitsigns](https://github.com/lewis6991/gitsigns.nvim)
+- [Hop](https://github.com/phaazon/hop.nvim)
+- [Indent BlankLine](https://github.com/lukas-reineke/indent-blankline.nvim)
+- [Lualine](https://github.com/nvim-lualine/lualine.nvim)
+- [Mini](https://github.com/echasnovski/mini.nvim)
+- [Neo-tree](https://github.com/nvim-neo-tree/neo-tree.nvim)
+- [nvim-cmp](https://github.com/hrsh7th/nvim-cmp)
+- [NvimTree](https://github.com/kyazdani42/nvim-tree.lua)
+- [Telescope](https://github.com/nvim-telescope/telescope.nvim)
+
+:zap: Requirements
+------------------
 
 _nightfly_ is a **GUI-only** colorscheme.
 
-A GUI client, such as Gvim, or a modern terminal version of Vim/Neovim with
-`termguicolors` enabled in a true-color terminal, will be required. Details
-about true-color terminals are listed below.
+A GUI client, such as Gvim, or a modern terminal version of Vim or Neovim with
+`termguicolors` enabled in a true-color terminal, is required. Details about
+true-color terminals are listed below.
 
 _nightfly_ explicitly does **not** support the 256 color `cterm` version of Vim
 due to the number of custom colors required. 256 color terminals only allow 16
 custom colors. I encourage terminal users to use a true-color terminal, such as:
 [iTerm2](https://iterm2.com),
-[Alacritty](https://github.com/alacritty/alacritty), or
+[Alacritty](https://github.com/alacritty/alacritty),
+[Windows Terminal](https://github.com/microsoft/terminal), or
 [kitty](https://sw.kovidgoyal.net/kitty/index.html) and enable the
 `termguicolors` option.
-
-Screenshots
------------
-
-### Ruby
-
-<img width="800" alt="ruby" src="https://raw.githubusercontent.com/bluz71/misc-binaries/master/nightfly/ruby_nightfly.png">
-
-### JavaScript
-
-<img width="800" alt="javascript" src="https://raw.githubusercontent.com/bluz71/misc-binaries/master/nightfly/javascript_nightfly.png">
-
-The font in use is [Iosevka](https://github.com/be5invis/Iosevka).
-
-Styled Features & Plugins
--------------------------
-
-- [Neovim Treesitter](https://github.com/nvim-treesitter/nvim-treesitter)
-- [Neovim LSP Diagnostics](https://neovim.io/doc/user/lsp.html)
-- [ALE](https://github.com/dense-analysis/ale)
-- [Barbar](https://github.com/romgrk/barbar.nvim)
-- [BufExplorer](https://github.com/jlanzarotta/bufexplorer)
-- [clever-f](https://github.com/rhysd/clever-f.vim)
-- [CtrlP](https://github.com/ctrlpvim/ctrlp.vim)
-- [Fern](https://github.com/lambdalisue/fern.vim)
-- [fzf.vim](https://github.com/junegunn/fzf.vim) (with matching [fly16](https://github.com/bluz71/fly16-bat) [bat](https://github.com/sharkdp/bat) theme)
-- [GitGutter](https://github.com/airblade/vim-gitgutter)
-- [Gitsigns](https://github.com/lewis6991/gitsigns.nvim)
-- [Hop](https://github.com/phaazon/hop.nvim)
-- [indentLine](https://github.com/Yggdroot/indentLine)
-- [lightline](https://github.com/itchyny/lightline.vim)
-- [Lualine](https://github.com/nvim-lualine/lualine.nvim)
-- [NERDTree](https://github.com/scrooloose/nerdtree)
-- [nvim-cmp](https://github.com/hrsh7th/nvim-cmp)
-- [NvimTree](https://github.com/kyazdani42/nvim-tree.lua)
-- [Signify](https://github.com/mhinz/vim-signify)
-- [Telescope](https://github.com/nvim-telescope/telescope.nvim)
-- [Tagbar](https://github.com/majutsushi/tagbar)
-- [vim-airline](https://github.com/vim-airline/vim-airline)
 
 Installation
 ------------
@@ -110,36 +112,34 @@ let g:lightline = { 'colorscheme': 'nightfly' }
 ```
 
 - The _nightfly_ colorscheme supports
-  [vim-airline](https://github.com/vim-airline/vim-airline). For modern
-  versions of _vim-airline_ the _nightfly_ theme will automatically be loaded.
+  [vim-airline](https://github.com/vim-airline/vim-airline). The _nightfly_
+  theme will load once vim-airline starts.
 
 - The _nightfly_ colorscheme supports
-  [Lualine](https://github.com/nvim-lualine/lualine.nvim). To enable the
-  _nightfly_ theme please add the following to your initialization file:
-
-```lua
-require('lualine').setup({options = {theme = 'nightfly'}})
-```
+  [Lualine](https://github.com/nvim-lualine/lualine.nvim). The
+  _nightfly_ theme will automatically load once Lualine starts.
 
 - Lastly, my own
-  [vim-moonfly-statusline](https://github.com/bluz71/vim-moonfly-statusline) is
-  available for those that want a very simple yet informative status line.
-  Please add the following to your initialization file to indicate to
-  _moonfly-statusline_ that `statusline` colors defined by the _nightfly_ color
-  scheme should be preferenced:
-
-```viml
-" Vimscript initialization file
-let g:moonflyIgnoreDefaultColors = 1
-```
-
-```lua
--- Lua initialization file
-vim.g.moonflyIgnoreDefaultColors = 1
-```
+  [mistfly-statusline](https://github.com/bluz71/vim-mistfly-statusline) is
+  available for those that want a simple, fast and informative status line.
 
 :wrench: Options
 ----------------
+
+| Option | Default State
+|--------|--------------
+| [nightflyCursorColor](https://github.com/bluz71/vim-nightfly-guicolors#nightflycursorcolor)                 | Disabled
+| [nightflyItalics](https://github.com/bluz71/vim-nightfly-guicolors#nightflyitalics)                         | Enabled
+| [nightflyNormalFloat](https://github.com/bluz71/vim-nightfly-guicolors#nightflynormalfloat)                 | Disabled
+| [nightflyTerminalColors](https://github.com/bluz71/vim-nightfly-guicolors#nightflyterminalcolors)           | Enabled
+| [nightflyTransparent](https://github.com/bluz71/vim-nightfly-guicolors#nightflytransparent)                 | Disabled
+| [nightflyUndercurls](https://github.com/bluz71/vim-nightfly-guicolors#nightflyundercurls)                   | Enabled
+| [nightflyUnderlineMatchParen](https://github.com/bluz71/vim-nightfly-guicolors#nightflyunderlinematchparen) | Disabled
+| [nightflyWinSeparator](https://github.com/bluz71/vim-nightfly-guicolors#nightflywinseparator)               | `1`
+
+---
+
+### nightflyCursorColor
 
 The `nightflyCursorColor` option specifies whether to color the cursor or not.
 By default the cursor will **NOT** be colored. If you prefer a colored cursor
@@ -147,15 +147,17 @@ then add the following to your initialization file:
 
 ```viml
 " Vimscript initialization file
-let g:nightflyCursorColor = 1
+let g:nightflyCursorColor = v:true
 ```
 
 ```lua
 -- Lua initialization file
-vim.g.nightflyCursorColor = 1
+vim.g.nightflyCursorColor = true
 ```
 
 ---
+
+### nightflyItalics
 
 The `nightflyItalics` option specifies whether to use italics for comments and
 certain HTML elements in GUI versions of Vim. By default this option is
@@ -164,15 +166,17 @@ to your initialization file:
 
 ```viml
 " Vimscript initialization file
-let g:nightflyItalics = 0
+let g:nightflyItalics = v:false
 ```
 
 ```lua
 -- Lua initialization file
-vim.g.nightflyItalics = 0
+vim.g.nightflyItalics = false
 ```
 
 ---
+
+### nightflyNormalFloat
 
 The `nightflyNormalFloat` option specifies whether to use nightfly background
 and foreground colors in Neovim floating windows. By default this option is
@@ -182,12 +186,12 @@ following to your configuration:
 
 ```viml
 " Vimscript initialization file
-let g:nightflyNormalFloat = 1
+let g:nightflyNormalFloat = v:true
 ```
 
 ```lua
 -- Lua initialization file
-vim.g.nightflyNormalFloat = 1
+vim.g.nightflyNormalFloat = true
 ```
 
 :bulb: If the above option is set then it is highly recommended to enable
@@ -197,20 +201,35 @@ Neovim's LSP client, for example:
 ```lua
   vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(
     vim.lsp.handlers.hover, {
-      border = 'single'
+      border = "single"
     }
   )
   vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(
     vim.lsp.handlers.signatureHelp, {
-      border = 'single'
+      border = "single"
     }
   )
-  local opts = {noremap = true, silent = true}
-  vim.api.nvim_buf_set_keymap(0, 'n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next({severity_limit = "Warning", popup_opts = {border = "single"}})<CR>', opts)
-  vim.api.nvim_buf_set_keymap(0, 'n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev({severity_limit = "Warning", popup_opts = {border = "single"}})<CR>', opts)
+  vim.diagnostic.config({ float = { border = "single" } })
+```
+
+:bulb: Likewise, [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) may be
+configured as follows for nicer display when `g:nightflyNormalFloat` is enabled:
+
+```lua
+local winhighlight = {
+  winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder,CursorLine:PmenuSel",
+}
+require('cmp').setup({
+  window = {
+    completion = cmp.config.window.bordered(winhighlight),
+    documentation = cmp.config.window.bordered(winhighlight),
+  }
+})
 ```
 
 ---
+
+### nightflyTerminalColors
 
 The `nightflyTerminalColors` option specifies whether to use the nightfly color
 palette in `:terminal` windows when `termguicolors` is set. By default this
@@ -219,15 +238,17 @@ the first 16 terminal colors then add the following to your initialization file:
 
 ```viml
 " Vimscript initialization file
-let g:nightflyTerminalColors = 0
+let g:nightflyTerminalColors = v:false
 ```
 
 ```lua
 -- Lua initialization file
-vim.g.nightflyTerminalColors = 0
+vim.g.nightflyTerminalColors = false
 ```
 
 ---
+
+### nightflyTransparent
 
 The `nightflyTransparent` option specifies whether to use an opaque or
 transparent background in GUI versions of Vim. By default this option is
@@ -236,15 +257,17 @@ to your initialization file:
 
 ```viml
 " Vimscript initialization file
-let g:nightflyTransparent = 1
+let g:nightflyTransparent = v:true
 ```
 
 ```lua
 -- Lua initialization file
-vim.g.nightflyTransparent = 1
+vim.g.nightflyTransparent = true
 ```
 
 ---
+
+### nightflyUndercurls
 
 The `nightflyUndercurls` option specifies whether to use undercurls for
 spelling and linting errors in GUI versions of Vim, including terminal Vim with
@@ -253,15 +276,17 @@ the appearance of undercurls then add the following to your initialization file:
 
 ```viml
 " Vimscript initialization file
-let g:nightflyUndercurls = 0
+let g:nightflyUndercurls = v:false
 ```
 
 ```lua
 -- Lua initialization file
-vim.g.nightflyUndercurls = 0
+vim.g.nightflyUndercurls = false
 ```
 
 ---
+
+### nightflyUnderlineMatchParen
 
 The `nightflyUnderlineMatchParen` option specifies whether to underline
 matching parentheses. By default this option is **disabled**. If you want to
@@ -270,15 +295,17 @@ file:
 
 ```viml
 " Vimscript initialization file
-let g:nightflyUnderlineMatchParen = 1
+let g:nightflyUnderlineMatchParen = v:true
 ```
 
 ```lua
 -- Lua initialization file
-vim.g.nightflyUnderlineMatchParen = 1
+vim.g.nightflyUnderlineMatchParen = true
 ```
 
 ---
+
+### nightflyWinSeparator
 
 The `nightflyWinSeparator` option specifies the style of window separators:
 
@@ -364,6 +391,10 @@ A collection of _nightfly_-flavoured terminal themes are provided:
   [this](terminal_themes/alacritty.yml) theme into their `alacritty.yml`
   configuration.
 
+- [Windows Terminal](https://github.com/microsoft/terminal) users can copy
+  [this](terminal_themes/windows-terminal-settings.json) theme into their `settings.json`
+  configuration.
+
 - [kitty](https://sw.kovidgoyal.net/kitty) users can use
   [this](terminal_themes/kitty-theme.conf) theme
 
@@ -377,31 +408,31 @@ A collection of _nightfly_-flavoured terminal themes are provided:
 
 For other terminals please configure appropriately with the following colors:
 
-| Type           | Category        | Value     | Color                                                       |
-|----------------|-----------------|-----------|-------------------------------------------------------------|
-| Background     | Background      | `#011627` | ![background](https://via.placeholder.com/32/011627?text=+) |
-| Foreground     | Foreground      | `#acb4c2` | ![background](https://via.placeholder.com/32/acb4c2?text=+) |
-| Bold           | Bold            | `#eeeeee` | ![background](https://via.placeholder.com/32/eeeeee?text=+) |
-| Cursor         | Cursor          | `#9ca1aa` | ![background](https://via.placeholder.com/32/9ca1aa?text=+) |
-| Cursor Text    | Cursor Text     | `#080808` | ![background](https://via.placeholder.com/32/080808?text=+) |
-| Selection      | Selection       | `#b2ceee` | ![background](https://via.placeholder.com/32/b2ceee?text=+) |
-| Selection Text | Selection Text  | `#080808` | ![background](https://via.placeholder.com/32/080808?text=+) |
-| Color 1        | Black (normal)  | `#1d3b53` | ![background](https://via.placeholder.com/32/1d3b53?text=+) |
-| Color 2        | Red (normal)    | `#fc514e` | ![background](https://via.placeholder.com/32/fc514e?text=+) |
-| Color 3        | Green (normal)  | `#a1cd5e` | ![background](https://via.placeholder.com/32/a1cd5e?text=+) |
-| Color 4        | Yellow (normal) | `#e3d18a` | ![background](https://via.placeholder.com/32/e3d18a?text=+) |
-| Color 5        | Blue (normal)   | `#82aaff` | ![background](https://via.placeholder.com/32/82aaff?text=+) |
-| Color 6        | Purple (normal) | `#c792ea` | ![background](https://via.placeholder.com/32/c792ea?text=+) |
-| Color 7        | Cyan (normal)   | `#7fdbca` | ![background](https://via.placeholder.com/32/7fdbca?text=+) |
-| Color 8        | White (normal)  | `#a1aab8` | ![background](https://via.placeholder.com/32/a1aab8?text=+) |
-| Color 9        | Black (bright)  | `#7c8f8f` | ![background](https://via.placeholder.com/32/7c8f8f?text=+) |
-| Color 10       | Red (bright)    | `#ff5874` | ![background](https://via.placeholder.com/32/ff5874?text=+) |
-| Color 11       | Green (bright)  | `#21c7a8` | ![background](https://via.placeholder.com/32/21c7a8?text=+) |
-| Color 12       | Yellow (bright) | `#ecc48d` | ![background](https://via.placeholder.com/32/ecc48d?text=+) |
-| Color 13       | Blue (bright)   | `#82aaff` | ![background](https://via.placeholder.com/32/82aaff?text=+) |
-| Color 14       | Purple (bright) | `#ae81ff` | ![background](https://via.placeholder.com/32/ae81ff?text=+) |
-| Color 15       | Cyan (bright)   | `#7fdbca` | ![background](https://via.placeholder.com/32/7fdbca?text=+) |
-| Color 16       | White (bright)  | `#d6deeb` | ![background](https://via.placeholder.com/32/d6deeb?text=+) |
+| Type           | Category        | Value     | Color
+|----------------|-----------------|-----------|------------------------------------------------------
+| Background     | Background      | `#011627` | ![background](https://place-hold.it/32/011627?text=+)
+| Foreground     | Foreground      | `#acb4c2` | ![background](https://place-hold.it/32/acb4c2?text=+)
+| Bold           | Bold            | `#eeeeee` | ![background](https://place-hold.it/32/eeeeee?text=+)
+| Cursor         | Cursor          | `#9ca1aa` | ![background](https://place-hold.it/32/9ca1aa?text=+)
+| Cursor Text    | Cursor Text     | `#080808` | ![background](https://place-hold.it/32/080808?text=+)
+| Selection      | Selection       | `#b2ceee` | ![background](https://place-hold.it/32/b2ceee?text=+)
+| Selection Text | Selection Text  | `#080808` | ![background](https://place-hold.it/32/080808?text=+)
+| Color 1        | Black (normal)  | `#1d3b53` | ![background](https://place-hold.it/32/1d3b53?text=+)
+| Color 2        | Red (normal)    | `#fc514e` | ![background](https://place-hold.it/32/fc514e?text=+)
+| Color 3        | Green (normal)  | `#a1cd5e` | ![background](https://place-hold.it/32/a1cd5e?text=+)
+| Color 4        | Yellow (normal) | `#e3d18a` | ![background](https://place-hold.it/32/e3d18a?text=+)
+| Color 5        | Blue (normal)   | `#82aaff` | ![background](https://place-hold.it/32/82aaff?text=+)
+| Color 6        | Purple (normal) | `#c792ea` | ![background](https://place-hold.it/32/c792ea?text=+)
+| Color 7        | Cyan (normal)   | `#7fdbca` | ![background](https://place-hold.it/32/7fdbca?text=+)
+| Color 8        | White (normal)  | `#a1aab8` | ![background](https://place-hold.it/32/a1aab8?text=+)
+| Color 9        | Black (bright)  | `#7c8f8f` | ![background](https://place-hold.it/32/7c8f8f?text=+)
+| Color 10       | Red (bright)    | `#ff5874` | ![background](https://place-hold.it/32/ff5874?text=+)
+| Color 11       | Green (bright)  | `#21c7a8` | ![background](https://place-hold.it/32/21c7a8?text=+)
+| Color 12       | Yellow (bright) | `#ecc48d` | ![background](https://place-hold.it/32/ecc48d?text=+)
+| Color 13       | Blue (bright)   | `#82aaff` | ![background](https://place-hold.it/32/82aaff?text=+)
+| Color 14       | Purple (bright) | `#ae81ff` | ![background](https://place-hold.it/32/ae81ff?text=+)
+| Color 15       | Cyan (bright)   | `#7fdbca` | ![background](https://place-hold.it/32/7fdbca?text=+)
+| Color 16       | White (bright)  | `#d6deeb` | ![background](https://place-hold.it/32/d6deeb?text=+)
 
 Sponsor
 -------

@@ -177,7 +177,7 @@ class SnippetManager:
         vim_helper.command("let g:ulti_expand_res = 1")
         if not self._try_expand():
             vim_helper.command("let g:ulti_expand_res = 0")
-            self._handle_failure(self.expand_trigger)
+            self._handle_failure(self.expand_trigger, True)
 
     @err_to_scratch_buffer.wrap
     def expand_or_jump(self):
@@ -195,7 +195,7 @@ class SnippetManager:
             rv = self._jump(JumpDirection.FORWARD)
         if not rv:
             vim_helper.command("let g:ulti_expand_or_jump_res = 0")
-            self._handle_failure(self.expand_trigger)
+            self._handle_failure(self.expand_trigger, True)
 
     @err_to_scratch_buffer.wrap
     def snippets_in_current_scope(self, search_all):
@@ -628,11 +628,14 @@ class SnippetManager:
         """Called whenever we leave the insert mode."""
         self._vstate.restore_unnamed_register()
 
-    def _handle_failure(self, trigger):
+    def _handle_failure(self, trigger, pass_through=False):
         """Mainly make sure that we play well with SuperTab."""
         if trigger.lower() == "<tab>":
             feedkey = "\\" + trigger
         elif trigger.lower() == "<s-tab>":
+            feedkey = "\\" + trigger
+        elif pass_through:
+            # pass through the trigger key if it did nothing
             feedkey = "\\" + trigger
         else:
             feedkey = None
@@ -855,6 +858,7 @@ class SnippetManager:
 
         potentials = set()
 
+        dot_vim_dirs = vim_helper.get_dot_vim()
         all_snippet_directories = find_all_snippet_directories()
         has_storage_dir = (
             vim_helper.eval(
@@ -885,13 +889,13 @@ class SnippetManager:
             # Likely the array contains things like ["UltiSnips",
             # "mycoolsnippets"] There is no more obvious way to edit than in
             # the users vim config directory.
-            dot_vim_dir = vim_helper.get_dot_vim()
             for snippet_dir in all_snippet_directories:
-                if Path(dot_vim_dir) != Path(snippet_dir).parent:
-                    continue
-                potentials.update(
-                    _get_potential_snippet_filenames_to_edit(snippet_dir, filetypes)
-                )
+                for dot_vim_dir in dot_vim_dirs:
+                    if Path(dot_vim_dir) != Path(snippet_dir).parent:
+                        continue
+                    potentials.update(
+                        _get_potential_snippet_filenames_to_edit(snippet_dir, filetypes)
+                    )
 
         if bang:
             for ft in filetypes:
@@ -900,7 +904,10 @@ class SnippetManager:
             if not potentials:
                 _show_user_warning(
                     "UltiSnips was not able to find a default directory for snippets. "
-                    "Do you have a .vim directory? Try :UltiSnipsEdit! instead of :UltiSnipsEdit."
+                    "Do any of " + dot_vim_dirs.__str__() + " exist AND contain "
+                    "any of the folders in g:UltiSnipsSnippetDirectories ? "
+                    "With default vim settings that would be: ~/.vim/UltiSnips "
+                    "Try :UltiSnipsEdit! instead of :UltiSnipsEdit."
                 )
                 return ""
         return _select_and_create_file_to_edit(potentials)

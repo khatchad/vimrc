@@ -44,6 +44,8 @@ function! gitgutter#process_buffer(bufnr, force) abort
         let diff = gitgutter#diff#run_diff(a:bufnr, g:gitgutter_diff_relative_to, 0)
       catch /gitgutter not tracked/
         call gitgutter#debug#log('Not tracked: '.gitgutter#utility#file(a:bufnr))
+      catch /gitgutter assume unchanged/
+        call gitgutter#debug#log('Assume unchanged: '.gitgutter#utility#file(a:bufnr))
       catch /gitgutter diff failed/
         call gitgutter#debug#log('Diff failed: '.gitgutter#utility#file(a:bufnr))
         call gitgutter#hunk#reset(a:bufnr)
@@ -238,9 +240,11 @@ endfunction
 function! gitgutter#difforig()
   let bufnr = bufnr('')
   let path = gitgutter#utility#repo_path(bufnr, 1)
+  let filetype = &filetype
 
   vertical new
   set buftype=nofile
+  let &filetype = filetype
 
   if g:gitgutter_diff_relative_to ==# 'index'
     let index_name = gitgutter#utility#get_diff_base(bufnr).':'.path
