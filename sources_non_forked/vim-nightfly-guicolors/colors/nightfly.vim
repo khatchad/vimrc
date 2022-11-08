@@ -1,6 +1,6 @@
 " Dark Vim/Neovim color scheme.
 "
-" URL:     github.com/bluz71/vim-nightfly-guicolors
+" URL:     github.com/bluz71/vim-nightfly-colors
 " License: MIT (https://opensource.org/licenses/MIT)
 
 " Clear highlights and reset syntax.
@@ -159,14 +159,14 @@ exec 'highlight NightflyBlueAlert guibg=bg guifg=' . s:blue
 exec 'highlight NightflyEmeraldAlert guibg=bg guifg=' . s:emerald
 exec 'highlight NightflyUnderline gui=underline'
 exec 'highlight NightflyNoCombine gui=nocombine'
-" Statusline helper colors.
+" Statusline helper colors
 exec 'highlight NightflyBlueMode guibg=' . s:blue . ' guifg=' . s:dark_blue
 exec 'highlight NightflyEmeraldMode guibg=' . s:emerald . ' guifg=' . s:dark_blue
 exec 'highlight NightflyPurpleMode guibg=' . s:purple . ' guifg=' . s:dark_blue
 exec 'highlight NightflyWatermelonMode guibg=' . s:watermelon . ' guifg=' . s:dark_blue
 exec 'highlight NightflyTanMode guibg=' . s:tan . ' guifg=' . s:dark_blue
 exec 'highlight NightflyTurquoiseMode guibg=' . s:turquoise . ' guifg=' . s:dark_blue
-" Generic line helper colors.
+" Generic line helper colors
 exec 'highlight NightflyBlueLine guibg=' . s:slate_blue . ' guifg=' . s:blue
 exec 'highlight NightflyEmeraldLine guibg=' . s:slate_blue . ' guifg=' . s:emerald
 exec 'highlight NightflyGreyBlueLine guibg=' . s:dark_blue . '  guifg=' . s:grey_blue
@@ -174,10 +174,19 @@ exec 'highlight NightflyTanLine guibg=' . s:dark_blue . '  guifg=' . s:tan
 exec 'highlight NightflyTanLineActive guibg=' . s:regal_blue . '  guifg=' . s:tan
 exec 'highlight NightflyWhiteLineActive guibg=' . s:regal_blue . '  guifg=' . s:white_blue
 exec 'highlight NightflyWatermelonLine guibg=' . s:slate_blue . ' guifg=' . s:watermelon
+" Diagnostic helper colors
+exec 'highlight NightflyDiagnosticUndercurlError gui=undercurl guisp=' . s:red
+exec 'highlight NightflyDiagnosticUndercurlWarn gui=undercurl guisp=' . s:yellow
+exec 'highlight NightflyDiagnosticUndercurlInfo gui=undercurl guisp=' . s:blue
+exec 'highlight NightflyDiagnosticUndercurlHint gui=undercurl guisp=' . s:white
+exec 'highlight NightflyDiagnosticUnderlineError gui=underline guisp=' . s:red
+exec 'highlight NightflyDiagnosticUnderlineWarn gui=underline guisp=' . s:yellow
+exec 'highlight NightflyDiagnosticUnderlineInfo gui=underline guisp=' . s:blue
+exec 'highlight NightflyDiagnosticUnderlineHint gui=underline guisp=' . s:white
 
-"----------------------------------------------------------------------- 
+"-----------------------------------------------------------------------
 " Core styling
-"----------------------------------------------------------------------- 
+"-----------------------------------------------------------------------
 
 " Color of mode text, -- INSERT --
 exec 'highlight ModeMsg guifg=' . s:cadet_blue . ' gui=none'
@@ -336,8 +345,10 @@ exec 'highlight DiffChange guibg=' . s:slate_blue
 exec 'highlight DiffDelete guibg=' . s:slate_blue . ' guifg=' . s:steel_blue ' gui=none'
 exec 'highlight DiffText guibg=' . s:blue . ' guifg=' . s:black . ' gui=none'
 
-" Neovim only highlight groups
-if has('nvim')
+" Neovim-only core highlight groups
+if has('nvim-0.8')
+    lua require("nightfly").core()
+elseif has('nvim-0.7')
     exec 'highlight Whitespace guifg=' . s:regal_blue
     exec 'highlight TermCursor guibg=' . s:cadet_blue . ' guifg=bg gui=none'
     if g:nightflyNormalFloat
@@ -346,8 +357,6 @@ if has('nvim')
         exec 'highlight NormalFloat guibg=' . s:dark_blue . ' guifg=fg'
     endif
     exec 'highlight FloatBorder guibg=bg guifg=' . s:slate_blue
-    exec 'highlight WinBar cterm=none guibg=' . s:deep_blue . ' guifg=' . s:white . ' gui=none'
-    exec 'highlight WinBarNC cterm=none guibg=' . s:deep_blue . ' guifg=' . s:cadet_blue . ' gui=none'
     highlight! link WinSeparator VertSplit
 
     " Neovim Treesitter
@@ -369,29 +378,17 @@ if has('nvim')
     highlight! link TSTag NightflyBlue
     highlight! link TSTagDelimiter NightflyGreen
     highlight! link TSVariableBuiltin NightflyGreen
-    if has('nvim-0.8')
-        highlight! link @parameter.bash NightflyTurquoise
-        highlight! link @punctDelimiter.css NightflyWatermelon
-        highlight! link @type.css NightflyBlue
-        highlight! link @punctuation.delimiter.scss NightflyWatermelon
-        highlight! link @type.scss NightflyBlue
-        highlight! link @variable.scss NightflyTurquoise
-        highlight! link @variable.vim NightflyTurquoise
-        highlight! link @variable.builtin.vim NightflyEmerald
-        highlight! link @field.yaml NightflyBlue
-        highlight! link @punctuation.delimiter.yaml NightflyWatermelon
-    else
-        highlight! link bashTSParameter NightflyTurquoise
-        highlight! link cssTSPunctDelimiter NightflyWatermelon
-        highlight! link cssTSType NightflyBlue
-        highlight! link scssTSPunctDelimiter NightflyWatermelon
-        highlight! link scssTSType NightflyBlue
-        highlight! link scssTSVariable NightflyTurquoise
-        highlight! link vimTSVariable NightflyTurquoise
-        highlight! link vimTSVariableBuiltin NightflyEmerald
-        highlight! link yamlTSField NightflyBlue
-        highlight! link yamlTSPunctDelimiter NightflyWatermelon
-    endif
+    " Language specific overrides.
+    highlight! link bashTSParameter NightflyTurquoise
+    highlight! link cssTSPunctDelimiter NightflyWatermelon
+    highlight! link cssTSType NightflyBlue
+    highlight! link scssTSPunctDelimiter NightflyWatermelon
+    highlight! link scssTSType NightflyBlue
+    highlight! link scssTSVariable NightflyTurquoise
+    highlight! link vimTSVariable NightflyTurquoise
+    highlight! link vimTSVariableBuiltin NightflyEmerald
+    highlight! link yamlTSField NightflyBlue
+    highlight! link yamlTSPunctDelimiter NightflyWatermelon
 
     " Neovim Diagnostic
     highlight! link DiagnosticError NightflyRed
@@ -399,15 +396,15 @@ if has('nvim')
     highlight! link DiagnosticInfo NightflyBlue
     highlight! link DiagnosticHint NightflyWhite
     if g:nightflyUndercurls
-        exec 'highlight DiagnosticUnderlineError guibg=NONE gui=undercurl guisp=' . s:red
-        exec 'highlight DiagnosticUnderlineWarn guibg=NONE gui=undercurl guisp=' . s:yellow
-        exec 'highlight DiagnosticUnderlineInfo guibg=NONE gui=undercurl guisp=' . s:blue
-        exec 'highlight DiagnosticUnderlineHint guibg=NONE gui=undercurl guisp=' . s:white
+        highlight! link DiagnosticUnderlineError NightflyDiagnosticUndercurlError
+        highlight! link DiagnosticUnderlineWarn NightflyDiagnosticUndercurlWarn
+        highlight! link DiagnosticUnderlineInfo NightflyDiagnosticUndercurlInfo
+        highlight! link DiagnosticUnderlineHint NightflyDiagnosticUndercurlHint
     else
-        exec 'highlight DiagnosticUnderlineError guibg=NONE gui=underline guisp=' . s:red
-        exec 'highlight DiagnosticUnderlineWarn guibg=NONE gui=underline guisp=' . s:yellow
-        exec 'highlight DiagnosticUnderlineInfo guibg=NONE gui=underline guisp=' . s:blue
-        exec 'highlight DiagnosticUnderlineHint guibg=NONE gui=underline guisp=' . s:white
+        highlight! link DiagnosticUnderlineError NightflyDiagnosticUnderlineError
+        highlight! link DiagnosticUnderlineWarn NightflyDiagnosticUnderlineWarn
+        highlight! link DiagnosticUnderlineInfo NightflyDiagnosticUnderlineInfo
+        highlight! link DiagnosticUnderlineHint NightflyDiagnosticUnderlineHint
     endif
     highlight! link DiagnosticVirtualTextError NightflySteelBlue
     highlight! link DiagnosticVirtualTextWarn NightflySteelBlue
@@ -424,9 +421,9 @@ if has('nvim')
     highlight! link LspSignatureActiveParameter NightflyVisual
 endif
 
-"----------------------------------------------------------------------- 
+"-----------------------------------------------------------------------
 " Language styling
-"----------------------------------------------------------------------- 
+"-----------------------------------------------------------------------
 
 " Neovim 0.8 provides builtin Treesitter support for C, Lua and Vimscript.
 " Likewise, common languages, such as C++, JavaScript, Python and others, now
@@ -795,9 +792,9 @@ highlight! link xmlEndTag NightflyBlue
 highlight! link xmlTag NightflyGreen
 highlight! link xmlTagName NightflyBlue
 
-"----------------------------------------------------------------------- 
+"-----------------------------------------------------------------------
 " Plugin styling
-"----------------------------------------------------------------------- 
+"-----------------------------------------------------------------------
 
 " Git commits
 highlight! link gitCommitBranch NightflyBlue
@@ -897,13 +894,13 @@ exec 'highlight MatchWordCur guibg=bg'
 
 " ALE plugin
 if g:nightflyUndercurls
-    exec 'highlight ALEError guibg=NONE gui=undercurl guisp=' . s:red
-    exec 'highlight ALEWarning guibg=NONE gui=undercurl guisp=' . s:yellow
-    exec 'highlight ALEInfo guibg=NONE gui=undercurl guisp=' . s:blue
+    highlight! link ALEError NightflyDiagnosticUndercurlError
+    highlight! link ALEWarning NightflyDiagnosticUndercurlWarn
+    highlight! link ALEInfo NightflyDiagnosticUndercurlInfo
 else
-    exec 'highlight ALEError guibg=NONE'
-    exec 'highlight ALEWarning guibg=NONE'
-    exec 'highlight ALEInfo guibg=NONE'
+    highlight! link ALEError NightflyDiagnosticUnderlineError
+    highlight! link ALEWarning NightflyDiagnosticUnderlineWarn
+    highlight! link ALEInfo NightflyDiagnosticUnderlineInfo
 endif
 highlight! link ALEVirtualTextError NightflySteelBlue
 highlight! link ALEErrorSign NightflyRedAlert
@@ -953,7 +950,7 @@ highlight! link MistflyVisual NightflyPurpleMode
 highlight! link MistflyCommand NightflyTanMode
 highlight! link MistflyReplace NightflyWatermelonMode
 
-" Coc plugin (see issue: https://github.com/bluz71/vim-nightfly-guicolors/issues/31)
+" Coc plugin (see issue: https://github.com/bluz71/vim-nightfly-colors/issues/31)
 highlight! link CocUnusedHighlight NightflyAshBlue
 
 " indentLine plugin
@@ -962,7 +959,9 @@ if !exists('g:indentLine_defaultGroup') && !exists('g:indentLine_color_gui')
 endif
 
 " Neovim only plugins 
-if has('nvim')
+if has('nvim-0.7')
+    lua require("nightfly").plugins()
+elseif has('nvim-0.6')
     " NvimTree plugin
     highlight! link NvimTreeFolderIcon NightflyBlue
     highlight! link NvimTreeFolderName NightflyBlue
@@ -979,6 +978,7 @@ if has('nvim')
     " Neo-tree plugin
     highlight! link NeoTreeDimText NightflyDeepBlue
     highlight! link NeoTreeDotfile NightflySlateBlue
+    highlight! link NeoTreeGitAdded NightflyGreen
     highlight! link NeoTreeGitConflict NightflyWatermelon
     highlight! link NeoTreeGitModified NightflyViolet
     highlight! link NeoTreeGitUntracked NightflySteelBlue
