@@ -3,7 +3,7 @@
 
 _nightfly_ is a dark midnight theme for classic Vim & modern Neovim.
 
-This theme uses a hybrid implementation style; Vimscript is used for common Vim
+Note, this theme is a hybrid implementation; Vimscript is used for common Vim
 and Neovim highlights whilst Lua is used for Neovim exclusive highlights.
 
 :point_right: I maintain another dark theme named
@@ -347,7 +347,7 @@ If a certain highlight of this theme does not suit then it is recommended to use
 an `autocmd` to override that desired highlight.
 
 For example, if one wishes to highlight functions in bold then simply add the
-following to your initialization file:
+following to your initialization file prior to setting the colorscheme:
 
 ```viml
 " Vimscript initialization file
