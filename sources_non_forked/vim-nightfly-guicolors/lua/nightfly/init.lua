@@ -25,6 +25,7 @@ local yellow = "#e3d18a"
 local peach = "#ffcb8b"
 local tan = "#ecc48d"
 local orange = "#f78c6c"
+local orchid = '#e39aa6'
 local red = "#fc514e"
 local watermelon = "#ff5874"
 local violet = "#c792ea"
@@ -36,6 +37,7 @@ local emerald = "#21c7a8"
 local green = "#a1cd5e"
 -- Extra colors
 local cyan_blue = "#296596"
+local bay_blue = '#24567F'
 
 local M = {}
 
@@ -68,7 +70,7 @@ M.core = function()
   highlight(0, "@keyword.operator", { link = "NightflyViolet" })
   highlight(0, "@namespace", { link = "NightflyTurquoise" })
   highlight(0, "@none", {})
-  highlight(0, "@parameter", { link = "NightflyWhite" })
+  highlight(0, "@parameter", { link = "NightflyOrchid" })
   highlight(0, "@punctuation.special", { link = "NightflyWatermelon" })
   highlight(0, "@string.regex", { link = "NightflyTurquoise" })
   highlight(0, "@symbol", { link = "NightflyPurple" })
@@ -92,6 +94,7 @@ M.core = function()
   highlight(0, "@text.underline", { underline = true })
   highlight(0, "@text.uri", { link = "NightflyPurple" })
   highlight(0, "@text.warning", { link = "NightflyYellowAlert" })
+  highlight(0, "@variable", { link = "NightflyWhite" })
   highlight(0, "@variable.builtin", { link = "NightflyGreen" })
   -- Language specific overrides.
   highlight(0, "@parameter.bash", { link = "NightflyTurquoise" })
@@ -140,26 +143,30 @@ M.plugins = function()
   -- NvimTree plugin
   highlight(0, "NvimTreeFolderIcon", { link = "NightflyBlue" })
   highlight(0, "NvimTreeFolderName", { link = "NightflyBlue" })
-  highlight(0, "NvimTreeIndentMarker", { link = "NightflySlateBlue" })
+  highlight(0, "NvimTreeIndentMarker", { link = "NightflyPickleBlue" })
   highlight(0, "NvimTreeOpenedFolderName", { link = "NightflyBlue" })
   highlight(0, "NvimTreeRootFolder", { link = "NightflyPurple" })
   highlight(0, "NvimTreeSpecialFile", { link = "NightflyYellow" })
   highlight(0, "NvimTreeWindowPicker", { link = "DiffChange" })
+  highlight(0, "NvimTreeCursorLine", { bg = deep_blue })
   highlight(0, "NvimTreeExecFile", { fg = green })
   highlight(0, "NvimTreeImageFile", { fg = violet })
+  highlight(0, "NvimTreeNormal", { bg = black_blue, fg = white })
   highlight(0, "NvimTreeOpenedFile", { fg = yellow })
   highlight(0, "NvimTreeSymlink", { fg = turquoise })
 
   -- Neo-tree plugin
-  highlight(0, "NeoTreeDimText", { link = "NightflyDeepBlue" })
+  highlight(0, "NeoTreeDimText", { link = "NightflyPickleBlue" })
   highlight(0, "NeoTreeDotfile", { link = "NightflySlateBlue" })
   highlight(0, "NeoTreeGitAdded", { link = "NightflyGreen" })
   highlight(0, "NeoTreeGitConflict", { link = "NightflyWatermelon" })
-  highlight(0, "NeoTreeGitModified", { link = "NightflyViolet" })
+  highlight(0, "NeoTreeGitModified", { link = "NightflyYellow" })
   highlight(0, "NeoTreeGitUntracked", { link = "NightflySteelBlue" })
   highlight(0, "NeoTreeMessage", { link = "NightflyCadetBlue" })
   highlight(0, "NeoTreeModified", { link = "NightflyYellow" })
   highlight(0, "NeoTreeRootName", { link = "NightflyPurple" })
+  highlight(0, "NeoTreeCursorLine", { bg = deep_blue })
+  highlight(0, "NeoTreeNormal", { bg = black_blue, fg = white })
 
   -- Telescope plugin
   highlight(0, "TelescopeBorder", { link = "NightflySlateBlue" })
@@ -195,6 +202,7 @@ M.plugins = function()
   highlight(0, "GitSignsDeleteLn", { link = "NightflyRed" })
   highlight(0, "GitSignsDeletePreview", { link = "NightflyWatermelonLine" })
   highlight(0, "GitSignsDeleteVirtLn", { link = "NightflyWatermelonLine" })
+  highlight(0, "GitSignsUntracked", { link = "NightflySteelBlue" })
   highlight(0, "GitSignsAddInline", { bg = green, fg = black })
   highlight(0, "GitSignsChangeInline", { bg = yellow, fg = black })
   highlight(0, "GitSignsDeleteInline", { bg = red, fg = black })
@@ -323,6 +331,45 @@ M.plugins = function()
   highlight(0, "NotifyINFOTitle", { link = "NightflyBlue" })
   highlight(0, "NotifyDEBUGTitle", { link = "NightflyGreyBlue" })
   highlight(0, "NotifyTRACETitle", { link = "NightflyPurple" })
+
+  -- lazy.nvim
+  highlight(0, "LazyCommit", { link = "NightflyEmerald" })
+  highlight(0, "LazyCommitType", { link = "NightflyViolet" })
+  highlight(0, "LazyH1", { link = "NightflyBlueMode" })
+  highlight(0, "LazyProgressDone", { link = "NightflyBlue" })
+  highlight(0, "LazyProgressTodo", { link = "NightflyRegalBlue" })
+  highlight(0, "LazyReasonCmd", { link = "NightflyGreen" })
+  highlight(0, "LazyReasonPlugin", { link = "NightflyOrchid" })
+  highlight(0, "LazyReasonRuntime", { link = "NightflyViolet" })
+  highlight(0, "LazySpecial", { link = "NightflyBlue" })
+  highlight(0, "LazyButton", { bg = deep_blue, fg = white })
+  highlight(0, "LazyButtonActive", { bg = bay_blue, fg = white_blue })
+  if g.moonflyNormalFloat ~= true then
+    highlight(0, "LazyNormal", { bg = black_blue, fg = white })
+  end
+
+  -- mason.nvim
+  highlight(0, "MasonError", { link = "NightflyRed" })
+  highlight(0, "MasonHeader", { link = "NightflyBlueMode" })
+  highlight(0, "MasonHeaderSecondary", { link = "NightflyBlueMode" })
+  highlight(0, "MasonHeading", { link = "NightflyWhiteBlue" })
+  highlight(0, "MasonHighlight", { link = "NightflyBlue" })
+  highlight(0, "MasonHighlightBlock", { link = "NightflyBlueMode" })
+  highlight(0, "MasonHighlightBlockBold", { link = "NightflyBlueMode" })
+  highlight(0, "MasonHighlightBlockBoldSecondary", { link = "NightflyEmeraldMode" })
+  highlight(0, "MasonHighlightBlockSecondary", { link = "NightflyEmeraldMode" })
+  highlight(0, "MasonHighlightSecondary", { link = "NightflyEmerald" })
+  highlight(0, "MasonLink", { link = "NightflyPurple" })
+  highlight(0, "MasonMuted", { link = "NightflySteelBlue" })
+  highlight(0, "MasonMutedBlock", { bg = deep_blue, fg = white })
+  highlight(0, "MasonMutedBlockBold", { bg = deep_blue, fg = white_blue })
+
+  -- linefly plugin
+  highlight(0, "LineflyNormal", { link = "NightflyBlueMode" })
+  highlight(0, "LineflyInsert", { link = "NightflyEmeraldMode" })
+  highlight(0, "LineflyVisual", { link = "NightflyPurpleMode" })
+  highlight(0, "LineflyCommand", { link = "NightflyTanMode" })
+  highlight(0, "LineflyReplace", { link = "NightflyWatermelonMode" })
 end
 
 return M

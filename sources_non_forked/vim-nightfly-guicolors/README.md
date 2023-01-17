@@ -3,8 +3,8 @@
 
 _nightfly_ is a dark midnight theme for classic Vim & modern Neovim.
 
-Note, this theme is a hybrid implementation; Vimscript is used for common Vim
-and Neovim highlights whilst Lua is used for Neovim exclusive highlights.
+Note, _nightfly_ is a hybrid theme; Vimscript is used for common Vim and Neovim
+highlights whilst Lua is used for Neovim exclusive highlights.
 
 :point_right: I maintain another dark theme named
 [moonfly](https://github.com/bluz71/vim-moonfly-colors) which may be of
@@ -44,7 +44,9 @@ Neovim-only:
 - [Gitsigns](https://github.com/lewis6991/gitsigns.nvim)
 - [Hop](https://github.com/phaazon/hop.nvim)
 - [Indent BlankLine](https://github.com/lukas-reineke/indent-blankline.nvim)
+- [lazy.nvim](https://github.com/folke/lazy.nvim)
 - [Lualine](https://github.com/nvim-lualine/lualine.nvim)
+- [mason.nvim](https://github.com/williamboman/mason.nvim)
 - [Mini](https://github.com/echasnovski/mini.nvim)
 - [Neo-tree](https://github.com/nvim-neo-tree/neo-tree.nvim)
 - [nvim-cmp](https://github.com/hrsh7th/nvim-cmp)
@@ -80,6 +82,12 @@ Plug 'bluz71/vim-nightfly-colors'
 
 ```lua
 use 'bluz71/vim-nightfly-colors'
+```
+
+[lazy.nvim](https://github.com/folke/lazy.nvim):
+
+```lua
+{ 'bluz71/vim-nightfly-colors', lazy = true, priority = 1000 },
 ```
 
 Usage
