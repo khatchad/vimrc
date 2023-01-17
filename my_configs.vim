@@ -53,6 +53,7 @@ set spellfile=~/.dict.en.utf-8.add
 map <silent> <F11>
 \    :call system("wmctrl -ir " . v:windowid . " -b toggle,fullscreen")<CR>
 set gfn=Monospace\ 12
+" set guifont=Monospace\ 14
 set listchars=trail:c
 nmap gx :silent execute "!google-chrome " . shellescape("<cWORD>") . " &"<CR>
 vmap gx <Esc>:silent execute "!google-chrome " . shellescape("<C-r>*") . " &"<CR>
@@ -100,7 +101,7 @@ autocmd FileType tex,plaintex setlocal grepprg=grep\ -nH\ $*
 autocmd FileType tex,plaintex syntax region texComment start='\\begin{comment}' end='\\end{comment}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{CCSXML}' end='\\end{CCSXML}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\begin{lstlisting}' end='\\end{lstlisting}'
-" autocmd FileType tex,plaintex syntax region texZone start='\\begin{minted}' end='\\end{minted}'
+autocmd FileType tex,plaintex syntax region texZone start='\\begin{minted}' end='\\end{minted}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{javacode}' end='\\end{javacode}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{javacode\*}' end='\\end{javacode\*}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{pythoncode}' end='\\end{pythoncode}'
@@ -273,7 +274,8 @@ au FileType help setl nospell
 " endif
 
 let g:netrw_browsex_viewer= "google-chrome"
-colorscheme manuscript
+" colorscheme manuscript
 " set background=light
-" colorscheme parsec
+colorscheme parsec
+" colorscheme peachpuff
 " set mouse-=a
