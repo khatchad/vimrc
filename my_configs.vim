@@ -276,6 +276,6 @@ au FileType help setl nospell
 let g:netrw_browsex_viewer= "google-chrome"
 " colorscheme manuscript
 " set background=light
-colorscheme parsec
+" colorscheme parsec
 " colorscheme peachpuff
 " set mouse-=a
