@@ -1,19 +1,20 @@
-local fn = vim.fn
 local g = vim.g
 local highlight = vim.api.nvim_set_hl
 
+local none = "NONE"
 -- Background and foreground
 local black = "#011627"
 local white = "#c3ccdc"
 local bg = black
 if g.nightflyTransparent then
-  bg = "NONE"
+  bg = none
 end
--- Variations of blue-grey
+-- Variations of midnight-blue
 local black_blue = "#081e2f"
 local dark_blue = "#092236"
 local deep_blue = "#0e293f"
 local slate_blue = "#2c3043"
+local pickle_blue = "#38507a"
 local regal_blue = "#1d3b53"
 local steel_blue = "#4b6479"
 local grey_blue = "#7c8f8f"
@@ -25,23 +26,316 @@ local yellow = "#e3d18a"
 local peach = "#ffcb8b"
 local tan = "#ecc48d"
 local orange = "#f78c6c"
-local orchid = '#e39aa6'
+local orchid = "#e39aa6"
 local red = "#fc514e"
 local watermelon = "#ff5874"
 local violet = "#c792ea"
 local purple = "#ae81ff"
 local indigo = "#5e97ec"
 local blue = "#82aaff"
+local malibu = "#87bcff"
 local turquoise = "#7fdbca"
 local emerald = "#21c7a8"
 local green = "#a1cd5e"
 -- Extra colors
 local cyan_blue = "#296596"
-local bay_blue = '#24567F'
+local bay_blue = "#24567F"
 
 local M = {}
 
-M.core = function()
+M.palette = {
+  black = black,
+  white = white,
+  bg = bg,
+  black_blue = black_blue,
+  dark_blue = dark_blue,
+  deep_blue = deep_blue,
+  slate_blue = slate_blue,
+  pickle_blue = pickle_blue,
+  regal_blue = regal_blue,
+  steel_blue = steel_blue,
+  grey_blue = grey_blue,
+  cadet_blue = cadet_blue,
+  ash_blue = ash_blue,
+  white_blue = white_blue,
+  yellow = yellow,
+  peach = peach,
+  tan = tan,
+  orange = orange,
+  orchid = orchid,
+  red = red,
+  watermelon = watermelon,
+  violet = violet,
+  purple = purple,
+  indigo = indigo,
+  blue = blue,
+  malibu = malibu,
+  turquoise = turquoise,
+  emerald = emerald,
+  green = green,
+  cyan_blue = cyan_blue,
+  bay_blue = bay_blue,
+}
+
+M.style = function()
+  -------------------------------------------------------------------------
+  -- Custom styling groups
+  -------------------------------------------------------------------------
+
+  highlight(0, "NightflyVisual", { bg = regal_blue })
+  highlight(0, "NightflyWhite", { fg = white })
+  highlight(0, "NightflyDeepBlue", { fg = deep_blue })
+  highlight(0, "NightflyPickleBlue", { fg = pickle_blue })
+  highlight(0, "NightflySlateBlue", { fg = slate_blue })
+  highlight(0, "NightflyRegalBlue", { fg = regal_blue })
+  highlight(0, "NightflySteelBlue", { fg = steel_blue })
+  highlight(0, "NightflyGreyBlue", { fg = grey_blue })
+  highlight(0, "NightflyCadetBlue", { fg = cadet_blue })
+  highlight(0, "NightflyAshBlue", { fg = ash_blue })
+  highlight(0, "NightflyWhiteBlue", { fg = white_blue })
+  highlight(0, "NightflyYellow", { fg = yellow })
+  highlight(0, "NightflyPeach", { fg = peach })
+  highlight(0, "NightflyTan", { fg = tan })
+  highlight(0, "NightflyOrchid", { fg = orchid })
+  highlight(0, "NightflyOrange", { fg = orange })
+  highlight(0, "NightflyRed", { fg = red })
+  highlight(0, "NightflyWatermelon", { fg = watermelon })
+  highlight(0, "NightflyViolet", { fg = violet })
+  highlight(0, "NightflyPurple", { fg = purple })
+  highlight(0, "NightflyIndigo", { fg = indigo })
+  highlight(0, "NightflyBlue", { fg = blue })
+  highlight(0, "NightflyMalibu", { fg = malibu })
+  highlight(0, "NightflyTurquoise", { fg = turquoise })
+  highlight(0, "NightflyEmerald", { fg = emerald })
+  highlight(0, "NightflyGreen", { fg = green })
+  -- Misc helpers
+  highlight(0, "NightflyWhiteAlert", { bg = bg, fg = white })
+  highlight(0, "NightflyYellowAlert", { bg = bg, fg = yellow })
+  highlight(0, "NightflyOrangeAlert", { bg = bg, fg = orange })
+  highlight(0, "NightflyRedAlert", { bg = bg, fg = red })
+  highlight(0, "NightflyMalibuAlert", { bg = bg, fg = malibu })
+  highlight(0, "NightflyEmeraldAlert", { bg = bg, fg = emerald })
+  highlight(0, "NightflyUnderline", { underline = true })
+  highlight(0, "NightflyNoCombine", { nocombine = true })
+  -- Statusline helper colors
+  highlight(0, "NightflyBlueMode", { bg = blue, fg = dark_blue })
+  highlight(0, "NightflyEmeraldMode", { bg = emerald, fg = dark_blue })
+  highlight(0, "NightflyPurpleMode", { bg = purple, fg = dark_blue })
+  highlight(0, "NightflyWatermelonMode", { bg = watermelon, fg = dark_blue })
+  highlight(0, "NightflyTanMode", { bg = tan, fg = dark_blue })
+  highlight(0, "NightflyTurquoiseMode", { bg = turquoise, fg = dark_blue })
+  -- Generic line helper colors
+  highlight(0, "NightflyEmeraldLine", { bg = slate_blue, fg = emerald })
+  highlight(0, "NightflyGreyBlueLine", { bg = dark_blue, fg = grey_blue })
+  highlight(0, "NightflyTanLine", { bg = dark_blue, fg = tan })
+  highlight(0, "NightflyWatermelonLine", { bg = slate_blue, fg = watermelon })
+  highlight(0, "NightflyBlueLineActive", { bg = regal_blue, fg = blue })
+  highlight(0, "NightflyRedLineActive", { bg = regal_blue, fg = red })
+  highlight(0, "NightflyTanLineActive", { bg = regal_blue, fg = tan })
+  highlight(0, "NightflyWhiteLineActive", { bg = regal_blue, fg = white_blue })
+  highlight(0, "NightflyYellowLineActive", { bg = regal_blue, fg = yellow })
+  -- Diagnostic helper colors
+  highlight(0, "NightflyDiagnosticUndercurlError", { undercurl = true, sp = red })
+  highlight(0, "NightflyDiagnosticUndercurlWarn", { undercurl = true, sp = yellow })
+  highlight(0, "NightflyDiagnosticUndercurlInfo", { undercurl = true, sp = malibu })
+  highlight(0, "NightflyDiagnosticUndercurlHint", { undercurl = true, sp = white })
+  highlight(0, "NightflyDiagnosticUnderlineError", { underline = true, sp = red })
+  highlight(0, "NightflyDiagnosticUnderlineWarn", { underline = true, sp = yellow })
+  highlight(0, "NightflyDiagnosticUnderlineInfo", { underline = true, sp = malibu })
+  highlight(0, "NightflyDiagnosticUnderlineHint", { underline = true, sp = white })
+  highlight(0, "NightflyDiagnosticVirtualTextError", { bg = dark_blue, fg = red })
+  highlight(0, "NightflyDiagnosticVirtualTextWarn", { bg = dark_blue, fg = yellow })
+  highlight(0, "NightflyDiagnosticVirtualTextInfo", { bg = dark_blue, fg = malibu })
+  highlight(0, "NightflyDiagnosticVirtualTextHint", { bg = dark_blue, fg = white })
+
+  -------------------------------------------------------------------------
+  -- Standard styling
+  -------------------------------------------------------------------------
+
+  -- Specify the colors used by the inbuilt terminal
+  if g.nightflyTerminalColors then
+    g.terminal_color_0 = regal_blue
+    g.terminal_color_1 = red
+    g.terminal_color_2 = green
+    g.terminal_color_3 = yellow
+    g.terminal_color_4 = blue
+    g.terminal_color_5 = violet
+    g.terminal_color_6 = turquoise
+    g.terminal_color_7 = white
+    g.terminal_color_8 = grey_blue
+    g.terminal_color_9 = watermelon
+    g.terminal_color_10 = emerald
+    g.terminal_color_11 = tan
+    g.terminal_color_12 = blue
+    g.terminal_color_13 = purple
+    g.terminal_color_14 = turquoise
+    g.terminal_color_15 = white_blue
+  end
+
+  -- Background and text
+  highlight(0, "Normal", { bg = bg, fg = white })
+
+  -- Color of mode text, -- INSERT --
+  highlight(0, "ModeMsg", { fg = cadet_blue })
+
+  -- Comments
+  if g.nightflyItalics then
+    highlight(0, "Comment", { fg = grey_blue, italic = true })
+  else
+    highlight(0, "Comment", { link = "NightflyGreyBlue" })
+  end
+
+  -- Functions
+  highlight(0, "Function", { link = "NightflyBlue" })
+
+  -- Strings
+  highlight(0, "String", { link = "NightflyTan" })
+
+  -- Booleans
+  highlight(0, "Boolean", { link = "NightflyWatermelon" })
+
+  -- Identifiers
+  highlight(0, "Identifier", { link = "NightflyTurquoise" })
+
+  -- Color of titles
+  highlight(0, "Title", { fg = orange })
+
+  -- const, static
+  highlight(0, "StorageClass", { link = "NightflyOrange" })
+
+  -- void, intptr_t
+  highlight(0, "Type", { fg = emerald })
+
+  -- Numbers
+  highlight(0, "Constant", { link = "NightflyOrange" })
+
+  -- Character constants
+  highlight(0, "Character", { link = "NightflyPurple" })
+
+  -- Exceptions
+  highlight(0, "Exception", { link = "NightflyWatermelon" })
+
+  -- ifdef/endif
+  highlight(0, "PreProc", { link = "NightflyWatermelon" })
+
+  -- case in switch statement
+  highlight(0, "Label", { link = "NightflyTurquoise" })
+
+  -- end-of-line '$', end-of-file '~'
+  highlight(0, "NonText", { fg = steel_blue })
+
+  -- sizeof
+  highlight(0, "Operator", { link = "NightflyWatermelon" })
+
+  -- for, while
+  highlight(0, "Repeat", { link = "NightflyViolet" })
+
+  -- Search
+  highlight(0, "Search", { bg = pickle_blue, fg = white_blue })
+  highlight(0, "CurSearch", { bg = orange, fg = black })
+  highlight(0, "IncSearch", { bg = peach, fg = black })
+
+  -- '\n' sequences
+  highlight(0, "Special", { link = "NightflyWatermelon" })
+
+  -- if, else
+  highlight(0, "Statement", { fg = violet })
+
+  -- struct, union, enum, typedef
+  highlight(0, "Structure", { link = "NightflyIndigo" })
+
+  -- Status, split and tab lines
+  highlight(0, "StatusLine", { bg = slate_blue, fg = white })
+  highlight(0, "StatusLineNC", { bg = slate_blue, fg = cadet_blue })
+  highlight(0, "Tabline", { bg = slate_blue, fg = cadet_blue })
+  highlight(0, "TablineSel", { bg = dark_blue, fg = blue })
+  highlight(0, "TablineSelSymbol", { bg = dark_blue, fg = emerald })
+  highlight(0, "TablineFill", { bg = slate_blue, fg = slate_blue })
+  highlight(0, "StatusLineTerm", { bg = slate_blue, fg = white })
+  highlight(0, "StatusLineTermNC", { bg = slate_blue, fg = cadet_blue })
+  if g.nightflyWinSeparator == 0 then
+    highlight(0, "VertSplit", { bg = black, fg = black })
+  elseif g.nightflyWinSeparator == 1 then
+    highlight(0, "VertSplit", { bg = slate_blue, fg = slate_blue })
+  else
+    highlight(0, "VertSplit", { bg = none, fg = slate_blue })
+  end
+
+  -- Visual selection
+  highlight(0, "Visual", { link = "NightflyVisual" })
+  highlight(0, "VisualNOS", { bg = regal_blue, fg = white })
+  highlight(0, "VisualInDiff", { bg = regal_blue, fg = white })
+
+  -- Errors, warnings and whitespace-eol
+  highlight(0, "Error", { bg = bg, fg = red })
+  highlight(0, "ErrorMsg", { bg = bg, fg = red })
+  highlight(0, "WarningMsg", { bg = bg, fg = orange })
+
+  -- Auto-text-completion menu
+  highlight(0, "Pmenu", { bg = deep_blue, fg = white })
+  highlight(0, "PmenuSel", { bg = cyan_blue, fg = white_blue })
+  highlight(0, "PmenuSbar", { bg = deep_blue })
+  highlight(0, "PmenuThumb", { bg = steel_blue })
+  highlight(0, "WildMenu", { bg = cyan_blue, fg = white_blue })
+
+  -- Spelling errors
+  if g.nightflyUndercurls then
+    highlight(0, "SpellBad", { bg = none, undercurl = true, sp = red })
+    highlight(0, "SpellCap", { bg = none, undercurl = true, sp = blue })
+    highlight(0, "SpellRare", { bg = none, undercurl = true, sp = yellow })
+    highlight(0, "SpellLocal", { bg = none, undercurl = true, sp = blue })
+  else
+    highlight(0, "SpellBad", { bg = none, fg = red, underline = true, sp = red })
+    highlight(0, "SpellCap", { bg = none, fg = blue, underline = true, sp = blue })
+    highlight(0, "SpellRare", { bg = none, fg = yellow, underline = true, sp = yellow })
+    highlight(0, "SpellLocal", { bg = none, fg = blue, underline = true, sp = blue })
+  end
+
+  -- Misc
+  highlight(0, "Question", { fg = green })
+  highlight(0, "MoreMsg", { fg = red })
+  highlight(0, "LineNr", { bg = bg, fg = steel_blue })
+  if g.nightflyCursorColor then
+    highlight(0, "Cursor", { fg = bg, bg = blue })
+  else
+    highlight(0, "Cursor", { fg = bg, bg = cadet_blue })
+  end
+  highlight(0, "lCursor", { fg = bg, bg = cadet_blue })
+  highlight(0, "CursorLineNr", { bg = dark_blue, fg = blue })
+  highlight(0, "CursorColumn", { bg = dark_blue })
+  highlight(0, "CursorLine", { bg = dark_blue })
+  highlight(0, "Folded", { bg = dark_blue, fg = green })
+  highlight(0, "FoldColumn", { bg = slate_blue, fg = green })
+  highlight(0, "SignColumn", { bg = bg, fg = green })
+  highlight(0, "Todo", { bg = deep_blue, fg = yellow })
+  highlight(0, "SpecialKey", { bg = bg, fg = blue })
+  if g.nightflyUnderlineMatchParen then
+    highlight(0, "MatchParen", { bg = bg, underline = true })
+  else
+    highlight(0, "MatchParen", { link = "NightflyVisual" })
+  end
+  highlight(0, "Ignore", { link = "NightflyBlue" })
+  highlight(0, "Underlined", { fg = green })
+  highlight(0, "QuickFixLine", { bg = deep_blue })
+  highlight(0, "Delimiter", { link = "NightflyWhite" })
+  highlight(0, "qfFileName", { link = "NightflyEmerald" })
+
+  -- Color column (after line 80)
+  highlight(0, "ColorColumn", { bg = black_blue })
+
+  -- Conceal color
+  highlight(0, "Conceal", { bg = none, fg = ash_blue })
+
+  -- nvim -d
+  highlight(0, "DiffAdd", { bg = emerald, fg = black })
+  highlight(0, "DiffChange", { bg = slate_blue })
+  highlight(0, "DiffDelete", { bg = slate_blue, fg = steel_blue })
+  highlight(0, "DiffText", { bg = blue, fg = black })
+
+  -------------------------------------------------------------------------
+  -- Neovim standard styling
+  -------------------------------------------------------------------------
+
   highlight(0, "Whitespace", { fg = regal_blue })
   highlight(0, "TermCursor", { bg = cadet_blue, fg = black })
   if g.nightflyNormalFloat then
@@ -54,7 +348,12 @@ M.core = function()
   highlight(0, "WinBarNC", { bg = deep_blue, fg = cadet_blue })
   highlight(0, "WinSeparator", { link = "VertSplit" })
 
-  -- Neovim Treesitter
+  -- Neovim check-health
+  highlight(0, "healthSuccess", { link = "DiffAdd" })
+  highlight(0, "healthHeadingChar", { link = "NightflyBlue" })
+  highlight(0, "helpHeader", { link = "NightflyTurquoise" })
+
+  -- Neovim Tree-sitter
   highlight(0, "@annotation", { link = "NightflyViolet" })
   highlight(0, "@attribute", { link = "NightflyBlue" })
   highlight(0, "@constant", { link = "NightflyTurquoise" })
@@ -63,6 +362,7 @@ M.core = function()
   highlight(0, "@constructor", { link = "NightflyEmerald" })
   highlight(0, "@danger", { link = "Todo" })
   highlight(0, "@error", { link = "NightflyRedAlert" })
+  highlight(0, "@exception", { link = "NightflyViolet" })
   highlight(0, "@function.builtin", { link = "NightflyBlue" })
   highlight(0, "@function.call", { link = "NightflyBlue" })
   highlight(0, "@function.macro", { link = "NightflyBlue" })
@@ -71,6 +371,7 @@ M.core = function()
   highlight(0, "@namespace", { link = "NightflyTurquoise" })
   highlight(0, "@none", {})
   highlight(0, "@parameter", { link = "NightflyOrchid" })
+  highlight(0, "@property", { link = "NightflyTurquoise" })
   highlight(0, "@punctuation.special", { link = "NightflyWatermelon" })
   highlight(0, "@string.regex", { link = "NightflyTurquoise" })
   highlight(0, "@symbol", { link = "NightflyPurple" })
@@ -80,38 +381,77 @@ M.core = function()
   highlight(0, "@text.danger", { link = "NightflyRedAlert" })
   highlight(0, "@text.diff.add", { link = "DiffAdd" })
   highlight(0, "@text.diff.delete", { link = "DiffDelete" })
-  highlight(0, "@text.emphasis", { italic = true })
+  highlight(0, "@text.emphasis", { fg = orchid, italic = true })
   highlight(0, "@text.environment", { link = "NightflyWatermelon" })
   highlight(0, "@text.environment.name", { link = "NightflyEmerald" })
   highlight(0, "@text.literal", { link = "String" })
   highlight(0, "@text.math", { link = "NightflyWatermelon" })
   highlight(0, "@text.note", { link = "NightflyGreyBlue" })
-  highlight(0, "@text.reference", { link = "NightflyTurquoise" })
+  highlight(0, "@text.reference", { link = "NightflyGreen" })
   highlight(0, "@text.strike", { strikethrough = true })
-  highlight(0, "@text.strong", { link = "NightflyYellow" })
+  highlight(0, "@text.strong", { link = "NightflyOrchid" })
   highlight(0, "@text.title", { link = "NightflyBlue" })
   highlight(0, "@text.todo", { link = "Todo" })
   highlight(0, "@text.underline", { underline = true })
   highlight(0, "@text.uri", { link = "NightflyPurple" })
   highlight(0, "@text.warning", { link = "NightflyYellowAlert" })
+  highlight(0, "@type.qualifier", { link = "NightflyViolet" })
   highlight(0, "@variable", { link = "NightflyWhite" })
   highlight(0, "@variable.builtin", { link = "NightflyGreen" })
-  -- Language specific overrides.
+  -- Language specific Tree-sitter overrides.
+  highlight(0, "@punctuation.delimiter.astro", { link = "NightflyWatermelon" })
+  highlight(0, "@text.title.astro", { link = "NightflyViolet" })
   highlight(0, "@parameter.bash", { link = "NightflyTurquoise" })
   highlight(0, "@punctuation.delimiter.css", { link = "NightflyWatermelon" })
-  highlight(0, "@type.css", { link = "NightflyBlue" })
+  highlight(0, "@keyword.gitcommit", { link = "NightflyBlue" })
+  highlight(0, "@text.reference.gitcommit", { link = "NightflyBlue" })
+  highlight(0, "@text.title.gitcommit", { link = "NightflyViolet" })
+  highlight(0, "@text.uri.gitcommit", { link = "NightflyEmerald" })
+  highlight(0, "@text.title.help", { link = "NightflyMalibu" })
+  highlight(0, "@text.title.html", { link = "NightflyViolet" })
+  highlight(0, "@storageclass.rust", { link = "NightflyViolet" })
   highlight(0, "@punctuation.delimiter.scss", { link = "NightflyWatermelon" })
-  highlight(0, "@type.scss", { link = "NightflyBlue" })
   highlight(0, "@variable.scss", { link = "NightflyTurquoise" })
+  highlight(0, "@text.title.svelte", { link = "NightflyViolet" })
   highlight(0, "@variable.vim", { link = "NightflyTurquoise" })
   highlight(0, "@variable.builtin.vim", { link = "NightflyEmerald" })
+  highlight(0, "@text.title.vue", { link = "NightflyViolet" })
   highlight(0, "@field.yaml", { link = "NightflyBlue" })
   highlight(0, "@punctuation.delimiter.yaml", { link = "NightflyWatermelon" })
+
+  -- Neovim LSP semantic highlights.
+  highlight(0, "@lsp.mod.deprecated", { link = "@constant" })
+  highlight(0, "@lsp.mod.readonly", { link = "@constant" })
+  highlight(0, "@lsp.mod.typeHint", { link = "@type" })
+  highlight(0, "@lsp.type.builtinConstant", { link = "@constant.builtin" })
+  highlight(0, "@lsp.type.class", { link = "@type" })
+  highlight(0, "@lsp.type.enum", { link = "@type" })
+  highlight(0, "@lsp.type.enumMember", { link = "@property" })
+  highlight(0, "@lsp.type.interface", { link = "@type" })
+  highlight(0, "@lsp.type.keyword", { link = "@keyword" })
+  highlight(0, "@lsp.type.magicFunction", { link = "@function.builtin" })
+  highlight(0, "@lsp.type.namespace", { link = "@namespace" })
+  highlight(0, "@lsp.type.parameter", { link = "@parameter" })
+  highlight(0, "@lsp.type.property", { link = "@property" })
+  highlight(0, "@lsp.type.selfParameter", { link = "@variable.builtin" })
+  highlight(0, "@lsp.type.struct", { link = "@type" })
+  highlight(0, "@lsp.type.variable", { link = "@variable" })
+  highlight(0, "@lsp.typemod.function.defaultLibrary", { link = "@function.builtin" })
+  highlight(0, "@lsp.typemod.method.defaultLibrary", { link = "@function.builtin" })
+  highlight(0, "@lsp.typemod.operator.injected", { link = "@operator" })
+  highlight(0, "@lsp.typemod.string.injected", { link = "@string" })
+  highlight(0, "@lsp.typemod.variable.defaultLibrary", { link = "@variable.builtin" })
+  highlight(0, "@lsp.typemod.variable.global", { link = "@constant" })
+  highlight(0, "@lsp.typemod.variable.injected", { link = "@variable" })
+  highlight(0, "@lsp.typemod.variable.readonly", { link = "@constant" })
+  highlight(0, "@lsp.typemod.variable.static", { link = "@constant" })
+  -- Language specific LSP semantic overrides.
+  highlight(0, "@lsp.type.macro.rust", { link = "@function" })
 
   -- Neovim Diagnostic
   highlight(0, "DiagnosticError", { link = "NightflyRed" })
   highlight(0, "DiagnosticWarn", { link = "NightflyYellow" })
-  highlight(0, "DiagnosticInfo", { link = "NightflyBlue" })
+  highlight(0, "DiagnosticInfo", { link = "NightflyMalibu" })
   highlight(0, "DiagnosticHint", { link = "NightflyWhite" })
   if g.nightflyUndercurls then
     highlight(0, "DiagnosticUnderlineError", { link = "NightflyDiagnosticUndercurlError" })
@@ -124,22 +464,180 @@ M.core = function()
     highlight(0, "DiagnosticUnderlineInfo", { link = "NightflyDiagnosticUnderlineInfo" })
     highlight(0, "DiagnosticUnderlineHint", { link = "NightflyDiagnosticUnderlineHint" })
   end
-  highlight(0, "DiagnosticVirtualTextError", { link = "NightflySteelBlue" })
-  highlight(0, "DiagnosticVirtualTextWarn", { link = "NightflySteelBlue" })
-  highlight(0, "DiagnosticVirtualTextInfo", { link = "NightflySteelBlue" })
-  highlight(0, "DiagnosticVirtualTextHint", { link = "NightflySteelBlue" })
+  if g.nightflyVirtualTextColor then
+    highlight(0, "DiagnosticVirtualTextError", { link = "NightflyDiagnosticVirtualTextError" })
+    highlight(0, "DiagnosticVirtualTextWarn", { link = "NightflyDiagnosticVirtualTextWarn" })
+    highlight(0, "DiagnosticVirtualTextInfo", { link = "NightflyDiagnosticVirtualTextInfo" })
+    highlight(0, "DiagnosticVirtualTextHint", { link = "NightflyDiagnosticVirtualTextHint" })
+  else
+    highlight(0, "DiagnosticVirtualTextError", { link = "NightflySteelBlue" })
+    highlight(0, "DiagnosticVirtualTextWarn", { link = "NightflySteelBlue" })
+    highlight(0, "DiagnosticVirtualTextInfo", { link = "NightflySteelBlue" })
+    highlight(0, "DiagnosticVirtualTextHint", { link = "NightflySteelBlue" })
+  end
   highlight(0, "DiagnosticSignError", { link = "NightflyRedAlert" })
   highlight(0, "DiagnosticSignWarn", { link = "NightflyYellowAlert" })
-  highlight(0, "DiagnosticSignInfo", { link = "NightflyBlueAlert" })
+  highlight(0, "DiagnosticSignInfo", { link = "NightflyMalibuAlert" })
   highlight(0, "DiagnosticSignHint", { link = "NightflyWhiteAlert" })
   highlight(0, "DiagnosticFloatingError", { link = "NightflyRed" })
   highlight(0, "DiagnosticFloatingWarn", { link = "NightflyYellow" })
-  highlight(0, "DiagnosticFloatingInfo", { link = "NightflyBlue" })
+  highlight(0, "DiagnosticFloatingInfo", { link = "NightflyMalibu" })
   highlight(0, "DiagnosticFloatingHint", { link = "NightflyWhite" })
-  highlight(0, "LspSignatureActiveParameter", { link = "NightflyVisual" })
-end
 
-M.plugins = function()
+  -- Neovim LSP
+  highlight(0, "LspCodeLens", { link = "NightflySteelBlue" })
+  highlight(0, "LspCodeLensSeparator", { link = "NightflySteelBlue" })
+  highlight(0, "LspInfoBorder", { link = "FloatBorder" })
+  highlight(0, "LspReferenceText", { link = "NightflyVisual" })
+  highlight(0, "LspReferenceRead", { link = "NightflyVisual" })
+  highlight(0, "LspReferenceWrite", { link = "NightflyVisual" })
+  highlight(0, "LspSignatureActiveParameter", { bg = slate_blue })
+
+  -------------------------------------------------------------------------
+  -- Legacy language styling
+  -------------------------------------------------------------------------
+
+  -- Markdown, 'tpope/vim-markdown' plugin
+  highlight(0, "markdownBold", { link = "NightflyPeach" })
+  highlight(0, "markdownCode", { link = "NightflyTan" })
+  highlight(0, "markdownCodeDelimiter", { link = "NightflyTan" })
+  highlight(0, "markdownError", { link = "NormalNC" })
+  highlight(0, "markdownH1", { link = "NightflyBlue" })
+  highlight(0, "markdownH2", { link = "NightflyBlue" })
+  highlight(0, "markdownHeadingRule", { link = "NightflyWatermelon" })
+  highlight(0, "markdownItalic", { link = "NightflyOrchid" })
+  highlight(0, "markdownUrl", { link = "NightflyPurple" })
+
+  -- Markdown, 'plasticboy/vim-markdown' plugin
+  highlight(0, "mkdDelimiter", { link = "NightflyWhite" })
+  highlight(0, "mkdLineBreak", { link = "NormalNC" })
+  highlight(0, "mkdListItem", { link = "NightflyBlue" })
+  highlight(0, "mkdURL", { link = "NightflyPurple" })
+
+  -- XML
+  highlight(0, "xmlAttrib", { link = "NightflyGreen" })
+  highlight(0, "xmlEndTag", { link = "NightflyBlue" })
+  highlight(0, "xmlTag", { link = "NightflyGreen" })
+  highlight(0, "xmlTagName", { link = "NightflyBlue" })
+
+  -------------------------------------------------------------------------
+  -- Legacy plugin styling
+  -------------------------------------------------------------------------
+
+  -- Git commits
+  highlight(0, "gitCommitBranch", { link = "NightflyBlue" })
+  highlight(0, "gitCommitDiscardedFile", { link = "NightflyWatermelon" })
+  highlight(0, "gitCommitDiscardedType", { link = "NightflyBlue" })
+  highlight(0, "gitCommitHeader", { link = "NightflyPurple" })
+  highlight(0, "gitCommitSelectedFile", { link = "NightflyEmerald" })
+  highlight(0, "gitCommitSelectedType", { link = "NightflyBlue" })
+  highlight(0, "gitCommitUntrackedFile", { link = "NightflyWatermelon" })
+  highlight(0, "gitEmail", { link = "NightflyBlue" })
+
+  -- Git commit diffs
+  highlight(0, "diffAdded", { link = "NightflyGreen" })
+  highlight(0, "diffChanged", { link = "NightflyWatermelon" })
+  highlight(0, "diffIndexLine", { link = "NightflyWatermelon" })
+  highlight(0, "diffLine", { link = "NightflyBlue" })
+  highlight(0, "diffRemoved", { link = "NightflyRed" })
+  highlight(0, "diffSubname", { link = "NightflyBlue" })
+
+  -- Tagbar plugin
+  highlight(0, "TagbarFoldIcon", { link = "NightflyCadetBlue" })
+  highlight(0, "TagbarVisibilityPublic", { link = "NightflyGreen" })
+  highlight(0, "TagbarVisibilityProtected", { link = "NightflyGreen" })
+  highlight(0, "TagbarVisibilityPrivate", { link = "NightflyGreen" })
+  highlight(0, "TagbarKind", { link = "NightflyEmerald" })
+
+  -- fern.vim plugin
+  highlight(0, "FernBranchSymbol", { link = "NightflySteelBlue" })
+  highlight(0, "FernLeafSymbol", { link = "NightflyBlue" })
+  highlight(0, "FernLeaderSymbol", { link = "NightflyPickleBlue" })
+  highlight(0, "FernBranchText", { link = "NightflyBlue" })
+  highlight(0, "FernMarkedLine", { link = "NightflyVisual" })
+  highlight(0, "FernMarkedText", { link = "NightflyWatermelon" })
+  highlight(0, "FernRootSymbol", { link = "NightflyPurple" })
+  highlight(0, "FernRootText", { link = "NightflyPurple" })
+
+  -- fern-git-status.vim plugin
+  highlight(0, "FernGitStatusBracket", { link = "NightflyGreyBlue" })
+  highlight(0, "FernGitStatusIndex", { link = "NightflyEmerald" })
+  highlight(0, "FernGitStatusWorktree", { link = "NightflyWatermelon" })
+
+  -- Glyph palette
+  highlight(0, "GlyphPalette1", { link = "NightflyWatermelon" })
+  highlight(0, "GlyphPalette2", { link = "NightflyEmerald" })
+  highlight(0, "GlyphPalette3", { link = "NightflyYellow" })
+  highlight(0, "GlyphPalette4", { link = "NightflyBlue" })
+  highlight(0, "GlyphPalette6", { link = "NightflyTurquoise" })
+  highlight(0, "GlyphPalette7", { link = "NightflyWhite" })
+  highlight(0, "GlyphPalette9", { link = "NightflyWatermelon" })
+
+  -- Misc items
+  highlight(0, "bufExplorerHelp", { link = "NightflyCadetBlue" })
+  highlight(0, "bufExplorerSortBy", { link = "NightflyCadetBlue" })
+  highlight(0, "CleverFDefaultLabel", { link = "NightflyWatermelon" })
+  highlight(0, "CtrlPMatch", { link = "NightflyOrange" })
+  highlight(0, "Directory", { link = "NightflyBlue" })
+  highlight(0, "erubyDelimiter", { link = "NightflyWatermelon" })
+  highlight(0, "helpHeadline", { link = "NightflyBlue" })
+  highlight(0, "helpSectionDelim", { link = "NightflyBlue" })
+  highlight(0, "jsonKeyword", { link = "NightflyBlue" })
+  highlight(0, "jsonBoolean", { link = "NightflyTurquoise" })
+  highlight(0, "jsonQuote", { link = "NightflyWhite" })
+  highlight(0, "netrwClassify", { link = "NightflyWatermelon" })
+  highlight(0, "netrwDir", { link = "NightflyBlue" })
+  highlight(0, "netrwExe", { link = "NightflyTan" })
+  highlight(0, "tagName", { link = "NightflyTurquoise" })
+  highlight(0, "Cheat40Header", { link = "NightflyBlue" })
+  highlight(0, "yamlBlockMappingKey", { link = "NightflyBlue" })
+  highlight(0, "yamlFlowMappingKey", { link = "NightflyBlue" })
+  if g.nightflyUnderlineMatchParen then
+    highlight(0, "MatchWord", { underline = true, sp = orange })
+  else
+    highlight(0, "MatchWord", { link = "NightflyOrange" })
+  end
+  highlight(0, "snipLeadingSpaces", { bg = bg, fg = white })
+  highlight(0, "MatchWordCur", { bg = bg })
+
+  -- FZF plugin
+  highlight(0, "fzf1", { fg = watermelon, bg = slate_blue })
+  highlight(0, "fzf2", { fg = blue, bg = slate_blue })
+  highlight(0, "fzf3", { fg = green, bg = slate_blue })
+  highlight(0, "fzfNormal", { fg = ash_blue })
+  highlight(0, "fzfFgPlus", { fg = white_blue })
+  highlight(0, "fzfBorder", { fg = slate_blue })
+  highlight(0, "fzfSubstring", { fg = orange })
+  g.fzf_colors = {
+    ["fg"] = { "fg", "fzfNormal" },
+    ["bg"] = { "bg", "Normal" },
+    ["hl"] = { "fg", "fzfSubstring" },
+    ["fg+"] = { "fg", "fzfFgPlus" },
+    ["bg+"] = { "bg", "Pmenu" },
+    ["hl+"] = { "fg", "fzfSubstring" },
+    ["info"] = { "fg", "String" },
+    ["border"] = { "fg", "fzfBorder" },
+    ["prompt"] = { "fg", "fzf2" },
+    ["pointer"] = { "fg", "Exception" },
+    ["marker"] = { "fg", "StorageClass" },
+    ["spinner"] = { "fg", "Type" },
+    ["header"] = { "fg", "CursorLineNr" },
+  }
+
+  -- mistfly-statusline plugin
+  highlight(0, "MistflyNormal", { link = "NightflyBlueMode" })
+  highlight(0, "MistflyInsert", { link = "NightflyEmeraldMode" })
+  highlight(0, "MistflyVisual", { link = "NightflyPurpleMode" })
+  highlight(0, "MistflyCommand", { link = "NightflyTanMode" })
+  highlight(0, "MistflyReplace", { link = "NightflyWatermelonMode" })
+
+  -- Coc plugin (see issue: https://github.com/bluz71/vim-nightfly-colors/issues/31)
+  highlight(0, "CocUnusedHighlight", { link = "NightflyAshBlue" })
+
+  -------------------------------------------------------------------------
+  -- Neovim plugin styling
+  -------------------------------------------------------------------------
+
   -- NvimTree plugin
   highlight(0, "NvimTreeFolderIcon", { link = "NightflyBlue" })
   highlight(0, "NvimTreeFolderName", { link = "NightflyBlue" })
@@ -169,7 +667,7 @@ M.plugins = function()
   highlight(0, "NeoTreeNormal", { bg = black_blue, fg = white })
 
   -- Telescope plugin
-  highlight(0, "TelescopeBorder", { link = "NightflySlateBlue" })
+  highlight(0, "TelescopeBorder", { link = "FloatBorder" })
   highlight(0, "TelescopeMatching", { link = "NightflyOrange" })
   highlight(0, "TelescopeMultiIcon", { link = "NightflyWatermelon" })
   highlight(0, "TelescopeMultiSelection", { link = "NightflyEmerald" })
@@ -191,21 +689,26 @@ M.plugins = function()
   highlight(0, "TelescopeSelection", { bg = regal_blue, fg = white_blue })
 
   -- gitsigns.nvim plugin
+  --   sign column
   highlight(0, "GitSignsAdd", { link = "NightflyEmeraldAlert" })
-  highlight(0, "GitSignsAddLn", { link = "NightflyGreen" })
-  highlight(0, "GitSignsAddPreview", { link = "NightflyEmeraldLine" })
-  highlight(0, "GitSignsChange", { link = "NightflyYellowAlert" })
+  highlight(0, "GitSignsChange", { link = "NightflyMalibuAlert" })
   highlight(0, "GitSignsChangeDelete", { link = "NightflyOrangeAlert" })
-  highlight(0, "GitSignsChangeLn", { link = "NightflyYellow" })
-  highlight(0, "GitSignsChangeNr", { link = "NightflyYellowAlert" })
   highlight(0, "GitSignsDelete", { link = "NightflyRedAlert" })
-  highlight(0, "GitSignsDeleteLn", { link = "NightflyRed" })
-  highlight(0, "GitSignsDeletePreview", { link = "NightflyWatermelonLine" })
-  highlight(0, "GitSignsDeleteVirtLn", { link = "NightflyWatermelonLine" })
   highlight(0, "GitSignsUntracked", { link = "NightflySteelBlue" })
+  --   line highlights
+  highlight(0, "GitSignsAddLn", { bg = deep_blue })
+  highlight(0, "GitSignsChangeLn", { bg = dark_blue })
+  --   word diff
+  highlight(0, "GitSignsAddLnInline", { bg = pickle_blue })
+  highlight(0, "GitSignsChangeLnInline", { bg = pickle_blue })
+  --   word diff in preview
   highlight(0, "GitSignsAddInline", { bg = green, fg = black })
   highlight(0, "GitSignsChangeInline", { bg = yellow, fg = black })
   highlight(0, "GitSignsDeleteInline", { bg = red, fg = black })
+  --   misc
+  highlight(0, "GitSignsAddPreview", { link = "NightflyEmeraldLine" })
+  highlight(0, "GitSignsDeletePreview", { link = "NightflyWatermelonLine" })
+  highlight(0, "GitSignsDeleteVirtLn", { link = "NightflyWatermelonLine" })
 
   -- Hop plugin
   highlight(0, "HopCursor", { link = "IncSearch" })
@@ -218,15 +721,35 @@ M.plugins = function()
   highlight(0, "BufferCurrent", { link = "NightflyWhiteLineActive" })
   highlight(0, "BufferCurrentIndex", { link = "NightflyWhiteLineActive" })
   highlight(0, "BufferCurrentMod", { link = "NightflyTanLineActive" })
-  highlight(0, "BufferTabpages", { link = "NightflyBlueLine" })
+  highlight(0, "BufferCurrentSign", { link = "NightflyBlueLineActive" })
+  highlight(0, "BufferCurrentERROR", { link = "NightflyRedLineActive" })
+  highlight(0, "BufferCurrentWARN", { link = "NightflyYellowLineActive" })
+  highlight(0, "BufferCurrentINFO", { link = "NightflyBlueLineActive" })
+  highlight(0, "BufferCurrentHINT", { link = "NightflyWhiteLineActive" })
+  highlight(0, "BufferTabpages", { bg = slate_blue, fg = blue })
   highlight(0, "BufferVisible", { link = "NightflyGreyBlueLine" })
   highlight(0, "BufferVisibleIndex", { link = "NightflyGreyBlueLine" })
   highlight(0, "BufferVisibleMod", { link = "NightflyTanLine" })
   highlight(0, "BufferVisibleSign", { link = "NightflyGreyBlueLine" })
-  highlight(0, "BufferCurrentSign", { bg = regal_blue, fg = blue })
+  highlight(0, "BufferVisibleERROR", { bg = dark_blue, fg = red })
+  highlight(0, "BufferVisibleWARN", { bg = dark_blue, fg = yellow })
+  highlight(0, "BufferVisibleINFO", { bg = dark_blue, fg = blue })
+  highlight(0, "BufferVisibleHINT", { bg = dark_blue, fg = white })
   highlight(0, "BufferInactive", { bg = slate_blue, fg = grey_blue })
   highlight(0, "BufferInactiveMod", { bg = slate_blue, fg = tan })
   highlight(0, "BufferInactiveSign", { bg = slate_blue, fg = cadet_blue })
+  highlight(0, "BufferInactiveERROR", { bg = slate_blue, fg = red })
+  highlight(0, "BufferInactiveWARN", { bg = slate_blue, fg = yellow })
+  highlight(0, "BufferInactiveINFO", { bg = slate_blue, fg = blue })
+  highlight(0, "BufferInactiveHINT", { bg = slate_blue, fg = white })
+  highlight(0, "BufferAlternate", { link = "BufferCurrent" })
+  highlight(0, "BufferAlternateIndex", { link = "BufferCurrentIndex" })
+  highlight(0, "BufferAlternateMod", { link = "BufferCurrentMod" })
+  highlight(0, "BufferAlternateSign", { link = "BufferCurrentSign" })
+  highlight(0, "BufferAlternateERROR", { link = "BufferCurrentERROR" })
+  highlight(0, "BufferAlternateWARN", { link = "BufferCurrentWARN" })
+  highlight(0, "BufferAlternateINFO", { link = "BufferCurrentINFO" })
+  highlight(0, "BufferAlternateHINT", { link = "BufferCurrentHINT" })
 
   -- Bufferline plugin
   highlight(0, "BufferLineTabSelected", { fg = blue })
@@ -315,7 +838,7 @@ M.plugins = function()
   highlight(0, "DashboardHeader", { link = "NightflyBlue" })
   highlight(0, "DashboardShortCut", { link = "NightflyTurquoise" })
 
-  -- nvim-notify
+  -- nvim-notify plugin
   highlight(0, "NotifyERRORBorder", { link = "FloatBorder" })
   highlight(0, "NotifyWARNBorder", { link = "FloatBorder" })
   highlight(0, "NotifyINFOBorder", { link = "FloatBorder" })
@@ -332,7 +855,7 @@ M.plugins = function()
   highlight(0, "NotifyDEBUGTitle", { link = "NightflyGreyBlue" })
   highlight(0, "NotifyTRACETitle", { link = "NightflyPurple" })
 
-  -- lazy.nvim
+  -- lazy.nvim plugin
   highlight(0, "LazyCommit", { link = "NightflyEmerald" })
   highlight(0, "LazyCommitType", { link = "NightflyViolet" })
   highlight(0, "LazyH1", { link = "NightflyBlueMode" })
@@ -344,11 +867,11 @@ M.plugins = function()
   highlight(0, "LazySpecial", { link = "NightflyBlue" })
   highlight(0, "LazyButton", { bg = deep_blue, fg = white })
   highlight(0, "LazyButtonActive", { bg = bay_blue, fg = white_blue })
-  if g.moonflyNormalFloat ~= true then
+  if g.nightflyNormalFloat ~= true then
     highlight(0, "LazyNormal", { bg = black_blue, fg = white })
   end
 
-  -- mason.nvim
+  -- mason.nvim plugin
   highlight(0, "MasonError", { link = "NightflyRed" })
   highlight(0, "MasonHeader", { link = "NightflyBlueMode" })
   highlight(0, "MasonHeaderSecondary", { link = "NightflyBlueMode" })
@@ -370,6 +893,71 @@ M.plugins = function()
   highlight(0, "LineflyVisual", { link = "NightflyPurpleMode" })
   highlight(0, "LineflyCommand", { link = "NightflyTanMode" })
   highlight(0, "LineflyReplace", { link = "NightflyWatermelonMode" })
+
+  -- lspsaga.nvim plugin
+  highlight(0, "TitleString", { link = "NightflyBlue" })
+  highlight(0, "TitleIcon", { link = "NightflyBlue" })
+  highlight(0, "TitleSymbol", { link = "NightflyBlue" })
+  highlight(0, "SagaBorder", { link = "FloatBorder" })
+  highlight(0, "SagaNormal", { link = "Normal" })
+  highlight(0, "SagaExpand", { link = "NightflyWatermelon" })
+  highlight(0, "SagaCollapse", { link = "NightflyWatermelon" })
+  highlight(0, "SagaBeacon", { link = "NightflyPurpleMode" })
+  highlight(0, "ActionPreviewTitle", { link = "NightflyBlue" })
+  highlight(0, "CodeActionText", { link = "NightflyYellow" })
+  highlight(0, "CodeActionConceal", { link = "NightflyGreen" })
+  highlight(0, "FinderSelection", { link = "NightflyTurquoise" })
+  highlight(0, "FinderFName", { link = "NightflyWhite" })
+  highlight(0, "FinderCode", { link = "NightflyWhite" })
+  highlight(0, "FinderIcon", { link = "NightflyTurquoise" })
+  highlight(0, "FinderType", { link = "NightflyViolet" })
+  highlight(0, "FinderSpinnerTitle", { link = "NightflyPurple" })
+  highlight(0, "FinderSpinner", { link = "NightflyPurple" })
+  highlight(0, "RenameNormal", { link = "NightflyOrange" })
+  highlight(0, "DiagnosticSource", { link = "NightflySteelBlue" })
+  highlight(0, "DiagnosticText", { link = "NightflyRed" })
+  highlight(0, "CallHierarchyIcon", { link = "NightflyViolet" })
+  highlight(0, "CallHierarchyTitle", { link = "NightflyWatermelon" })
+  highlight(0, "SagaShadow", { link = "Normal" })
+  highlight(0, "OutlineIndent", { link = "NightflyPurple" })
+
+  -- Noice plugin
+  highlight(0, "NoiceCmdlinePopup", { link = "NightflyCadetBlue" })
+  highlight(0, "NoiceCmdlinePopupBorder", { link = "NightflyPickleBlue" })
+  highlight(0, "NoiceCmdlinePopupBorderSearch", { link = "NightflyPickleBlue" })
+  highlight(0, "NoiceCmdlinePrompt", { link = "NightflyBlue" })
+  highlight(0, "NoiceCompletionItemKindDefault", { link = "NightflyTurquoise" })
+  highlight(0, "NoiceConfirmBorder", { link = "NightflyBlue" })
+  highlight(0, "NoiceFormatTitle", { link = "NightflyWatermelon" })
+
+  -- nvim-navic plugin
+  highlight(0, "NavicText", { bg = slate_blue, fg = ash_blue })
+  highlight(0, "NavicSeparator", { bg = slate_blue, fg = white })
+  highlight(0, "NavicIconsOperator", { bg = slate_blue, fg = watermelon })
+  highlight(0, "NavicIconsBoolean", { link = "NavicIconsOperator" })
+  highlight(0, "NavicIconsClass", { bg = slate_blue, fg = emerald })
+  highlight(0, "NavicIconsConstant", { bg = slate_blue, fg = orange })
+  highlight(0, "NavicIconsConstructor", { bg = slate_blue, fg = blue })
+  highlight(0, "NavicIconsEnum", { bg = slate_blue, fg = violet })
+  highlight(0, "NavicIconsEnumMember", { bg = slate_blue, fg = turquoise })
+  highlight(0, "NavicIconsEvent", { link = "NavicIconsConstant" })
+  highlight(0, "NavicIconsField", { link = "NavicIconsEnumMember" })
+  highlight(0, "NavicIconsFile", { bg = slate_blue, fg = blue })
+  highlight(0, "NavicIconsFunction", { link = "NavicIconsConstructor" })
+  highlight(0, "NavicIconsInterface", { link = "NavicIconsEnum" })
+  highlight(0, "NavicIconsKey", { link = "NavicIconsEnumMember" })
+  highlight(0, "NavicIconsMethod", { link = "NavicIconsConstructor" })
+  highlight(0, "NavicIconsModule", { link = "NavicIconsEnumMember" })
+  highlight(0, "NavicIconsNamespace", { link = "NavicIconsEnumMember" })
+  highlight(0, "NavicIconsNull", { bg = slate_blue, fg = green })
+  highlight(0, "NavicIconsNumber", { link = "NavicIconsConstant" })
+  highlight(0, "NavicIconsObject", { link = "NavicIconsEnumMember" })
+  highlight(0, "NavicIconsPackage", { link = "NavicIconsEnumMember" })
+  highlight(0, "NavicIconsProperty", { link = "NavicIconsEnumMember" })
+  highlight(0, "NavicIconsString", { bg = slate_blue, fg = tan })
+  highlight(0, "NavicIconsStruct", { link = "NavicIconsClass" })
+  highlight(0, "NavicIconsTypeParameter", { link = "NavicIconsEnumMember" })
+  highlight(0, "NavicIconsVariable", { link = "NavicIconsEnumMember" })
 end
 
 return M
