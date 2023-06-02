@@ -10,11 +10,7 @@
 let s:configuration = sonokai#get_configuration()
 let s:palette = sonokai#get_palette(s:configuration.style, s:configuration.colors_override)
 let s:path = expand('<sfile>:p') " the path of this script
-<<<<<<< Updated upstream
-let s:last_modified = 'Thu Mar 23 11:13:28 UTC 2023'
-=======
 let s:last_modified = 'Mon Apr 24 19:33:44 UTC 2023'
->>>>>>> Stashed changes
 let g:sonokai_loaded_file_types = []
 
 if !(exists('g:colors_name') && g:colors_name ==# 'sonokai' && s:configuration.better_performance)
@@ -576,11 +572,8 @@ if has('nvim-0.8.0')
   highlight! link @text.strong TSStrong
   highlight! link @text.title TSTitle
   highlight! link @text.todo TSTodo
-<<<<<<< Updated upstream
-=======
   highlight! link @text.todo.checked Green
   highlight! link @text.todo.unchecked Ignore
->>>>>>> Stashed changes
   highlight! link @text.underline TSUnderline
   highlight! link @text.uri TSURI
   highlight! link @text.warning TSWarning
@@ -593,8 +586,6 @@ if has('nvim-0.8.0')
   highlight! link @variable TSVariable
   highlight! link @variable.builtin TSVariableBuiltin
 endif
-<<<<<<< Updated upstream
-=======
 if has('nvim-0.9.0')
   highlight! link @lsp.type.class TSType
   highlight! link @lsp.type.comment TSComment
@@ -623,7 +614,6 @@ if has('nvim-0.9.0')
 endif
 highlight! link TSModuleInfoGood Green
 highlight! link TSModuleInfoBad Red
->>>>>>> Stashed changes
 " }}}
 " github/copilot.vim {{{
 highlight! link CopilotSuggestion Grey
@@ -1469,10 +1459,7 @@ if !s:configuration.transparent_background
   call sonokai#highlight('NeoTreeEndOfBuffer', s:palette.bg_dim, s:palette.bg_dim)
   call sonokai#highlight('NeoTreeVertSplit', s:palette.bg0, s:palette.bg0)
 endif
-<<<<<<< Updated upstream
-=======
 highlight! link NeoTreeDirectoryIcon Blue
->>>>>>> Stashed changes
 highlight! link NeoTreeGitAdded Green
 highlight! link NeoTreeGitConflict Yellow
 highlight! link NeoTreeGitDeleted Red

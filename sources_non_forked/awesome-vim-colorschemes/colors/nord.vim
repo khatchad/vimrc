@@ -577,11 +577,7 @@ if has('nvim')
     call s:hi("LspDiagnosticsUnderlineInformation" , s:nord8_gui, "", s:nord8_term, "", "undercurl", "")
     call s:hi("LspDiagnosticsUnderlineHint" , s:nord10_gui, "", s:nord10_term, "", "undercurl", "")
   endif
-<<<<<<< Updated upstream
-  
-=======
 
->>>>>>> Stashed changes
   " Gitsigns
   " > lewis6991/gitsigns.nvim
   hi! link GitSignsCurrentLineBlame Comment

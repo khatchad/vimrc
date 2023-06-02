@@ -443,39 +443,36 @@ let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
 let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 ```
 
-Terminal Themes
----------------
+Extra Themes
+------------
 
-A collection of _nightfly_-flavoured terminal themes are provided:
-
-- _iTerm2_ users on macOS can import
-  [this](terminal_themes/nightfly.itermcolors) colorscheme
+A collection of _nightfly_-flavoured themes are provided:
 
 - [Alacritty](https://github.com/alacritty/alacritty) users can copy
-  [this](terminal_themes/alacritty.yml) theme into their `alacritty.yml`
-  configuration.
-
-- [Windows Terminal](https://github.com/microsoft/terminal) users can copy
-  [this](terminal_themes/windows-terminal-settings.json) theme into their `settings.json`
-  configuration.
+  [this](extras/alacritty.yml) theme into their `alacritty.yml`
+  configuration
 
 - [kitty](https://sw.kovidgoyal.net/kitty) users can use
-  [this](terminal_themes/kitty-theme.conf) theme
+  [this](extras/kitty-theme.conf) theme
 
-- _GNOME Terminal_ users can run
-  [this](terminal_themes/gnome-terminal-nightfly.sh) script to create a
-  _Nightfly_ profile. Before executing the script, please install the
-  `dconf-cli` command line utility for modern versions of Gnome (3.28 and
-  later), for example `sudo apt install dconf-cli`. After executing the script,
-  please set the _cursor_ and _selection_ colors by hand, with the appropriate
-  color values listed below, in `Preferences` / `Nightfly` / `Colors`.
+- [fish](https://fishshell.com) users can use [this](extras/nightfly.fish) theme
+
+- _iTerm2_ users on macOS can import
+  [this](extras/nightfly.itermcolors) colorscheme
+
+- [Windows Terminal](https://github.com/microsoft/terminal) users can copy
+  [this](extras/windows-terminal-settings.json) theme into their `settings.json`
+  configuration
+
+- _GNOME Terminal_ users can run [this](extras/gnome-terminal-nightfly.sh)
+  script to create a _Nightfly_ profile.
 
 For other terminals please configure appropriately with the following colors:
 
 | Type           | Category        | Value     | Color
 |----------------|-----------------|-----------|------------------------------------------------------
 | Background     | Background      | `#011627` | ![background](https://place-hold.it/32/011627?text=+)
-| Foreground     | Foreground      | `#acb4c2` | ![background](https://place-hold.it/32/acb4c2?text=+)
+| Foreground     | Foreground      | `#bdc1c6` | ![background](https://place-hold.it/32/bdc1c6?text=+)
 | Bold           | Bold            | `#eeeeee` | ![background](https://place-hold.it/32/eeeeee?text=+)
 | Cursor         | Cursor          | `#9ca1aa` | ![background](https://place-hold.it/32/9ca1aa?text=+)
 | Cursor Text    | Cursor Text     | `#080808` | ![background](https://place-hold.it/32/080808?text=+)
