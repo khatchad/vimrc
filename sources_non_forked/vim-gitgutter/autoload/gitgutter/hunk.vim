@@ -294,11 +294,32 @@ endfunction
 
 function! s:stage(hunk_diff)
   let bufnr = bufnr('')
-  let diff = s:adjust_header(bufnr, a:hunk_diff)
-  " Apply patch to index.
-  call gitgutter#utility#system(
-        \ gitgutter#utility#cd_cmd(bufnr, g:gitgutter_git_executable.' '.g:gitgutter_git_args.' apply --cached --unidiff-zero - '),
-        \ diff)
+
+  if gitgutter#utility#clean_smudge_filter_applies(bufnr)
+    let choice = input('File uses clean/smudge filter. Stage entire file (y/n)? ')
+    normal! :<ESC>
+    if choice =~ 'y'
+      " We are about to add the file to the index so write the buffer to
+      " ensure the file on disk matches it (the buffer).
+      write
+      let path = gitgutter#utility#repo_path(bufnr, 1)
+      " Add file to index.
+      let cmd = gitgutter#utility#cd_cmd(bufnr,
+            \ gitgutter#git().' add '.
+            \ gitgutter#utility#shellescape(gitgutter#utility#filename(bufnr)))
+      call gitgutter#utility#system(cmd)
+    else
+      return
+    endif
+
+  else
+    let diff = s:adjust_header(bufnr, a:hunk_diff)
+    " Apply patch to index.
+    call gitgutter#utility#system(
+          \ gitgutter#utility#cd_cmd(bufnr, gitgutter#git().' apply --cached --unidiff-zero - '),
+          \ diff)
+  endif
+
   if v:shell_error
     call gitgutter#utility#warn('Patch does not apply')
   else
