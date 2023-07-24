@@ -35,11 +35,13 @@ Neovim-only:
 - [mason.nvim](https://github.com/williamboman/mason.nvim)
 - [Mini](https://github.com/echasnovski/mini.nvim)
 - [Neo-tree](https://github.com/nvim-neo-tree/neo-tree.nvim)
+- [Neogit](https://github.com/NeogitOrg/neogit)
 - [Noice](https://github.com/folke/noice.nvim)
 - [nvim-cmp](https://github.com/hrsh7th/nvim-cmp)
 - [nvim-navic](https://github.com/SmiteshP/nvim-navic)
 - [nvim-notify](https://github.com/rcarriga/nvim-notify)
 - [NvimTree](https://github.com/kyazdani42/nvim-tree.lua)
+- [Rainbow Delimiters](https://github.com/HiPhish/rainbow-delimiters.nvim)
 - [Telescope](https://github.com/nvim-telescope/telescope.nvim)
 
 Neovim & Vim compatible:
@@ -417,7 +419,6 @@ enabled.
 A list of popular terminals that support true colors:
 
 - [iTerm2](http://www.iterm2.com)
-- [GNOME Terminal](https://wiki.gnome.org/Apps/Terminal)
 - [Windows Terminal](https://github.com/Microsoft/Terminal)
 - [Alacritty](https://github.com/alacritty/alacritty)
 - [kitty](https://sw.kovidgoyal.net/kitty/index.html)
@@ -463,9 +464,6 @@ A collection of _nightfly_-flavoured themes are provided:
 - [Windows Terminal](https://github.com/microsoft/terminal) users can copy
   [this](extras/windows-terminal-settings.json) theme into their `settings.json`
   configuration
-
-- _GNOME Terminal_ users can run [this](extras/gnome-terminal-nightfly.sh)
-  script to create a _Nightfly_ profile.
 
 For other terminals please configure appropriately with the following colors:
 

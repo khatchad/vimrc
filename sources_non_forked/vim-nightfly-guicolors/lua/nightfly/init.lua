@@ -31,7 +31,6 @@ local red = "#fc514e"
 local watermelon = "#ff5874"
 local violet = "#c792ea"
 local purple = "#ae81ff"
-local indigo = "#5e97ec"
 local blue = "#82aaff"
 local malibu = "#87bcff"
 local turquoise = "#7fdbca"
@@ -67,7 +66,6 @@ M.palette = {
   watermelon = watermelon,
   violet = violet,
   purple = purple,
-  indigo = indigo,
   blue = blue,
   malibu = malibu,
   turquoise = turquoise,
@@ -102,7 +100,6 @@ M.style = function()
   highlight(0, "NightflyWatermelon", { fg = watermelon })
   highlight(0, "NightflyViolet", { fg = violet })
   highlight(0, "NightflyPurple", { fg = purple })
-  highlight(0, "NightflyIndigo", { fg = indigo })
   highlight(0, "NightflyBlue", { fg = blue })
   highlight(0, "NightflyMalibu", { fg = malibu })
   highlight(0, "NightflyTurquoise", { fg = turquoise })
@@ -400,25 +397,36 @@ M.style = function()
   highlight(0, "@variable", { link = "NightflyWhite" })
   highlight(0, "@variable.builtin", { link = "NightflyGreen" })
   -- Language specific Tree-sitter overrides.
-  highlight(0, "@punctuation.delimiter.astro", { link = "NightflyWatermelon" })
-  highlight(0, "@text.title.astro", { link = "NightflyViolet" })
-  highlight(0, "@parameter.bash", { link = "NightflyTurquoise" })
-  highlight(0, "@punctuation.delimiter.css", { link = "NightflyWatermelon" })
+  highlight(0, "@field.yaml", { link = "NightflyBlue" })
   highlight(0, "@keyword.gitcommit", { link = "NightflyBlue" })
+  highlight(0, "@parameter.bash", { link = "NightflyTurquoise" })
+  highlight(0, "@punctuation.delimiter.astro", { link = "NightflyWatermelon" })
+  highlight(0, "@punctuation.delimiter.css", { link = "NightflyWatermelon" })
+  highlight(0, "@punctuation.delimiter.scss", { link = "NightflyWatermelon" })
+  highlight(0, "@punctuation.delimiter.yaml", { link = "NightflyWatermelon" })
+  highlight(0, "@storageclass.rust", { link = "NightflyViolet" })
   highlight(0, "@text.reference.gitcommit", { link = "NightflyBlue" })
+  highlight(0, "@text.title.astro", { link = "NightflyViolet" })
   highlight(0, "@text.title.gitcommit", { link = "NightflyViolet" })
-  highlight(0, "@text.uri.gitcommit", { link = "NightflyEmerald" })
   highlight(0, "@text.title.help", { link = "NightflyMalibu" })
   highlight(0, "@text.title.html", { link = "NightflyViolet" })
-  highlight(0, "@storageclass.rust", { link = "NightflyViolet" })
-  highlight(0, "@punctuation.delimiter.scss", { link = "NightflyWatermelon" })
-  highlight(0, "@variable.scss", { link = "NightflyTurquoise" })
   highlight(0, "@text.title.svelte", { link = "NightflyViolet" })
+  highlight(0, "@text.title.vue", { link = "NightflyViolet" })
+  highlight(0, "@text.uri.gitcommit", { link = "NightflyEmerald" })
+  if g.nightflyItalics then
+    highlight(0, "@text.uri.astro", { fg = violet, italic = true })
+    highlight(0, "@text.uri.html", { fg = violet, italic = true })
+    highlight(0, "@text.uri.svelte", { fg = violet, italic = true })
+    highlight(0, "@text.uri.vue", { fg = violet, italic = true })
+  else
+    highlight(0, "@text.uri.astro", { link = "NightflyViolet" })
+    highlight(0, "@text.uri.html", { link = "NightflyViolet" })
+    highlight(0, "@text.uri.svelte", { link = "NightflyViolet" })
+    highlight(0, "@text.uri.vue", { link = "NightflyViolet" })
+  end
+  highlight(0, "@variable.scss", { link = "NightflyTurquoise" })
   highlight(0, "@variable.vim", { link = "NightflyTurquoise" })
   highlight(0, "@variable.builtin.vim", { link = "NightflyEmerald" })
-  highlight(0, "@text.title.vue", { link = "NightflyViolet" })
-  highlight(0, "@field.yaml", { link = "NightflyBlue" })
-  highlight(0, "@punctuation.delimiter.yaml", { link = "NightflyWatermelon" })
 
   -- Neovim LSP semantic highlights.
   highlight(0, "@lsp.mod.deprecated", { link = "@constant" })
@@ -444,6 +452,7 @@ M.style = function()
   highlight(0, "@lsp.type.selfParameter", { link = "@variable.builtin" })
   highlight(0, "@lsp.type.struct", { link = "@type" })
   highlight(0, "@lsp.type.typeAlias", { link = "@type.definition" })
+  highlight(0, "@lsp.type.unresolvedReference", { link = "@error" })
   highlight(0, "@lsp.type.variable", { link = "@variable" })
   highlight(0, "@lsp.typemod.class.defaultLibrary", { link = "@type.builtin" })
   highlight(0, "@lsp.typemod.enum.defaultLibrary", { link = "@type" })
@@ -460,6 +469,8 @@ M.style = function()
   highlight(0, "@lsp.typemod.variable.static", { link = "@constant" })
   -- Language specific LSP semantic overrides.
   highlight(0, "@lsp.type.macro.rust", { link = "@function" })
+  highlight(0, "@lsp.type.parameter.dockerfile", { link = "@property" })
+  highlight(0, "@lsp.type.variable.dockerfile", { link = "@function" })
 
   -- Neovim Diagnostic
   highlight(0, "DiagnosticError", { link = "NightflyRed" })
@@ -501,6 +512,7 @@ M.style = function()
   highlight(0, "LspCodeLens", { link = "NightflySteelBlue" })
   highlight(0, "LspCodeLensSeparator", { link = "NightflySteelBlue" })
   highlight(0, "LspInfoBorder", { link = "FloatBorder" })
+  highlight(0, "LspInlayHint", { bg = dark_blue, fg = grey_blue })
   highlight(0, "LspReferenceText", { link = "NightflyVisual" })
   highlight(0, "LspReferenceRead", { link = "NightflyVisual" })
   highlight(0, "LspReferenceWrite", { link = "NightflyVisual" })
@@ -983,6 +995,24 @@ M.style = function()
   highlight(0, "NavicIconsStruct", { link = "NavicIconsClass" })
   highlight(0, "NavicIconsTypeParameter", { link = "NavicIconsEnumMember" })
   highlight(0, "NavicIconsVariable", { link = "NavicIconsEnumMember" })
+
+  -- Rainbow Delimiters
+  highlight(0, "RainbowDelimiterRed", { link = "NightflyRed" })
+  highlight(0, "RainbowDelimiterYellow", { link = "NightflyYellow" })
+  highlight(0, "RainbowDelimiterBlue", { link = "NightflyBlue" })
+  highlight(0, "RainbowDelimiterOrange", { link = "NightflyOrange" })
+  highlight(0, "RainbowDelimiterGreen", { link = "NightflyGreen" })
+  highlight(0, "RainbowDelimiterViolet", { link = "NightflyViolet" })
+  highlight(0, "RainbowDelimiterCyan", { link = "NightflyTurquoise" })
+
+  -- Neogit
+  highlight(0, "NeogitBranch", { link = "NightflyBlue" })
+  highlight(0, "NeogitDiffAddHighlight", { link = "NightflyEmeraldLine" })
+  highlight(0, "NeogitDiffContextHighlight", { bg = dark_blue })
+  highlight(0, "NeogitDiffDeleteHighlight", { link = "NightflyWatermelonLine" })
+  highlight(0, "NeogitHunkHeader", { link = "Pmenu" })
+  highlight(0, "NeogitHunkHeaderHighlight", { link = "NightflyBlueLineActive" })
+  highlight(0, "NeogitRemote", { link = "NightflyPurple" })
 end
 
 return M
