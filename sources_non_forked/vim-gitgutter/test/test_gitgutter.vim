@@ -52,6 +52,7 @@ endfunction
 "
 
 function SetUp()
+  let g:gitgutter_diff_base = ''
   call system("git init ".s:test_repo.
         \ " && cd ".s:test_repo.
         \ " && cp ../.gitconfig .".
@@ -280,6 +281,29 @@ function Test_saveas()
 endfunction
 
 
+function Test_file_mv()
+  call system('git mv fixture.txt fixture_moved.txt')
+  edit fixture_moved.txt
+  normal ggo*
+  call s:trigger_gitgutter()
+  let expected = [{'lnum': 2, 'name': 'GitGutterLineAdded'}]
+  call s:assert_signs(expected, 'fixture_moved.txt')
+
+  write
+  call system('git add fixture_moved.txt && git commit -m "moved and edited"')
+  GitGutterDisable
+  GitGutterEnable
+  let expected = []
+  call s:assert_signs(expected, 'fixture_moved.txt')
+
+  GitGutterDisable
+  let g:gitgutter_diff_base = 'HEAD^'
+  GitGutterEnable
+  let expected = [{'lnum': 2, 'name': 'GitGutterLineAdded'}]
+  call s:assert_signs(expected, 'fixture_moved.txt')
+endfunction
+
+
 " FIXME: this test fails when it is the first (or only) test to be run
 function Test_follow_symlink()
   let tmp = 'symlink'
@@ -382,8 +406,7 @@ endfunction
 
 
 function Test_file_unknown_in_base()
-  let starting_branch = system('git branch --show-current')
-  let starting_branch = 'main'
+  let starting_branch = split(system('git branch --show-current'))[0]
   call system('git checkout -b some-feature')
   let tmp = 'file-on-this-branch-only.tmp'
   call system('echo "hi" > '.tmp.' && git add '.tmp)
@@ -392,6 +415,27 @@ function Test_file_unknown_in_base()
   GitGutter
   let expected = [{'lnum': 1, 'name': 'GitGutterLineAdded', 'group': 'gitgutter', 'priority': 10}]
   call s:assert_signs(expected, tmp)
+  let g:gitgutter_diff_base = ''
+endfunction
+
+
+function Test_v_shell_error_not_clobbered()
+  " set gitgutter up to generate a shell error
+  let starting_branch = split(system('git branch --show-current'))[0]
+  call system('git checkout -b some-feature')
+  let tmp = 'file-on-this-branch-only.tmp'
+  call system('echo "hi" > '.tmp.' && git add '.tmp)
+  execute 'edit '.tmp
+  let g:gitgutter_diff_base = starting_branch
+
+  " run a successful shell command
+  silent !echo foobar >/dev/null
+
+  " run gitgutter
+  GitGutter
+
+  call assert_equal(0, v:shell_error)
+
   let g:gitgutter_diff_base = ''
 endfunction
 

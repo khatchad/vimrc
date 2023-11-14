@@ -1,36 +1,39 @@
 " Background and foreground
-let s:black       = '#011627'
-let s:white       = '#c3ccdc'
+let s:black        = '#011627'
+let s:white        = '#c3ccdc'
 " Variations of midnight-blue
-let s:black_blue  = '#081e2f'
-let s:dark_blue   = '#092236'
-let s:deep_blue   = '#0e293f'
-let s:slate_blue  = '#2c3043'
-let s:pickle_blue = '#38507a'
-let s:regal_blue  = '#1d3b53'
-let s:steel_blue  = '#4b6479'
-let s:grey_blue   = '#7c8f8f'
-let s:cadet_blue  = '#a1aab8'
-let s:ash_blue    = '#acb4c2'
-let s:white_blue  = '#d6deeb'
+let s:black_blue   = '#081e2f'
+let s:dark_blue    = '#092236'
+let s:deep_blue    = '#0e293f'
+let s:slate_blue   = '#2c3043'
+let s:pickle_blue  = '#38507a'
+let s:cello_blue   = '#1f4462'
+let s:regal_blue   = '#1d3b53'
+let s:steel_blue   = '#4b6479'
+let s:grey_blue    = '#7c8f8f'
+let s:cadet_blue   = '#a1aab8'
+let s:ash_blue     = '#acb4c2'
+let s:white_blue   = '#d6deeb'
 " Core theme colors
-let s:yellow      = '#e3d18a'
-let s:peach       = '#ffcb8b'
-let s:tan         = '#ecc48d'
-let s:orange      = '#f78c6c'
-let s:orchid      = '#e39aa6'
-let s:red         = '#fc514e'
-let s:watermelon  = '#ff5874'
-let s:violet      = '#c792ea'
-let s:purple      = '#ae81ff'
-let s:blue        = '#82aaff'
-let s:malibu      = '#87bcff'
-let s:turquoise   = '#7fdbca'
-let s:emerald     = '#21c7a8'
-let s:green       = '#a1cd5e'
+let s:yellow       = '#e3d18a'
+let s:peach        = '#ffcb8b'
+let s:tan          = '#ecc48d'
+let s:orange       = '#f78c6c'
+let s:orchid       = '#e39aa6'
+let s:red          = '#fc514e'
+let s:watermelon   = '#ff5874'
+let s:violet       = '#c792ea'
+let s:purple       = '#ae81ff'
+let s:blue         = '#82aaff'
+let s:malibu       = '#87bcff'
+let s:turquoise    = '#7fdbca'
+let s:emerald      = '#21c7a8'
+let s:green        = '#a1cd5e'
 " Extra colors
-let s:cyan_blue   = '#296596'
-let s:bay_blue    = '#24567F'
+let s:cyan_blue    = '#296596'
+let s:bay_blue     = '#24567F'
+let s:kashmir_blue = '#4d618e'
+let s:plant_green  = '#2a4e57'
 
 function! nightfly#Style() abort
     "-----------------------------------------------------------------------
@@ -40,8 +43,9 @@ function! nightfly#Style() abort
     exec 'highlight NightflyVisual guibg=' . s:regal_blue
     exec 'highlight NightflyWhite guifg=' . s:white
     exec 'highlight NightflyDeepBlue guifg=' . s:deep_blue
-    exec 'highlight NightflyPickleBlue guifg=' . s:pickle_blue
     exec 'highlight NightflySlateBlue guifg=' . s:slate_blue
+    exec 'highlight NightflyPickleBlue guifg=' . s:pickle_blue
+    exec 'highlight NightflyCelloBlue guifg=' . s:cello_blue
     exec 'highlight NightflyRegalBlue guifg=' . s:regal_blue
     exec 'highlight NightflySteelBlue guifg=' . s:steel_blue
     exec 'highlight NightflyGreyBlue guifg=' . s:grey_blue
@@ -189,7 +193,6 @@ function! nightfly#Style() abort
     " Visual selection
     highlight! link Visual NightflyVisual
     exec 'highlight VisualNOS guibg=' . s:regal_blue . ' guifg=fg gui=none'
-    exec 'highlight VisualInDiff guibg=' . s:regal_blue . ' guifg=' . s:white
 
     " Errors, warnings and whitespace-eol
     exec 'highlight Error guibg=bg guifg=' . s:red
@@ -252,10 +255,10 @@ function! nightfly#Style() abort
     exec 'highlight Conceal guibg=NONE guifg=' . s:ash_blue
 
     " vimdiff/nvim -d
-    exec 'highlight DiffAdd guibg=' . s:emerald . ' guifg=' . s:black
+    exec 'highlight DiffAdd guibg=' . s:plant_green
     exec 'highlight DiffChange guibg=' . s:slate_blue
     exec 'highlight DiffDelete guibg=' . s:slate_blue . ' guifg=' . s:steel_blue . ' gui=none'
-    exec 'highlight DiffText guibg=' . s:blue . ' guifg=' . s:black . ' gui=none'
+    exec 'highlight DiffText guibg=' . s:kashmir_blue
 
     "-----------------------------------------------------------------------
     " Language styling
@@ -372,6 +375,13 @@ function! nightfly#Style() abort
     highlight! link haskellType NightflyBlue
     highlight! link haskellWhere NightflyViolet
 
+    " Help
+    highlight! link helpCommand NightflyOrchid
+    highlight! link helpExample NightflyGreen
+    highlight! link helpHeadline NightflyBlue
+    highlight! link helpHyperTextEntry NightflyTurquoise
+    highlight! link helpSectionDelim NightflyBlue
+
     " HTML
     highlight! link htmlArg NightflyTurquoise
     highlight! link htmlLink NightflyGreen
@@ -443,8 +453,16 @@ function! nightfly#Style() abort
     highlight! link markdownCode NightflyTan
     highlight! link markdownCodeDelimiter NightflyTan
     highlight! link markdownError NormalNC
-    highlight! link markdownH1 NightflyBlue
+    highlight! link markdownH1 NightflyEmerald
     highlight! link markdownH2 NightflyBlue
+    highlight! link markdownH3 NightflyTurquoise
+    highlight! link markdownH3Delimiter NightflyWatermelon
+    highlight! link markdownH4 NightflyOrange
+    highlight! link markdownH4Delimiter NightflyWatermelon
+    highlight! link markdownH5 NightflyMalibu
+    highlight! link markdownH5Delimiter NightflyWatermelon
+    highlight! link markdownH6 NightflyViolet
+    highlight! link markdownH6Delimiter NightflyWatermelon
     highlight! link markdownHeadingRule NightflyWatermelon
     highlight! link markdownItalic NightflyOrchid
     highlight! link markdownUrl NightflyPurple
@@ -635,7 +653,7 @@ function! nightfly#Style() abort
     highlight! link TagbarKind NightflyEmerald
 
     " NERDTree plugin
-    highlight! link NERDTreeClosable NightflyCadetBlue
+    highlight! link NERDTreeClosable NightflyGreyBlue
     highlight! link NERDTreeCWD NightflyPurple
     highlight! link NERDTreeDir NightflyBlue
     highlight! link NERDTreeDirSlash NightflyWatermelon
@@ -646,7 +664,7 @@ function! nightfly#Style() abort
     highlight! link NERDTreeLinkDir NightflyBlue
     highlight! link NERDTreeLinkFile NightflyBlue
     highlight! link NERDTreeLinkTarget NightflyTurquoise
-    highlight! link NERDTreeOpenable NightflyCadetBlue
+    highlight! link NERDTreeOpenable NightflyGreyBlue
     highlight! link NERDTreePart NightflyRegalBlue
     highlight! link NERDTreePartFile NightflyRegalBlue
     highlight! link NERDTreeUp NightflyBlue
@@ -659,9 +677,9 @@ function! nightfly#Style() abort
     highlight! link NERDTreeGitStatusUntracked NightflyRed
 
     " fern.vim plugin
-    highlight! link FernBranchSymbol NightflySteelBlue
+    highlight! link FernBranchSymbol NightflyGreyBlue
     highlight! link FernLeafSymbol NightflyBlue
-    highlight! link FernLeaderSymbol NightflyPickleBlue
+    highlight! link FernLeaderSymbol NightflyCelloBlue
     highlight! link FernBranchText NightflyBlue
     highlight! link FernMarkedLine NightflyVisual
     highlight! link FernMarkedText NightflyWatermelon
@@ -689,8 +707,6 @@ function! nightfly#Style() abort
     highlight! link CtrlPMatch NightflyOrange
     highlight! link Directory NightflyBlue
     highlight! link erubyDelimiter NightflyWatermelon
-    highlight! link helpHeadline NightflyBlue
-    highlight! link helpSectionDelim NightflyBlue
     highlight! link HighlightedyankRegion NightflyRegalBlue
     highlight! link jsonKeyword NightflyBlue
     highlight! link jsonBoolean NightflyTurquoise
@@ -778,8 +794,9 @@ function! nightfly#Style() abort
     highlight! link MistflyCommand NightflyTanMode
     highlight! link MistflyReplace NightflyWatermelonMode
 
-    " Coc plugin (see issue: https://github.com/bluz71/vim-nightfly-colors/issues/31)
+    " Coc plugin
     highlight! link CocUnusedHighlight NightflyAshBlue
+    exec 'highlight CocInlayHint guibg=' . s:dark_blue . ' guifg=' . s:grey_blue
 
     " indentLine plugin
     if !exists('g:indentLine_defaultGroup') && !exists('g:indentLine_color_gui')
