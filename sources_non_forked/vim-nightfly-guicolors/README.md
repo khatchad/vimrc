@@ -37,6 +37,7 @@ Neovim-only:
 - [Neogit](https://github.com/NeogitOrg/neogit)
 - [Noice](https://github.com/folke/noice.nvim)
 - [nvim-cmp](https://github.com/hrsh7th/nvim-cmp)
+- [nvim-dap-ui](https://github.com/rcarriga/nvim-dap-ui)
 - [nvim-navic](https://github.com/SmiteshP/nvim-navic)
 - [nvim-notify](https://github.com/rcarriga/nvim-notify)
 - [NvimTree](https://github.com/kyazdani42/nvim-tree.lua)
@@ -443,7 +444,7 @@ Extra Themes
 A collection of _nightfly_-flavoured themes are provided:
 
 - [Alacritty](https://github.com/alacritty/alacritty) users can copy
-  [this](extras/alacritty.yml) theme into their `alacritty.yml`
+  [this](extras/nightfly-alacritty.toml) theme into their `alacritty.toml`
   configuration
 
 - [kitty](https://sw.kovidgoyal.net/kitty) users can use
