@@ -266,6 +266,12 @@ au FileType python setl fp=astyle\ --mode=python\ --indent=tab
 au FileType help setl nospell
 
 """"""""""""""""""""""""""""""
+" => Git commits section
+"""""""""""""""""""""""""""""""
+au FileType gitcommit setl spell
+autocmd FileType text,markdown,mail setlocal textwidth=9999999999
+
+""""""""""""""""""""""""""""""
 " => Highlight TODO, FIXME, NOTE, etc.
 """""""""""""""""""""""""""""""
 " if has("autocmd")
