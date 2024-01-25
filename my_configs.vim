@@ -196,6 +196,7 @@ let g:tex_verbspell= 0
 au FileType java setl fp=astyle\ --mode=java\ --indent=tab
 au Filetype java setl makeprg=javac\ %
 au Filetype java setl diffopt+=iwhite, number
+au Filetype java setl spell
 
 """"""""""""""""""""""""""""""
 " => Ruby section
@@ -219,7 +220,7 @@ autocmd FileType csv setlocal nowrap
 " => Log section
 """""""""""""""""""""""""""""""
 au BufNewFile,BufRead *.log, setf log
-au FileType log setl wrap diffopt+=iwhite
+au FileType log setl wrap diffopt+=iwhite nonumber
 
 """"""""""""""""""""""""""""""
 " => Markdown section
@@ -263,6 +264,12 @@ au FileType python setl fp=astyle\ --mode=python\ --indent=tab
 " => Help section
 """""""""""""""""""""""""""""""
 au FileType help setl nospell
+
+""""""""""""""""""""""""""""""
+" => Git commits section
+"""""""""""""""""""""""""""""""
+au FileType gitcommit setl spell
+autocmd FileType text,markdown,mail setlocal textwidth=9999999999
 
 """"""""""""""""""""""""""""""
 " => Highlight TODO, FIXME, NOTE, etc.
