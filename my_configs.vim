@@ -219,7 +219,7 @@ autocmd FileType csv setlocal nowrap
 " => Log section
 """""""""""""""""""""""""""""""
 au BufNewFile,BufRead *.log, setf log
-au FileType log setl wrap diffopt+=iwhite number
+au FileType log setl wrap diffopt+=iwhite
 
 """"""""""""""""""""""""""""""
 " => Markdown section
@@ -232,7 +232,7 @@ au BufRead,BufNewFile *.md set filetype=markdown
 au FileType xml setl fp=tidy\ -q\ -i\ -wrap\ -xml
 au FileType xml XMLns xsl xsl
 au FileType xml XMLent
-au FileType xml setl tabstop=2 softtabstop=2 shiftwidth=2 noexpandtab
+au FileType xml setl tabstop=2 softtabstop=2 shiftwidth=2 expandtab
 
 """"""""""""""""""""""""""""""
 " => HTML section
