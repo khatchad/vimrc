@@ -216,6 +216,7 @@ au BufNewFile,BufRead *.aj, setf aj
 """""""""""""""""""""""""""""""
 au BufNewFile,BufRead *.csv, setf csv
 autocmd FileType csv setlocal nowrap
+let g:csv_arrange_align='l*'
 
 " => Log section
 """""""""""""""""""""""""""""""
