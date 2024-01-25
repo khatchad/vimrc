@@ -52,7 +52,7 @@ map π :CtrlPCmdPalette<CR>
 set spellfile=~/.dict.en.utf-8.add
 map <silent> <F11>
 \    :call system("wmctrl -ir " . v:windowid . " -b toggle,fullscreen")<CR>
-set gfn=Monospace\ 10
+set gfn=Monospace\ 11
 " set guifont=Monospace\ 14
 set listchars=trail:c
 nmap gx :silent execute "!google-chrome " . shellescape("<cWORD>") . " &"<CR>
