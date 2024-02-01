@@ -216,7 +216,9 @@ au BufNewFile,BufRead *.aj, setf aj
 """""""""""""""""""""""""""""""
 au BufNewFile,BufRead *.csv, setf csv
 autocmd FileType csv setlocal nowrap
-let g:csv_arrange_align='l*'
+let g:csv_arrange_align = 'l*'
+let g:csv_autocmd_arrange = 1
+" let g:csv_highlight_column = 'y'
 
 " => Log section
 """""""""""""""""""""""""""""""
