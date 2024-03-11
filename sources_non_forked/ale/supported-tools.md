@@ -212,6 +212,7 @@ formatting.
 * Git Commit Messages
   * [gitlint](https://github.com/jorisroovers/gitlint)
 * Gleam
+  * [gleam_format](https://github.com/gleam-lang/gleam)
   * [gleamlsp](https://github.com/gleam-lang/gleam)
 * GLSL
   * [glslang](https://github.com/KhronosGroup/glslang)
@@ -301,7 +302,7 @@ formatting.
   * [javalsp](https://github.com/georgewfraser/vscode-javac)
   * [uncrustify](https://github.com/uncrustify/uncrustify)
 * JavaScript
-  * [biome](http://biomejs.dev)
+  * [biome](https://biomejs.dev/)
   * [clang-format](https://clang.llvm.org/docs/ClangFormat.html)
   * [cspell](https://github.com/streetsidesoftware/cspell/tree/main/packages/cspell)
   * [deno](https://deno.land/)
@@ -430,6 +431,8 @@ formatting.
   * [ocamllsp](https://github.com/ocaml/ocaml-lsp)
   * [ocp-indent](https://github.com/OCamlPro/ocp-indent)
   * [ols](https://github.com/freebroccolo/ocaml-language-server)
+* Odin
+  * [ols](https://github.com/DanielGavin/ols)
 * OpenApi
   * [ibm_validator](https://github.com/IBM/openapi-validator)
   * [prettier](https://github.com/prettier/prettier)
@@ -663,7 +666,7 @@ formatting.
 * TOML
   * [dprint](https://dprint.dev)
 * TypeScript
-  * [biome](http://biomejs.dev)
+  * [biome](https://biomejs.dev/)
   * [cspell](https://github.com/streetsidesoftware/cspell/tree/main/packages/cspell)
   * [deno](https://deno.land/)
   * [dprint](https://dprint.dev/)
@@ -683,6 +686,7 @@ formatting.
 * Verilog
   * [hdl-checker](https://pypi.org/project/hdl-checker)
   * [iverilog](https://github.com/steveicarus/iverilog)
+  * [slang](https://github.com/MikePopoloski/slang)
   * [verilator](http://www.veripool.org/projects/verilator/wiki/Intro)
   * [vlog](https://www.mentor.com/products/fv/questa/)
   * [xvlog](https://www.xilinx.com/products/design-tools/vivado.html)

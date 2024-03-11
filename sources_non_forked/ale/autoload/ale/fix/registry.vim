@@ -37,6 +37,11 @@ let s:default_registry = {
 \       'suggested_filetypes': ['bib'],
 \       'description': 'Format bib files using bibclean.',
 \   },
+\   'biome': {
+\       'function': 'ale#fixers#biome#Fix',
+\       'suggested_filetypes': ['javascript', 'typescript'],
+\       'description': 'Fix JavaScript and TypeScript using biome.',
+\   },
 \   'black': {
 \       'function': 'ale#fixers#black#Fix',
 \       'suggested_filetypes': ['python'],
@@ -290,6 +295,11 @@ let s:default_registry = {
 \       'function': 'ale#fixers#forge#Fix',
 \       'suggested_filetypes': ['solidity'],
 \       'description': 'Fix Solidity files with forge fmt.',
+\   },
+\   'gleam_format': {
+\       'function': 'ale#fixers#gleam_format#Fix',
+\       'suggested_filetypes': ['gleam'],
+\       'description': 'Fix Gleam files with gleam format.',
 \   },
 \   'gofmt': {
 \       'function': 'ale#fixers#gofmt#Fix',
@@ -645,11 +655,6 @@ let s:default_registry = {
 \       'function': 'ale#fixers#rubyfmt#Fix',
 \       'suggested_filetypes': ['ruby'],
 \       'description': 'A formatter for Ruby source code',
-\   },
-\   'biome': {
-\       'function': 'ale#fixers#biome#Fix',
-\       'suggested_filetypes': ['javascript', 'typescript'],
-\       'description': 'Apply biome (ex. rome) check to a file.',
 \   },
 \}
 

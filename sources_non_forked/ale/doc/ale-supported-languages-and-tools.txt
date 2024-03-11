@@ -203,6 +203,7 @@ Notes:
 * Git Commit Messages
   * `gitlint`
 * Gleam
+  * `gleam_format`
   * `gleamlsp`
 * GLSL
   * `glslang`
@@ -420,6 +421,8 @@ Notes:
   * `ocamlformat`
   * `ocamllsp`
   * `ocp-indent`
+  * `ols`
+* Odin
   * `ols`
 * OpenApi
   * `ibm_validator`
@@ -674,6 +677,7 @@ Notes:
 * Verilog
   * `hdl-checker`
   * `iverilog`
+  * slang
   * `verilator`
   * `vlog`
   * `xvlog`
