@@ -136,6 +136,7 @@ autocmd FileType tex,plaintex syntax region texZone start='\\btag{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\citep{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\citet{' end='}'
 autocmd FileType tex,plaintex syntax match texRefZone '\\citetitle\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
+autocmd FileType tex,plaintex syntax match texRefZone '\\citetn\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax match texRefZone '\\citeauthor\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax match texRefZone '\\citeyear\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax match texRefZone '\\citeseries\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
@@ -217,8 +218,8 @@ au BufNewFile,BufRead *.aj, setf aj
 au BufNewFile,BufRead *.csv, setf csv
 autocmd FileType csv setlocal nowrap
 let g:csv_arrange_align = 'l*'
-let g:csv_autocmd_arrange = 1
-" let g:csv_highlight_column = 'y'
+let g:csv_autocmd_arrange = 0
+let g:csv_highlight_column = 'n'
 
 " => Log section
 """""""""""""""""""""""""""""""
