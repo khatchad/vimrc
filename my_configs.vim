@@ -52,7 +52,7 @@ map π :CtrlPCmdPalette<CR>
 set spellfile=~/.dict.en.utf-8.add
 map <silent> <F11>
 \    :call system("wmctrl -ir " . v:windowid . " -b toggle,fullscreen")<CR>
-set gfn=Monospace\ 11
+set gfn=Monospace\ 10
 " set guifont=Monospace\ 14
 set listchars=trail:c
 nmap gx :silent execute "!google-chrome " . shellescape("<cWORD>") . " &"<CR>
@@ -136,6 +136,7 @@ autocmd FileType tex,plaintex syntax region texZone start='\\btag{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\citep{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\citet{' end='}'
 autocmd FileType tex,plaintex syntax match texRefZone '\\citetitle\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
+autocmd FileType tex,plaintex syntax match texRefZone '\\citetn\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax match texRefZone '\\citeauthor\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax match texRefZone '\\citeyear\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax match texRefZone '\\citeseries\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
