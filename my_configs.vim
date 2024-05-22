@@ -290,4 +290,5 @@ let g:netrw_browsex_viewer= "google-chrome"
 " set background=light
 " colorscheme parsec
 " colorscheme peachpuff
+colorscheme desert
 " set mouse-=a
