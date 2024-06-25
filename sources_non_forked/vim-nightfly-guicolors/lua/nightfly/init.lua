@@ -331,6 +331,7 @@ M.style = function()
     highlight(0, "NormalFloat", { bg = dark_blue, fg = white })
   end
   highlight(0, "FloatBorder", { bg = bg, fg = slate_blue })
+  highlight(0, "FloatTitle", { bg = slate_blue, fg = white })
   highlight(0, "WinBar", { bg = deep_blue, fg = white })
   highlight(0, "WinBarNC", { bg = deep_blue, fg = cadet_blue })
   highlight(0, "WinSeparator", { link = "VertSplit" })
@@ -367,19 +368,19 @@ M.style = function()
   highlight(0, "@keyword.operator", { link = "NightflyViolet" })
   highlight(0, "@keyword.repeat", { link = "Repeat" })
   highlight(0, "@keyword.storage", { link = "StorageClass" })
-  highlight(0, "@markup.environment", { link = "NightflyWatermelon" })
+  highlight(0, "@markup.environment", { link = "NightflyViolet" })
   highlight(0, "@markup.environment.name", { link = "NightflyEmerald" })
   highlight(0, "@markup.heading", { link = "NightflyViolet" })
   highlight(0, "@markup.italic", { fg = orchid, italic = true })
   highlight(0, "@markup.link", { link = "NightflyGreen" })
-  highlight(0, "@markup.link.url", { link = "NightflyPurple" })
+  highlight(0, "@markup.link.label", { link = "NightflyGreen" })
+  highlight(0, "@markup.link.url", { fg = purple, underline = true, sp = grey_blue })
   highlight(0, "@markup.list", { link = "NightflyWatermelon" })
   highlight(0, "@markup.list.checked", { link = "NightflyTurquoise" })
   highlight(0, "@markup.list.unchecked", { link = "NightflyBlue" })
-  highlight(0, "@markup.math", { link = "NightflyWatermelon" })
+  highlight(0, "@markup.math", { link = "NightflyMalibu" })
   highlight(0, "@markup.quote", { link = "NightflyGreyBlue" })
   highlight(0, "@markup.raw", { link = "String" })
-  highlight(0, "@markup.raw.block", { link = "NightflyViolet" })
   highlight(0, "@markup.strikethrough", { strikethrough = true })
   highlight(0, "@markup.strong", { link = "NightflyOrchid" })
   highlight(0, "@markup.underline", { underline = true })
@@ -388,11 +389,14 @@ M.style = function()
   highlight(0, "@none", {})
   highlight(0, "@parameter.builtin", { link = "NightflyOrchid" })
   highlight(0, "@property", { link = "NightflyLavender" })
+  highlight(0, "@string.documentation", { link = "NightflyTurquoise" })
   highlight(0, "@string.regexp", { link = "NightflyTurquoise" })
+  highlight(0, "@string.special.path", { link = "NightflyOrchid" })
   highlight(0, "@string.special.symbol", { link = "NightflyPurple" })
   highlight(0, "@string.special.url", { link = "NightflyPurple" })
   highlight(0, "@tag", { link = "NightflyBlue" })
   highlight(0, "@tag.attribute", { link = "NightflyTurquoise" })
+  highlight(0, "@tag.builtin", { link = "NightflyBlue" })
   highlight(0, "@tag.delimiter", { link = "NightflyGreen" })
   highlight(0, "@type.builtin", { link = "NightflyEmerald" })
   highlight(0, "@type.qualifier", { link = "NightflyViolet" })
@@ -401,7 +405,7 @@ M.style = function()
   highlight(0, "@variable.member", { link = "NightflyLavender" })
   highlight(0, "@variable.parameter", { link = "NightflyOrchid" })
 
-  -- Neovim LEGACY Tree-sitter (Neovim 0.8, 0.9)
+  -- Neovim LEGACY Tree-sitter (Neovim 0.9)
   highlight(0, "@conditional", { link = "@keyword.conditional" })
   highlight(0, "@define", { link = "@keyword.directive.define" })
   highlight(0, "@error", { link = "NightflyRed" })
@@ -438,26 +442,25 @@ M.style = function()
   highlight(0, "@text.warning", { link = "@comment.warning" })
 
   -- Language specific Tree-sitter overrides.
+  highlight(0, "@attribute.zig", { link = "NightflyViolet" })
+  highlight(0, "@character.special.vim", { link = "NightflyBlue" })
   highlight(0, "@function.macro.vim", { link = "NightflyBlue" })
   highlight(0, "@keyword.gitcommit", { link = "NightflyBlue" })
+  highlight(0, "@keyword.import.bash", { link = "@keyword" })
+  highlight(0, "@keyword.import.rust", { link = "@keyword" })
   highlight(0, "@keyword.storage.rust", { link = "NightflyViolet" })
   highlight(0, "@markup.heading.1.markdown", { link = "NightflyEmerald" })
-  highlight(0, "@markup.heading.1.marker.markdown", { link = "NightflyWatermelon" })
   highlight(0, "@markup.heading.1.vimdoc", { link = "NightflyBlue" })
-  highlight(0, "@markup.heading.2.markdown", { link = "NightflyBlue" })
-  highlight(0, "@markup.heading.2.marker.markdown", { link = "NightflyWatermelon" })
+  highlight(0, "@markup.heading.2.markdown", { link = "NightflyLavender" })
   highlight(0, "@markup.heading.2.vimdoc", { link = "NightflyBlue" })
   highlight(0, "@markup.heading.3.markdown", { link = "NightflyTurquoise" })
-  highlight(0, "@markup.heading.3.marker.markdown", { link = "NightflyWatermelon" })
   highlight(0, "@markup.heading.4.markdown", { link = "NightflyOrange" })
-  highlight(0, "@markup.heading.4.marker.markdown", { link = "NightflyWatermelon" })
   highlight(0, "@markup.heading.5.markdown", { link = "NightflyMalibu" })
-  highlight(0, "@markup.heading.5.marker.markdown", { link = "NightflyWatermelon" })
   highlight(0, "@markup.heading.6.markdown", { link = "NightflyViolet" })
-  highlight(0, "@markup.heading.6.marker.markdown", { link = "NightflyWatermelon" })
   highlight(0, "@markup.heading.help", { link = "NightflyMalibu" })
   highlight(0, "@markup.heading.markdown", { link = "NightflyMalibu" })
   highlight(0, "@markup.link.gitcommit", { link = "NightflyBlue" })
+  highlight(0, "@markup.link.markdown_inline", {})
   highlight(0, "@markup.link.url.gitcommit", { link = "NightflyEmerald" })
   if g.nightflyItalics then
     highlight(0, "@markup.link.url.astro", { fg = violet, italic = true })
@@ -470,41 +473,43 @@ M.style = function()
     highlight(0, "@markup.link.url.svelte", { link = "NightflyViolet" })
     highlight(0, "@markup.link.url.vue", { link = "NightflyViolet" })
   end
-  highlight(0, "@markup.raw.block.vimdoc", { link = "NightflyGreen" })
+  highlight(0, "@markup.list.latex", { link = "NightflyPurple" })
   highlight(0, "@markup.raw.vimdoc", { link = "NightflyOrchid" })
+  highlight(0, "@namespace.latex", { link = "NightflyLavender" })
   highlight(0, "@punctuation.delimiter.astro", { link = "NightflyWatermelon" })
   highlight(0, "@punctuation.delimiter.css", { link = "NightflyWatermelon" })
   highlight(0, "@punctuation.delimiter.rust", { link = "NightflyWatermelon" })
   highlight(0, "@punctuation.delimiter.scss", { link = "NightflyWatermelon" })
   highlight(0, "@punctuation.delimiter.yaml", { link = "NightflyWatermelon" })
-  highlight(0, "@type.toml", { link = "NightflyBlue" })
   highlight(0, "@variable.builtin.vim", { link = "NightflyEmerald" })
   highlight(0, "@variable.member.yaml", { link = "NightflyBlue" })
   highlight(0, "@variable.parameter.bash", { link = "NightflyTurquoise" })
   highlight(0, "@variable.scss", { link = "NightflyTurquoise" })
   highlight(0, "@variable.vim", { link = "NightflyTurquoise" })
 
-  -- Language specific LEGACY Tree-sitter overrides (Neovim 0.8, 0.9).
+  -- Language specific LEGACY Tree-sitter overrides (Neovim 0.9).
   highlight(0, "@field.yaml", { link = "@variable.member.yaml" })
+  highlight(0, "@include.rust", { link = "@keyword.import.rust" })
   highlight(0, "@parameter.bash", { link = "@variable.parameter.bash" })
   highlight(0, "@storageclass.rust", { link = "@keyword.storage.rust" })
   highlight(0, "@text.literal.block.vimdoc", { link = "@markup.raw.block.vimdoc" })
   highlight(0, "@text.literal.vimdoc", { link = "@markup.raw.vimdoc" })
-  highlight(0, "@text.reference.gitcommit", { link = "markup.link.gitcommit" })
+  highlight(0, "@text.reference.gitcommit", { link = "@markup.link.gitcommit" })
+  highlight(0, "@text.reference.markdown_inline", { link = "@markup.link.label" })
   highlight(0, "@text.title.1.markdown", { link = "@markup.heading.1.markdown" })
-  highlight(0, "@text.title.1.marker.markdown", { link = "@markup.heading.1.marker.markdown" })
+  highlight(0, "@text.title.1.marker.markdown", { link = "@markup.list" })
   highlight(0, "@text.title.1.vimdoc", { link = "@markup.heading.1.vimdoc" })
   highlight(0, "@text.title.2.markdown", { link = "@markup.heading.2.markdown" })
-  highlight(0, "@text.title.2.marker.markdown", { link = "@markup.heading.2.marker.markdown" })
+  highlight(0, "@text.title.2.marker.markdown", { link = "@markup.list" })
   highlight(0, "@text.title.2.vimdoc", { link = "@markup.heading.2.vimdoc" })
   highlight(0, "@text.title.3.markdown", { link = "@markup.heading.3.markdown" })
-  highlight(0, "@text.title.3.marker.markdown", { link = "@markup.heading.3.marker.markdown" })
+  highlight(0, "@text.title.3.marker.markdown", { link = "@markup.list" })
   highlight(0, "@text.title.4.markdown", { link = "@markup.heading.4.markdown" })
-  highlight(0, "@text.title.4.marker.markdown", { link = "@markup.heading.4.marker.markdown" })
+  highlight(0, "@text.title.4.marker.markdown", { link = "@markup.list" })
   highlight(0, "@text.title.5.markdown", { link = "@markup.heading.5.markdown" })
-  highlight(0, "@text.title.5.marker.markdown", { link = "@markup.heading.5.marker.markdown" })
+  highlight(0, "@text.title.5.marker.markdown", { link = "@markup.list" })
   highlight(0, "@text.title.6.markdown", { link = "@markup.heading.6.markdown" })
-  highlight(0, "@text.title.6.marker.markdown", { link = "@markup.heading.6.marker.markdown" })
+  highlight(0, "@text.title.6.marker.markdown", { link = "@markup.list" })
   highlight(0, "@text.title.help", { link = "@markup.heading.help" })
   highlight(0, "@text.title.markdown", { link = "@markup.heading.markdown" })
   highlight(0, "@text.uri.astro", { link = "@markup.link.url.astro" })
@@ -514,25 +519,23 @@ M.style = function()
   highlight(0, "@text.uri.vue", { link = "@markup.link.url.vue" })
 
   -- Neovim LSP semantic highlights.
-  highlight(0, "@lsp.mod.deprecated", { link = "@constant" })
-  highlight(0, "@lsp.mod.readonly", { link = "@constant" })
-  highlight(0, "@lsp.mod.typeHint", { link = "@type" })
   highlight(0, "@lsp.type.boolean", { link = "@boolean" })
   highlight(0, "@lsp.type.builtinConstant", { link = "@constant.builtin" })
-  highlight(0, "@lsp.type.builtinType", { link = "@type" })
+  highlight(0, "@lsp.type.builtinType", { link = "@type.builtin" })
   highlight(0, "@lsp.type.class", { link = "@type" })
   highlight(0, "@lsp.type.enum", { link = "@type" })
-  highlight(0, "@lsp.type.enumMember", { link = "@property" })
+  highlight(0, "@lsp.type.enumMember", { link = "@constant" })
   highlight(0, "@lsp.type.escapeSequence", { link = "@string.escape" })
   highlight(0, "@lsp.type.formatSpecifier", { link = "@punctuation.special" })
   highlight(0, "@lsp.type.generic", { link = "@variable" })
   highlight(0, "@lsp.type.interface", { link = "@type" })
   highlight(0, "@lsp.type.keyword", { link = "@keyword" })
   highlight(0, "@lsp.type.lifetime", { link = "@storageclass" })
+  highlight(0, "@lsp.type.macro", {}) -- Use fallback Tree-sitter style for this Semantic Token
   highlight(0, "@lsp.type.magicFunction", { link = "@function" })
   highlight(0, "@lsp.type.namespace", { link = "@namespace" })
   highlight(0, "@lsp.type.number", { link = "@number" })
-  highlight(0, "@lsp.type.operator", { link = "@operator" })
+  highlight(0, "@lsp.type.operator", {}) -- Use fallback Tree-sitter style for this Semantic Token
   highlight(0, "@lsp.type.parameter", { link = "@parameter" })
   highlight(0, "@lsp.type.property", { link = "@property" })
   highlight(0, "@lsp.type.selfKeyword", { link = "@variable.builtin" })
@@ -540,8 +543,12 @@ M.style = function()
   highlight(0, "@lsp.type.string", { link = "@string" })
   highlight(0, "@lsp.type.struct", { link = "@type" })
   highlight(0, "@lsp.type.typeAlias", { link = "@type.definition" })
-  highlight(0, "@lsp.type.unresolvedReference", { link = "@error" })
-  highlight(0, "@lsp.type.variable", { link = "@variable" })
+  if g.nightflyUndercurls then
+    highlight(0, "@lsp.type.unresolvedReference", { undercurl = true, sp = red })
+  else
+    highlight(0, "@lsp.type.unresolvedReference", { underline = true, sp = red })
+  end
+  highlight(0, "@lsp.type.variable", {}) -- Use fallback Tree-sitter style for this Semantic Token
   highlight(0, "@lsp.typemod.class.defaultLibrary", { link = "@type" })
   highlight(0, "@lsp.typemod.enum.defaultLibrary", { link = "@type" })
   highlight(0, "@lsp.typemod.enumMember.defaultLibrary", { link = "@constant.builtin" })
@@ -554,12 +561,11 @@ M.style = function()
   highlight(0, "@lsp.typemod.struct.defaultLibrary", { link = "@type" })
   highlight(0, "@lsp.typemod.variable.callable", { link = "@function" })
   highlight(0, "@lsp.typemod.variable.defaultLibrary", { link = "@variable.builtin" })
-  highlight(0, "@lsp.typemod.variable.global", { link = "@constant" })
   highlight(0, "@lsp.typemod.variable.injected", { link = "@variable" })
-  highlight(0, "@lsp.typemod.variable.readonly", { link = "@variable" })
   highlight(0, "@lsp.typemod.variable.static", { link = "@constant" })
   -- Language specific LSP semantic overrides.
-  highlight(0, "@lsp.type.macro.rust", { link = "@function.macro" })
+  highlight(0, "@lsp.type.decorator.rust", { link = "@function.macro" })
+  highlight(0, "@lsp.type.namespace.ruby", {})
   highlight(0, "@lsp.type.parameter.dockerfile", { link = "@property" })
   highlight(0, "@lsp.type.variable.dockerfile", { link = "@function" })
 
@@ -620,12 +626,43 @@ M.style = function()
   -- Legacy language styling
   -------------------------------------------------------------------------
 
+  -- CSV
+  highlight(0, "csvCol0", { link = "NightflyRed" })
+  highlight(0, "csvCol1", { link = "NightflyOrange" })
+  highlight(0, "csvCol2", { link = "NightflyYellow" })
+  highlight(0, "csvCol3", { link = "NightflyGreen" })
+  highlight(0, "csvCol4", { link = "NightflyTurquoise" })
+  highlight(0, "csvCol5", { link = "NightflyBlue" })
+  highlight(0, "csvCol6", { link = "NightflyPurple" })
+  highlight(0, "csvCol7", { link = "NightflyViolet" })
+  highlight(0, "csvCol8", { link = "NightflyLavender" })
+
   -- Help
   highlight(0, "helpCommand", { link = "NightflyOrchid" })
   highlight(0, "helpExample", { link = "NightflyGreen" })
   highlight(0, "helpHeadline", { link = "NightflyBlue" })
   highlight(0, "helpHyperTextEntry", { link = "NightflyTurquoise" })
   highlight(0, "helpSectionDelim", { link = "NightflyBlue" })
+
+  -- LaTeX
+  highlight(0, "texBeginEndName", { link = "NightflyEmerald" })
+  highlight(0, "texCite", { link = "NightflyGreen" })
+  highlight(0, "texDocType", { link = "NightflyWatermelon" })
+  highlight(0, "texDocTypeArgs", { link = "NightflyOrchid" })
+  highlight(0, "texInputFile", { link = "String" })
+  highlight(0, "texMathZoneC", { link = "NightflyMalibu" })
+  highlight(0, "texMathZoneX", { link = "NightflyMalibu" })
+  highlight(0, "texRefZone", { link = "NightflyGreen" })
+  highlight(0, "texSection", { link = "NightflyLavender" })
+  highlight(0, "texTypeStyle", { link = "NightflyYellow" })
+  highlight(0, "texZone", { link = "NightflyLavender" })
+
+  -- Man
+  highlight(0, "manHeader", { link = "NightflyEmerald" })
+  highlight(0, "manOptionDesc", { link = "NightflyOrchid" })
+  highlight(0, "manReference", { link = "NightflyGreen" })
+  highlight(0, "manSectionHeading", { link = "NightflyBlue" })
+  highlight(0, "manSubHeading", { link = "NightflyTurquoise" })
 
   -- Markdown, 'tpope/vim-markdown' plugin
   highlight(0, "markdownBold", { link = "NightflyPeach" })
@@ -636,7 +673,11 @@ M.style = function()
   highlight(0, "markdownH2", { link = "NightflyBlue" })
   highlight(0, "markdownH3", { link = "NightflyTurquoise" })
   highlight(0, "markdownHeadingRule", { link = "NightflyWatermelon" })
-  highlight(0, "markdownItalic", { link = "NightflyOrchid" })
+  if g.nightflyItalics then
+    highlight(0, "markdownItalic", { fg = orchid, italic = true })
+  else
+    highlight(0, "markdownItalic", { link = "NightflyOrchid" })
+  end
   highlight(0, "markdownUrl", { link = "NightflyPurple" })
 
   -- Markdown, 'plasticboy/vim-markdown' plugin
@@ -738,31 +779,31 @@ M.style = function()
   end
   highlight(0, "snipLeadingSpaces", { bg = bg, fg = white })
   highlight(0, "MatchWordCur", { bg = bg })
-  highlight(0, "fishVariable", { link = "NightflyTurquoise" })
   highlight(0, "fishInnerVariable", { link = "NightflyTurquoise" })
+  highlight(0, "fishParameter", { link = "NightflyTurquoise" })
+  highlight(0, "fishVariable", { link = "NightflyTurquoise" })
 
   -- FZF plugin
-  highlight(0, "fzf1", { fg = watermelon, bg = slate_blue })
-  highlight(0, "fzf2", { fg = blue, bg = slate_blue })
-  highlight(0, "fzf3", { fg = green, bg = slate_blue })
-  highlight(0, "fzfNormal", { fg = ash_blue })
-  highlight(0, "fzfFgPlus", { fg = white_blue })
-  highlight(0, "fzfBorder", { fg = slate_blue })
-  highlight(0, "fzfSubstring", { fg = orange })
+  highlight(0, "FzfBorder", { fg = slate_blue })
+  highlight(0, "FzfFgPlus", { fg = white_blue })
+  highlight(0, "FzfNormal", { fg = ash_blue })
+  highlight(0, "FzfPrompt", { fg = blue, bg = slate_blue })
+  highlight(0, "FzfSubstring", { fg = orange })
   g.fzf_colors = {
-    ["fg"] = { "fg", "fzfNormal" },
+    ["fg"] = { "fg", "FzfNormal" },
     ["bg"] = { "bg", "Normal" },
-    ["hl"] = { "fg", "fzfSubstring" },
-    ["fg+"] = { "fg", "fzfFgPlus" },
+    ["hl"] = { "fg", "FzfSubstring" },
+    ["fg+"] = { "fg", "FzfFgPlus" },
     ["bg+"] = { "bg", "Pmenu" },
-    ["hl+"] = { "fg", "fzfSubstring" },
+    ["hl+"] = { "fg", "FzfSubstring" },
     ["info"] = { "fg", "String" },
-    ["border"] = { "fg", "fzfBorder" },
-    ["prompt"] = { "fg", "fzf2" },
+    ["border"] = { "fg", "FzfBorder" },
+    ["prompt"] = { "fg", "FzfPrompt" },
     ["pointer"] = { "fg", "Exception" },
-    ["marker"] = { "fg", "StorageClass" },
+    ["marker"] = { "fg", "FzfSubstring" },
     ["spinner"] = { "fg", "Type" },
     ["header"] = { "fg", "CursorLineNr" },
+    ["gutter"] = { "bg", "Normal" },
   }
 
   -- mistfly-statusline plugin
@@ -802,7 +843,7 @@ M.style = function()
   highlight(0, "NeoTreeDimText", { link = "NightflyPickleBlue" })
   highlight(0, "NeoTreeDirectoryIcon", { link = "NightflyGreyBlue" })
   highlight(0, "NeoTreeDotfile", { link = "NightflyGreyBlue" })
-  highlight(0, "NeoTreeFloatTitle", { bg = slate_blue, fg = white })
+  highlight(0, "NeoTreeFloatTitle", { link = "FloatTitle" })
   highlight(0, "NeoTreeFilterTerm", { link = "NightflyBlue" })
   highlight(0, "NeoTreeGitAdded", { link = "NightflyGreen" })
   highlight(0, "NeoTreeGitConflict", { link = "NightflyWatermelon" })
@@ -840,8 +881,9 @@ M.style = function()
   --   sign column
   highlight(0, "GitSignsAdd", { link = "NightflyEmerald" })
   highlight(0, "GitSignsChange", { link = "NightflyMalibu" })
-  highlight(0, "GitSignsChangeDelete", { link = "NightflyOrange" })
+  highlight(0, "GitSignsChangedelete", { link = "NightflyOrange" })
   highlight(0, "GitSignsDelete", { link = "NightflyRed" })
+  highlight(0, "GitSignsTopdelete", { link = "NightflyRed" })
   highlight(0, "GitSignsUntracked", { link = "NightflySteelBlue" })
   --   line highlights
   highlight(0, "GitSignsAddLn", { bg = deep_blue })
@@ -1165,6 +1207,77 @@ M.style = function()
 
   -- arrow.nvim
   highlight(0, "ArrowCurrentFile", { link = "NightflyEmerald" })
+
+  -- NvCheatsheet.nvim
+  highlight(0, "NvChSection", { link = "Pmenu" })
+  highlight(0, "NvChAsciiHeader", { link = "Directory" })
+  highlight(0, "NvCheatsheetWhite", { bg = white, fg = dark_blue })
+  highlight(0, "NvCheatsheetGray", { bg = orchid, fg = dark_blue })
+  highlight(0, "NvCheatsheetBlue", { link = "NightflyBlueMode" })
+  highlight(0, "NvCheatsheetCyan", { link = "NightflyTurquoiseMode" })
+  highlight(0, "NvCheatsheetRed", { link = "NightflyWatermelonMode" })
+  highlight(0, "NvCheatsheetGreen", { link = "NightflyEmeraldMode" })
+  highlight(0, "NvCheatsheetYellow", { link = "NightflyTanMode" })
+  highlight(0, "NvCheatsheetOrange", { bg = orange, fg = dark_blue })
+  highlight(0, "NvCheatsheetPurple", { link = "NightflyPurpleMode" })
+  highlight(0, "NvCheatsheetMagenta", { bg = violet, fg = dark_blue })
+
+  -- fzf-lua
+  highlight(0, "FzfLuaBorder", { link = "FloatBorder" })
+  highlight(0, "FzfLuaBufFlagAlt", { link = "NightflyTurquoise" })
+  highlight(0, "FzfLuaBufFlagCur", { link = "NightflyOrange" })
+  highlight(0, "FzfLuaBufNr", { link = "NightflyTan" })
+  highlight(0, "FzfLuaFzfHeader", { link = "NightflyBlue" })
+  highlight(0, "FzfLuaFzfInfo", { link = "String" })
+  highlight(0, "FzfLuaFzfMarker", { link = "NightflyOrange" })
+  highlight(0, "FzfLuaFzfPointer", { link = "NightflyWatermelon" })
+  highlight(0, "FzfLuaFzfPrompt", { link = "NightflyBlue" })
+  highlight(0, "FzfLuaFzfSpinner", { link = "NightflyEmerald" })
+  highlight(0, "FzfLuaHeaderBind", { link = "NightflyGreen" })
+  highlight(0, "FzfLuaHeaderText", { link = "NightflyTurquoise" })
+  highlight(0, "FzfLuaLiveSym", { link = "NightflyGreen" })
+  highlight(0, "FzfLuaPathColNr", { link = "NightflyMalibu" })
+  highlight(0, "FzfLuaTabMarker", { link = "NightflyTan" })
+  highlight(0, "FzfLuaTabTitle", { link = "NightflyMalibu" })
+  highlight(0, "FzfLuaTitle", { link = "FloatTitle" })
+end
+
+-- User customization of theme colors.
+--
+M.custom_colors = function(colors)
+  black = colors.black and colors.black or M.palette.black
+  white = colors.white and colors.white or M.palette.white
+  bg = colors.bg and colors.bg or M.palette.bg
+  black_blue = colors.black_blue and colors.black_blue or M.palette.black_blue
+  dark_blue = colors.dark_blue and colors.dark_blue or M.palette.dark_blue
+  deep_blue = colors.deep_blue and colors.deep_blue or M.palette.deep_blue
+  slate_blue = colors.slate_blue and colors.slate_blue or M.palette.slate_blue
+  pickle_blue = colors.pickle_blue and colors.pickle_blue or M.palette.pickle_blue
+  regal_blue = colors.regal_blue and colors.regal_blue or M.palette.regal_blue
+  steel_blue = colors.steel_blue and colors.steel_blue or M.palette.steel_blue
+  grey_blue = colors.grey_blue and colors.grey_blue or M.palette.grey_blue
+  cadet_blue = colors.cadet_blue and colors.cadet_blue or M.palette.cadet_blue
+  ash_blue = colors.ash_blue and colors.ash_blue or M.palette.ash_blue
+  white_blue = colors.white_blue and colors.white_blue or M.palette.white_blue
+  yellow = colors.yellow and colors.yellow or M.palette.yellow
+  peach = colors.peach and colors.peach or M.palette.peach
+  tan = colors.tan and colors.tan or M.palette.tan
+  orange = colors.orange and colors.orange or M.palette.orange
+  orchid = colors.orchid and colors.orchid or M.palette.orchid
+  red = colors.red and colors.red or M.palette.red
+  watermelon = colors.watermelon and colors.watermelon or M.palette.watermelon
+  purple = colors.purple and colors.purple or M.palette.purple
+  violet = colors.violet and colors.violet or M.palette.violet
+  lavender = colors.lavender and colors.lavender or M.palette.lavender
+  blue = colors.blue and colors.blue or M.palette.blue
+  malibu = colors.malibu and colors.malibu or M.palette.malibu
+  turquoise = colors.turquoise and colors.turquoise or M.palette.turquoise
+  emerald = colors.emerald and colors.emerald or M.palette.emerald
+  green = colors.green and colors.green or M.palette.green
+  cyan_blue = colors.cyan_blue and colors.cyan_blue or M.palette.cyan_blue
+  bay_blue = colors.bay_blue and colors.bay_blue or M.palette.bay_blue
+  kashmir_blue = colors.kashmir_blue and colors.kashmir_blue or M.palette.kashmir_blue
+  plant_green = colors.plant_green and colors.plant_green or M.palette.plant_green
 end
 
 return M

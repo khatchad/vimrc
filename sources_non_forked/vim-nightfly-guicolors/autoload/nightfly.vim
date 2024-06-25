@@ -319,6 +319,17 @@ function! nightfly#Style() abort
     highlight! link sassMedia NightflyViolet
     highlight! link scssSelectorName NightflyBlue
 
+    " CSV
+    highlight! link csvCol0 NightflyRed
+    highlight! link csvCol1 NightflyOrange
+    highlight! link csvCol2 NightflyYellow
+    highlight! link csvCol3 NightflyGreen
+    highlight! link csvCol4 NightflyTurquoise
+    highlight! link csvCol5 NightflyBlue
+    highlight! link csvCol6 NightflyPurple
+    highlight! link csvCol7 NightflyViolet
+    highlight! link csvCol8 NightflyLavender
+
     " Dart
     highlight! link dartTypedef NightflyViolet
 
@@ -435,6 +446,19 @@ function! nightfly#Style() abort
     highlight! link jsxOpenPunct NightflyGreen
     highlight! link jsxTagName NightflyBlue
 
+    " LaTeX
+    highlight! link texBeginEndName NightflyEmerald
+    highlight! link texCite NightflyGreen
+    highlight! link texDocType NightflyWatermelon
+    highlight! link texDocTypeArgs NightflyOrchid
+    highlight! link texInputFile String
+    highlight! link texMathZoneC NightflyMalibu
+    highlight! link texMathZoneX NightflyMalibu
+    highlight! link texRefZone NightflyGreen
+    highlight! link texSection NightflyLavender
+    highlight! link texTypeStyle NightflyYellow
+    highlight! link texZone NightflyLavender
+
     " Lua
     highlight! link luaBraces NightflyEmerald
     highlight! link luaBuiltin NightflyGreen
@@ -444,6 +468,13 @@ function! nightfly#Style() abort
     highlight! link luaLocal NightflyViolet
     highlight! link luaSpecialTable NightflyBlue
     highlight! link luaSpecialValue NightflyBlue
+
+    " Man
+    highlight! link manHeader NightflyEmerald
+    highlight! link manOptionDesc NightflyOrchid
+    highlight! link manReference NightflyGreen
+    highlight! link manSectionHeading NightflyBlue
+    highlight! link manSubHeading NightflyTurquoise
 
     " Markdown, 'tpope/vim-markdown' plugin
     highlight! link markdownBold NightflyPeach
@@ -461,14 +492,18 @@ function! nightfly#Style() abort
     highlight! link markdownH6 NightflyViolet
     highlight! link markdownH6Delimiter NightflyWatermelon
     highlight! link markdownHeadingRule NightflyWatermelon
-    highlight! link markdownItalic NightflyOrchid
-    highlight! link markdownUrl NightflyPurple
+    if g:nightflyItalics
+        exec 'highlight markdownItalic guifg=' . s:orchid . ' gui=italic'
+    else
+        highlight! link markdownItalic NightflyOrchid
+    endif
+    exec 'highlight markdownUrl guifg=' . s:purple. ' cterm=underline gui=underline guisp=' . s:grey_blue
 
     " Markdown, 'plasticboy/vim-markdown' plugin
     highlight! link mkdDelimiter NightflyWhite
     highlight! link mkdLineBreak NormalNC
     highlight! link mkdListItem NightflyBlue
-    highlight! link mkdURL NightflyPurple
+    highlight! link mkdURL markdownUrl
 
     " PHP
     highlight! link phpClass NightflyEmerald
@@ -728,8 +763,9 @@ function! nightfly#Style() abort
     endif
     exec 'highlight snipLeadingSpaces guibg=bg guifg=fg'
     exec 'highlight MatchWordCur guibg=bg'
-    highlight! link fishVariable NightflyTurquoise
     highlight! link fishInnerVariable NightflyTurquoise
+    highlight! link fishParameter NightflyTurquoise
+    highlight! link fishVariable NightflyTurquoise
 
     " ALE plugin
     if g:nightflyUndercurls
@@ -767,27 +803,26 @@ function! nightfly#Style() abort
     highlight! link SignifySignDelete NightflyRed
 
     " FZF plugin
-    exec 'highlight fzf1 guifg=' . s:watermelon . ' guibg=' . s:slate_blue
-    exec 'highlight fzf2 guifg=' . s:blue . ' guibg=' . s:slate_blue
-    exec 'highlight fzf3 guifg=' . s:green . ' guibg=' . s:slate_blue
-    exec 'highlight fzfNormal guifg=' . s:ash_blue
-    exec 'highlight fzfFgPlus guifg=' . s:white_blue
-    exec 'highlight fzfBorder guifg=' . s:slate_blue
-    exec 'highlight fzfSubstring guifg=' . s:orange
+    exec 'highlight FzfBorder guifg=' . s:slate_blue
+    exec 'highlight FzfFgPlus guifg=' . s:white_blue
+    exec 'highlight FzfNormal guifg=' . s:ash_blue
+    exec 'highlight FzfPrompt guifg=' . s:blue . ' guibg=' . s:slate_blue
+    exec 'highlight FzfSubstring guifg=' . s:orange
     let g:fzf_colors = {
-      \  'fg':      ['fg', 'fzfNormal'],
+      \  'fg':      ['fg', 'FzfNormal'],
       \  'bg':      ['bg', 'Normal'],
-      \  'hl':      ['fg', 'fzfSubstring'],
-      \  'fg+':     ['fg', 'fzfFgPlus'],
+      \  'hl':      ['fg', 'FzfSubstring'],
+      \  'fg+':     ['fg', 'FzfFgPlus'],
       \  'bg+':     ['bg', 'Pmenu'],
-      \  'hl+':     ['fg', 'fzfSubstring'],
+      \  'hl+':     ['fg', 'FzfSubstring'],
       \  'info':    ['fg', 'String'],
-      \  'border':  ['fg', 'fzfBorder'],
-      \  'prompt':  ['fg', 'fzf2'],
+      \  'border':  ['fg', 'FzfBorder'],
+      \  'prompt':  ['fg', 'FzfPrompt'],
       \  'pointer': ['fg', 'Exception'],
-      \  'marker':  ['fg', 'StorageClass'],
+      \  'marker':  ['fg', 'FzfSubstring'],
       \  'spinner': ['fg', 'Type'],
-      \  'header':  ['fg', 'CursorLineNr']
+      \  'header':  ['fg', 'CursorLineNr'],
+      \  'gutter':  ['bg', 'Normal']
       \}
 
     " mistfly-statusline plugin

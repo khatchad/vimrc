@@ -191,6 +191,7 @@ formatting.
   * [erblint](https://github.com/Shopify/erb-lint)
   * [erubi](https://github.com/jeremyevans/erubi)
   * [erubis](https://github.com/kwatch/erubis)
+  * [htmlbeautifier](https://github.com/threedaymonk/htmlbeautifier)
   * [ruumba](https://github.com/ericqweinstein/ruumba)
 * Erlang
   * [SyntaxErl](https://github.com/ten0s/syntaxerl)
@@ -283,6 +284,8 @@ formatting.
   * [rustywind](https://github.com/avencera/rustywind)
   * [tidy](http://www.html-tidy.org/)
   * [write-good](https://github.com/btford/write-good)
+* Hurl
+  * [hurlfmt](https://hurl.dev)
 * Idris
   * [idris](http://www.idris-lang.org/)
 * Ink
@@ -717,7 +720,7 @@ formatting.
 * XML
   * [xmllint](http://xmlsoft.org/xmllint.html)
 * YAML
-  * [actionlint](https://github.com/rhysd/actionlint) :warning:
+  * [actionlint](https://github.com/rhysd/actionlint)
   * [circleci](https://circleci.com/docs/2.0/local-cli) :floppy_disk: :warning:
   * [gitlablint](https://github.com/elijah-roberts/gitlab-lint)
   * [prettier](https://github.com/prettier/prettier)

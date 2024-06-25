@@ -103,6 +103,11 @@ let s:default_registry = {
 \       'suggested_filetypes': ['javascript', 'css', 'html'],
 \       'description': 'Apply fecs format to a file.',
 \   },
+\   'hurlfmt': {
+\       'function': 'ale#fixers#hurlfmt#Fix',
+\       'suggested_filetypes': ['hurl'],
+\       'description': 'Fix hurl files with hurlfmt.',
+\   },
 \   'tidy': {
 \       'function': 'ale#fixers#tidy#Fix',
 \       'suggested_filetypes': ['html'],
@@ -555,6 +560,11 @@ let s:default_registry = {
 \       'function': 'ale#fixers#html_beautify#Fix',
 \       'suggested_filetypes': ['html', 'htmldjango'],
 \       'description': 'Fix HTML files with html-beautify from js-beautify.',
+\   },
+\   'htmlbeautifier': {
+\       'function': 'ale#fixers#htmlbeautifier#Fix',
+\       'suggested_filetypes': ['eruby'],
+\       'description': 'Fix ERB files with htmlbeautifier gem.',
 \   },
 \   'lua-format': {
 \       'function': 'ale#fixers#lua_format#Fix',

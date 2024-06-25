@@ -25,6 +25,7 @@ Neovim-only:
 - [Neovim LSP Semantic Highlights](https://neovim.io/doc/user/lsp.html#lsp-semantic-highlight)
 - [Barbar](https://github.com/romgrk/barbar.nvim)
 - [Dashboard](https://github.com/glepnir/dashboard-nvim)
+- [fzf.lua](https://github.com/ibhagwan/fzf-lua)
 - [Gitsigns](https://github.com/lewis6991/gitsigns.nvim)
 - [Hop](https://github.com/phaazon/hop.nvim)
 - [Indent BlankLine](https://github.com/lukas-reineke/indent-blankline.nvim)
@@ -40,6 +41,7 @@ Neovim-only:
 - [nvim-dap-ui](https://github.com/rcarriga/nvim-dap-ui)
 - [nvim-navic](https://github.com/SmiteshP/nvim-navic)
 - [nvim-notify](https://github.com/rcarriga/nvim-notify)
+- [NvCheatsheet.nvim](https://github.com/smartinellimarco/nvcheatsheet.nvim)
 - [NvimTree](https://github.com/kyazdani42/nvim-tree.lua)
 - [Rainbow Delimiters](https://github.com/HiPhish/rainbow-delimiters.nvim)
 - [Telescope](https://github.com/nvim-telescope/telescope.nvim)
@@ -402,6 +404,28 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 })
 ```
 
+Palette & Custom Colors (Neovim Only)
+-------------------------------------
+
+The `palette` field returns a table of internal theme colors; useful for
+constructing custom statuslines and the like.
+
+```lua
+require("nightfly").palette
+```
+
+Meanwhile the `custom_colors` function allows customization of individual theme
+colors. This needs to occur prior to invoking the colorscheme. The full list of
+available colors is provided by the `palette` field.
+
+```lua
+  require("nightfly").custom_colors({
+    bg = "#161616",
+    violet = "#ff74b8",
+  })
+  vim.cmd([[colorscheme nightfly]])
+```
+
 True Color Terminals
 --------------------
 
@@ -409,16 +433,6 @@ Many modern terminals support [24-bit true
 colors](https://gist.github.com/XVilka/8346728). Current versions of Vim &
 Neovim on such terminals support true colors when `set termguicolors` is
 enabled.
-
-A list of popular terminals that support true colors:
-
-- [iTerm2](http://www.iterm2.com)
-- [Windows Terminal](https://github.com/Microsoft/Terminal)
-- [Alacritty](https://github.com/alacritty/alacritty)
-- [kitty](https://sw.kovidgoyal.net/kitty/index.html)
-- [konsole](https://konsole.kde.org)
-- [PuTTY](https://putty.org)
-- [mintty](https://mintty.github.io)
 
 On terminals that support true colors, and when `termguicolors` is set, the
 _nightfly_ colorscheme will emit the correct theme colors.
@@ -448,16 +462,22 @@ A collection of _nightfly_-flavoured themes are provided:
   configuration
 
 - [kitty](https://sw.kovidgoyal.net/kitty) users can use
-  [this](extras/kitty-theme.conf) theme
+  [this](extras/nightfly-kitty.conf) theme
 
-- [fish](https://fishshell.com) users can use [this](extras/nightfly.fish) theme
+- [WezTerm](https://wezfurlong.org/wezterm) users can copy
+  [this](extras/nightfly-wezterm.toml) theme into the
+  [`colors`](https://wezfurlong.org/wezterm/config/appearance.html#defining-a-color-scheme-in-a-separate-file)
+  directory and then select the _nightfly_ `color_scheme` in their
+  `wezterm.lua` configuration
 
 - _iTerm2_ users on macOS can import
   [this](extras/nightfly.itermcolors) colorscheme
 
 - [Windows Terminal](https://github.com/microsoft/terminal) users can copy
-  [this](extras/windows-terminal-settings.json) theme into their `settings.json`
+  [this](extras/nightfly-windows-terminal.json) theme into their `settings.json`
   configuration
+
+- [fish](https://fishshell.com) shell users can use [this](extras/nightfly.fish) theme
 
 For other terminals please configure appropriately with the following colors:
 

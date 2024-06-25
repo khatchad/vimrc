@@ -182,6 +182,7 @@ Notes:
   * `erblint`
   * `erubi`
   * `erubis`
+  * `htmlbeautifier`
   * `ruumba`
 * Erlang
   * `SyntaxErl`
@@ -274,6 +275,8 @@ Notes:
   * `rustywind`
   * `tidy`
   * `write-good`
+* Hurl
+  * `hurlfmt`
 * Idris
   * `idris`
 * Ink

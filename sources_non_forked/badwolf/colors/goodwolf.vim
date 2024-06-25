@@ -438,6 +438,21 @@ else
 endif
 
 " }}}
+" HTML/Django {{{
+
+call GoodWolfHL('djangoTagBlock',  'coffee', 'bg', 'bold')
+call GoodWolfHL('djangoStatement', 'orange', 'bg', 'none')
+call GoodWolfHL('djangoArgument',  'dress', 'bg', 'none')
+call GoodWolfHL('djangoVarBlock',  'lime', 'bg', 'none')
+
+" }}}
+" HTML/TEN {{{
+
+call GoodWolfHL('tenTagBlock',  'orange', 'bg', 'bold')
+call GoodWolfHL('tenArgument',  'lime', 'bg', 'none')
+call GoodWolfHL('tenVarBlock',  'dress', 'bg', 'none')
+
+" }}}
 " Java {{{
 
 call GoodWolfHL('javaCommentTitle', 'gravel', '')
@@ -463,20 +478,26 @@ call GoodWolfHL('texDocType', 'dress', '', 'none')
 call GoodWolfHL('texSection', 'dress', '', 'none')
 call GoodWolfHL('texBeginEnd', 'dress', '', 'none')
 
-call GoodWolfHL('texMathZoneX', 'orange', '', 'none')
-call GoodWolfHL('texMathZoneA', 'orange', '', 'none')
-call GoodWolfHL('texMathZoneB', 'orange', '', 'none')
-call GoodWolfHL('texMathZoneC', 'orange', '', 'none')
-call GoodWolfHL('texMathZoneD', 'orange', '', 'none')
-call GoodWolfHL('texMathZoneE', 'orange', '', 'none')
-call GoodWolfHL('texMathZoneV', 'orange', '', 'none')
-call GoodWolfHL('texMathZoneX', 'orange', '', 'none')
+call GoodWolfHL('texCmd', 'dress', '', 'none')
+call GoodWolfHL('texCmdEnv', 'taffy', '', 'bold')
+call GoodWolfHL('texCmdItem', 'dirtyblonde', '', 'none')
+call GoodWolfHL('texPartArgTitle', 'plain', '', 'none')
+call GoodWolfHL('texLstZone', 'toffee', '', 'none')
+
+call GoodWolfHL('texMathZoneA', 'dirtyblonde', '', 'none')
+call GoodWolfHL('texMathZoneB', 'dirtyblonde', '', 'none')
+call GoodWolfHL('texMathZoneC', 'dirtyblonde', '', 'none')
+call GoodWolfHL('texMathZoneD', 'dirtyblonde', '', 'none')
+call GoodWolfHL('texMathZoneE', 'dirtyblonde', '', 'none')
+call GoodWolfHL('texMathZoneV', 'dirtyblonde', '', 'none')
+call GoodWolfHL('texMathZoneX', 'dirtyblonde', '', 'none')
 call GoodWolfHL('texMath', 'orange', '', 'none')
 call GoodWolfHL('texMathMatcher', 'orange', '', 'none')
 call GoodWolfHL('texRefLabel', 'dirtyblonde', '', 'none')
 call GoodWolfHL('texRefZone', 'lime', '', 'none')
 call GoodWolfHL('texDelimiter', 'orange', '', 'none')
 call GoodWolfHL('texZone', 'brightgravel', '', 'none')
+call GoodWolfHL('texTabularChar', 'lime', '', 'none')
 
 augroup badwolf_tex
     au!
@@ -556,6 +577,13 @@ call GoodWolfHL('scalaParameterAnnotation', 'gravel', '', 'bold')
 call GoodWolfHL('scalaParamAnnotationValue', 'gravel', '', 'bold')
 call GoodWolfHL('scalaCommentAnnotation', 'gravel', '', 'bold')
 call GoodWolfHL('scalaDocLinks', 'gravel', '', 'bold')
+
+" }}}
+" Singularity {{{
+
+call GoodWolfHL('singularitySectionLine', 'taffy', '', 'bold')
+call GoodWolfHL('singularitySection', 'taffy', '', 'bold')
+call GoodWolfHL('singularityKeyword', 'dress', '', '')
 
 " }}}
 " Vim {{{
