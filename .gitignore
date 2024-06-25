@@ -10,3 +10,4 @@ tags
 .DS_Store
 *.swp
 __pycache__
+my_font.vim

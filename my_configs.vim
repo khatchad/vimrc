@@ -52,8 +52,12 @@ map π :CtrlPCmdPalette<CR>
 set spellfile=~/.dict.en.utf-8.add
 map <silent> <F11>
 \    :call system("wmctrl -ir " . v:windowid . " -b toggle,fullscreen")<CR>
-set gfn=Monospace\ 10
-" set guifont=Monospace\ 14
+
+try
+source ~/.vim_runtime/my_font.vim
+catch
+endtry
+
 set listchars=trail:c
 nmap gx :silent execute "!google-chrome " . shellescape("<cWORD>") . " &"<CR>
 vmap gx <Esc>:silent execute "!google-chrome " . shellescape("<C-r>*") . " &"<CR>
