@@ -82,6 +82,19 @@ endfunction
 call ale#linter#Define('sql', {
 \   'name': 'sqlfluff',
 \   'executable': function('ale_linters#sql#sqlfluff#Executable'),
-\   'command': function('ale_linters#sql#sqlfluff#Command'),
-\   'callback': 'ale_linters#sql#sqlfluff#Handle',
+\   'command': {buffer -> ale#semver#RunWithVersionCheck(
+\       buffer,
+\       ale_linters#sql#sqlfluff#Executable(buffer),
+\       '%e --version',
+\       function('ale_linters#sql#sqlfluff#Command'),
+\   )},
+\   'callback': {buffer, lines -> ale#semver#RunWithVersionCheck(
+\       buffer,
+\       ale_linters#sql#sqlfluff#Executable(buffer),
+\       '%e --version',
+\       {buffer, version -> ale_linters#sql#sqlfluff#Handle(
+\           buffer,
+\           l:version,
+\           lines)},
+\   )},
 \})

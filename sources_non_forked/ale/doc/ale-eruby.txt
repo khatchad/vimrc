@@ -49,6 +49,18 @@ g:ale_eruby_erblint_options                        *g:ale_ruby_erblint_options*
 
 
 ===============================================================================
+htmlbeautifier                                       *ale-eruby-htmlbeautifier*
+
+g:ale_eruby_htmlbeautifier_executable   *g:ale_eruby_htmlbeautifier_executable*
+                                        *b:ale_eruby_htmlbeautifier_executable*
+  Type: |String|
+  Default: `'htmlbeautifier'`
+
+  Override the invoked htmlbeautifier binary. This is useful for running
+  htmlbeautifier from binstubs or a bundle.
+
+
+===============================================================================
 ruumba                                                       *ale-eruby-ruumba*
 
 g:ale_eruby_ruumba_executable                   *g:ale_eruby_ruumba_executable*

@@ -2667,33 +2667,6 @@ function! s:AddLogSection(to, label, log) abort
   call extend(a:to.lines, ['', label] + s:Format(a:log.entries))
 endfunction
 
-function! s:QueryLog(refspec, limit, dir) abort
-  let [log, exec_error] = s:LinesError(['log', '-n', '' . a:limit, '--pretty=format:%h%x09%s'] + a:refspec + ['--'], a:dir)
-  call map(log, 'split(v:val, "\t", 1)')
-  call map(log, '{"type": "Log", "commit": v:val[0], "subject": join(v:val[1 : -1], "\t")}')
-  let result = {'error': exec_error ? 1 : 0, 'overflow': 0, 'entries': log}
-  if len(log) == a:limit
-    call remove(log, -1)
-    let result.overflow = 1
-  endif
-  return result
-endfunction
-
-function! s:QueryLogRange(old, new, dir) abort
-  if empty(a:old) || empty(a:new)
-    return {'error': 2, 'overflow': 0, 'entries': []}
-  endif
-  return s:QueryLog([a:old . '..' . a:new], 256, a:dir)
-endfunction
-
-function! s:AddLogSection(label, log) abort
-  if empty(a:log.entries)
-    return
-  endif
-  let label = a:label . ' (' . len(a:log.entries) . (a:log.overflow ? '+' : '') . ')'
-  call append(line('$'), ['', label] + s:Format(a:log.entries))
-endfunction
-
 let s:rebase_abbrevs = {
       \ 'p': 'pick',
       \ 'r': 'reword',
@@ -3408,35 +3381,6 @@ function! s:TempReadPost(file) abort
     return 'doautocmd <nomodeline> User FugitivePager'
   endif
   return ''
-endfunction
-
-function! s:TempReadPost(file) abort
-  let key = s:cpath(s:AbsoluteVimPath(a:file))
-  if has_key(s:temp_files, key)
-    let dict = s:temp_files[key]
-    if !has_key(dict, 'job')
-      setlocal nobuflisted
-    endif
-    if get(dict, 'filetype', '') ==# 'git'
-      call fugitive#MapJumps()
-      call s:Map('n', '.', ":<C-U> <C-R>=<SID>fnameescape(<SID>TempDotMap())<CR><Home>")
-      call s:Map('x', '.', ":<C-U> <C-R>=<SID>fnameescape(<SID>TempDotMap())<CR><Home>")
-    endif
-    if has_key(dict, 'filetype')
-      if dict.filetype ==# 'man' && has('nvim')
-        let b:man_sect = matchstr(getline(1), '^\w\+(\zs\d\+\ze)')
-      endif
-      if !get(g:, 'did_load_ftplugin') && dict.filetype ==# 'fugitiveblame'
-        call s:BlameMaps(0)
-      endif
-      let &l:filetype = dict.filetype
-    endif
-    setlocal foldmarker=<<<<<<<<,>>>>>>>>
-    if !&modifiable
-      call s:Map('n', 'gq', ":<C-U>bdelete<CR>", '<silent> <unique>')
-    endif
-  endif
-  return s:DoAutocmd('User FugitivePager')
 endfunction
 
 function! s:TempDelete(file) abort
