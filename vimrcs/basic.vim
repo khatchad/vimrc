@@ -99,8 +99,8 @@ set smartcase
 " Highlight search results
 set hlsearch
 
-" Makes search act like search in modern browsers
-set incsearch 
+" Makes search not act like search in modern browsers
+set noincsearch
 
 " Don't redraw while executing macros (good performance config)
 set lazyredraw 
