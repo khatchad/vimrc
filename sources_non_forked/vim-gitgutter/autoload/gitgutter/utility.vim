@@ -186,6 +186,28 @@ function! gitgutter#utility#set_repo_path(bufnr, continuation) abort
   else
     call gitgutter#utility#setbufvar(a:bufnr, 'path', path)
   endif
+
+  let listing = s:strip_trailing_new_line(listing)
+  let [status, path] = [listing[0], listing[2:]]
+  if status =~# '[a-z]'
+    call gitgutter#utility#setbufvar(a:bufnr, 'path', -3)
+  else
+    call gitgutter#utility#setbufvar(a:bufnr, 'path', path)
+  endif
+endfunction
+
+
+function! gitgutter#utility#clean_smudge_filter_applies(bufnr)
+  let filtered = gitgutter#utility#getbufvar(a:bufnr, 'filter', -1)
+  if filtered == -1
+    let cmd = gitgutter#utility#cd_cmd(a:bufnr,
+          \ gitgutter#git().' check-attr filter -- '.
+          \ gitgutter#utility#shellescape(gitgutter#utility#filename(a:bufnr)))
+    let [out, _] = gitgutter#utility#system(cmd)
+    let filtered = out !~ 'unspecified'
+    call gitgutter#utility#setbufvar(a:bufnr, 'filter', filtered)
+  endif
+  return filtered
 endfunction
 
 
