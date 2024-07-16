@@ -298,3 +298,5 @@ colorscheme desert
 " set mouse-=a
 
 autocmd FileChangedShell * echo "File changed, enter :e to reload."
+
+set guifont=Ubuntu\ Mono\ 11
