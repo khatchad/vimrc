@@ -230,7 +230,7 @@ let g:csv_highlight_column = 'n'
 " => Log section
 """""""""""""""""""""""""""""""
 au BufNewFile,BufRead *.log, setf log
-au FileType log setl wrap diffopt+=iwhite nonumber
+au FileType log setl wrap diffopt+=iwhite nonumber noautoread
 
 """"""""""""""""""""""""""""""
 " => Markdown section
