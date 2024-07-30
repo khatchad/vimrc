@@ -108,6 +108,8 @@ autocmd FileType tex,plaintex syntax region texZone start='\\begin{CCSXML}' end=
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{minted}' end='\\end{minted}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{javacode}' end='\\end{javacode}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{javacode\*}' end='\\end{javacode\*}'
+autocmd FileType tex,plaintex syntax region texZone start='\\begin{textcode}' end='\\end{textcode}'
+autocmd FileType tex,plaintex syntax region texZone start='\\begin{textcode\*}' end='\\end{textcode\*}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{pythoncode}' end='\\end{pythoncode}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{pythoncode\*}' end='\\end{pythoncode\*}'
 autocmd FileType tex,plaintex syntax region texZone start='\\begin{pyconcode}' end='\\end{pyconcode}'
