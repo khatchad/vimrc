@@ -300,3 +300,7 @@ colorscheme desert
 " set mouse-=a
 
 autocmd FileChangedShell * echo "File changed, enter :e to reload."
+
+let g:copilot_filetypes = {
+	    \ 'log': v:false
+	    \}
