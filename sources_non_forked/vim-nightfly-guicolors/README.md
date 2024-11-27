@@ -24,6 +24,7 @@ Neovim-only:
 - [Neovim Diagnostic](https://neovim.io/doc/user/diagnostic.html)
 - [Neovim LSP Semantic Highlights](https://neovim.io/doc/user/lsp.html#lsp-semantic-highlight)
 - [Barbar](https://github.com/romgrk/barbar.nvim)
+- [blink.cmp](https://github.com/Saghen/blink.cmp)
 - [Dashboard](https://github.com/glepnir/dashboard-nvim)
 - [fzf.lua](https://github.com/ibhagwan/fzf-lua)
 - [Gitsigns](https://github.com/lewis6991/gitsigns.nvim)
@@ -54,7 +55,7 @@ Neovim & Vim compatible:
 - [Coc.nvim](https://github.com/neoclide/coc.nvim)
 - [CtrlP](https://github.com/ctrlpvim/ctrlp.vim)
 - [Fern](https://github.com/lambdalisue/fern.vim)
-- [fzf.vim](https://github.com/junegunn/fzf.vim) (works best with matching [fly16](https://github.com/bluz71/fly16-bat) [bat](https://github.com/sharkdp/bat) theme)
+- [fzf.vim](https://github.com/junegunn/fzf.vim) (works best with matching [fly16](https://github.com/bluz71/fly16-bat) `bat` theme)
 - [lightline](https://github.com/itchyny/lightline.vim)
 - [Tagbar](https://github.com/majutsushi/tagbar)
 - [vim-airline](https://github.com/vim-airline/vim-airline)
@@ -75,8 +76,6 @@ _nightfly_ is a **GUI-only** colorscheme.
 A GUI client or a modern terminal version of Vim or Neovim in a true-color
 terminal is required. Details about true-color terminals are [listed
 here](https://github.com/bluz71/vim-nightfly-colors#true-color-terminals).
-
-_nightfly_ explicitly does **not** support the 256 color `cterm` version of Vim.
 
 Installation
 ------------
@@ -454,34 +453,28 @@ let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
 let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 ```
 
-Extra Themes
-------------
+Extras
+------
 
-A collection of _nightfly_-flavoured themes are provided:
+A collection of _nightfly_-flavoured extras for various terminals and tools:
 
-- [Alacritty](https://github.com/alacritty/alacritty) users can copy
-  [this](extras/nightfly-alacritty.toml) theme into their `alacritty.toml`
-  configuration
+| Program                                                    | Extra
+|------------------------------------------------------------|----------------------------------------------------------------
+| [Alacritty](https://github.com/alacritty/alacritty)        | [extras/alacritty](extras/nightfly-alacritty.toml)
+| [bat](https://github.com/sharkdp/bat)                      | [fly16](https://github.com/bluz71/fly16-bat)
+| [Fish Shell](https://fishshell.com)                        | [extras/fish](extras/nightfly.fish)
+| [fzf](https://junegunn.github.io/fzf)                      | [extras/fzf](extras/nightfly-fzf.sh)
+| [iTerm2](https://iterm2.com)                               | [extras/iterm2](extras/nightfly.itermcolors)
+| [kitty](https://sw.kovidgoyal.net/kitty)                   | [extras/kitty](extras/nightfly-kitty.conf)
+| [Starship](https://starship.rs/)                           | [extras/starship](extras/nightfly-starship.toml)
+| [tmux](https://github.com/tmux/tmux)                       | [extras/tmux](extras/nightfly.tmux)
+| [WezTerm](https://wezfurlong.org/wezterm)                  | [extras/wezterm](extras/nightfly-wezterm.toml)
+| [Windows Terminal](https://github.com/microsoft/terminal)  | [extras/windows-terminal](extras/nightfly-windows-terminal.json)
+| [Xresources](https://wiki.archlinux.org/title/X_resources) | [extras/Xresources](extras/nightfly.Xresources)
+| [Zellij](https://zellij.dev)                               | [extras/zellij](extras/nightfly-zellij.kdl)
 
-- [kitty](https://sw.kovidgoyal.net/kitty) users can use
-  [this](extras/nightfly-kitty.conf) theme
-
-- [WezTerm](https://wezfurlong.org/wezterm) users can copy
-  [this](extras/nightfly-wezterm.toml) theme into the
-  [`colors`](https://wezfurlong.org/wezterm/config/appearance.html#defining-a-color-scheme-in-a-separate-file)
-  directory and then select the _nightfly_ `color_scheme` in their
-  `wezterm.lua` configuration
-
-- _iTerm2_ users on macOS can import
-  [this](extras/nightfly.itermcolors) colorscheme
-
-- [Windows Terminal](https://github.com/microsoft/terminal) users can copy
-  [this](extras/nightfly-windows-terminal.json) theme into their `settings.json`
-  configuration
-
-- [fish](https://fishshell.com) shell users can use [this](extras/nightfly.fish) theme
-
-For other terminals please configure appropriately with the following colors:
+Terminal Colors
+---------------
 
 | Type           | Category        | Value     | Color
 |----------------|-----------------|-----------|------------------------------------------------------
