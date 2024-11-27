@@ -268,7 +268,7 @@ au FileType c setl fp=astyle\ --mode=c\ --indent=tab
 """"""""""""""""""""""""""""""
 " => Python section
 """""""""""""""""""""""""""""""
-au FileType python setl fp=astyle\ --mode=python\ --indent=tab
+au FileType python setl wrap fp=astyle\ --mode=python\ --indent=tab
 
 """"""""""""""""""""""""""""""
 " => Help section
