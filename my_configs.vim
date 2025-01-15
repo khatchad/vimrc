@@ -238,6 +238,11 @@ au FileType log setl wrap diffopt+=iwhite nonumber noautoread
 au BufRead,BufNewFile *.md set filetype=markdown
 
 """"""""""""""""""""""""""""""
+" => Citation File Format (CFF) section
+"""""""""""""""""""""""""""""""
+au BufRead,BufNewFile *.cff set filetype=yaml
+
+""""""""""""""""""""""""""""""
 " => XML section
 """""""""""""""""""""""""""""""
 au FileType xml setl fp=tidy\ -q\ -i\ -wrap\ -xml
