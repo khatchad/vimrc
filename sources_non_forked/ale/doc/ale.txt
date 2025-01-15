@@ -2898,6 +2898,7 @@ documented in additional help files.
     ansible-language-server...............|ale-ansible-language-server|
     ansible-lint..........................|ale-ansible-ansible-lint|
   apkbuild................................|ale-apkbuild-options|
+    apkbuild-fixer........................|ale-apkbuild-apkbuild-fixer|
     apkbuild-lint.........................|ale-apkbuild-apkbuild-lint|
     secfixes-check........................|ale-apkbuild-secfixes-check|
   asciidoc................................|ale-asciidoc-options|
@@ -2946,6 +2947,7 @@ documented in additional help files.
     foodcritic............................|ale-chef-foodcritic|
   clojure.................................|ale-clojure-options|
     clj-kondo.............................|ale-clojure-clj-kondo|
+    cljfmt................................|ale-clojure-cljfmt|
     joker.................................|ale-clojure-joker|
   cloudformation..........................|ale-cloudformation-options|
     cfn-python-lint.......................|ale-cloudformation-cfn-python-lint|
@@ -2987,6 +2989,8 @@ documented in additional help files.
     clang-format..........................|ale-cuda-clangformat|
     clangd................................|ale-cuda-clangd|
     nvcc..................................|ale-cuda-nvcc|
+  c3......................................|ale-c3-options|
+    c3lsp.................................|ale-c3-c3lsp|
   d.......................................|ale-d-options|
     dfmt..................................|ale-d-dfmt|
     dls...................................|ale-d-dls|
@@ -3024,6 +3028,7 @@ documented in additional help files.
   erlang..................................|ale-erlang-options|
     dialyzer..............................|ale-erlang-dialyzer|
     elvis.................................|ale-erlang-elvis|
+    erlang-mode...........................|ale-erlang-erlang-mode|
     erlang_ls.............................|ale-erlang-erlang_ls|
     erlc..................................|ale-erlang-erlc|
     erlfmt................................|ale-erlang-erlfmt|
@@ -3515,6 +3520,7 @@ documented in additional help files.
     yamlfmt...............................|ale-yaml-yamlfmt|
     yamllint..............................|ale-yaml-yamllint|
     gitlablint............................|ale-yaml-gitlablint|
+    yq....................................|ale-yaml-yq|
   yang....................................|ale-yang-options|
     yang-lsp..............................|ale-yang-lsp|
   zeek....................................|ale-zeek-options|

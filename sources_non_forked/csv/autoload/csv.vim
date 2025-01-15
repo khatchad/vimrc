@@ -949,7 +949,7 @@ endfu
 fu! csv#SetupAutoCmd(window,bufnr) "{{{3
     " Setup QuitPre autocommand to quit cleanly
     if a:bufnr == 0
-        " something went wrong, 
+        " something went wrong,
         " how can this happen?
         return
     endif
@@ -1489,6 +1489,19 @@ fu! csv#AddColumn(start, stop, ...) range "{{{3
     endif
     call winrestview(wsv)
 endfu
+fu! csv#ExtractValue(item) "{{{3
+    let formatThousands = '\d\+\zs\V' . s:nr_format[0] . '\m\ze\d'
+    let formatDecimal   = '\d\+\zs\V' . s:nr_format[1] . '\m\ze\d'
+    try
+        let nr = substitute(a:item, formatThousands, '', 'g')
+        if s:nr_format[1] != '.'
+            let nr = substitute(nr, formatDecimal, '.', '')
+        endif
+        return matchstr(nr, '\c\v^-?(0+|0?\.\d+|[1-9]\d*(\.\d+)?(e[+-]?\d+)?)$')
+    catch
+        return '0'
+    endtry
+endfu
 fu! csv#SumColumn(list) "{{{3
     " Sum a list of values, but only consider the digits within each value
     " parses the digits according to the given format (if none has been
@@ -1503,21 +1516,11 @@ fu! csv#SumColumn(list) "{{{3
             if empty(item)
                 continue
             endif
-            let nr = matchstr(item, '-\?\d\(.*\d\)\?$')
-            let format1 = '^-\?\d\+\zs\V' . s:nr_format[0] . '\m\ze\d'
-            let format2 = '\d\+\zs\V' . s:nr_format[1] . '\m\ze\d'
-            try
-                let nr = substitute(nr, format1, '', '')
-                if s:nr_format[1] != '.'
-                    let nr = substitute(nr, format2, '.', '')
-                endif
-            catch
-                let nr = '0'
-            endtry
+            let nr = csv#ExtractValue(item)
             let sum += str2float(nr)
         endfor
         let b:csv_result = sum
-        return printf("%.2f", sum)
+        return sum
     endif
 endfu
 fu! csv#AvgColumn(list) "{{{3
@@ -1531,17 +1534,7 @@ fu! csv#AvgColumn(list) "{{{3
             if empty(item)
                 continue
             endif
-            let nr = matchstr(item, '-\?\d\(.*\d\)\?$')
-            let format1 = '^-\?\d\+\zs\V' . s:nr_format[0] . '\m\ze\d'
-            let format2 = '\d\+\zs\V' . s:nr_format[1] . '\m\ze\d'
-            try
-                let nr = substitute(nr, format1, '', '')
-                if s:nr_format[1] != '.'
-                    let nr = substitute(nr, format2, '.', '')
-                endif
-            catch
-                let nr ='0'
-            endtry
+            let nr = csv#ExtractValue(item)
             let sum += str2float(nr)
             let cnt += 1
         endfor
@@ -1560,17 +1553,7 @@ fu! csv#VarianceColumn(list, is_population) "{{{3
             if empty(item)
                 continue
             endif
-            let nr = matchstr(item, '-\?\d\(.*\d\)\?$')
-            let format1 = '^-\?\d\+\zs\V' . s:nr_format[0] . '\m\ze\d'
-            let format2 = '\d\+\zs\V' . s:nr_format[1] . '\m\ze\d'
-            try
-                let nr = substitute(nr, format1, '', '')
-                if s:nr_format[1] != '.'
-                    let nr = substitute(nr, format2, '.', '')
-                endif
-            catch
-                let nr = '0'
-            endtry
+            let nr = csv#ExtractValue(item)
             let nr = str2float(nr)
             let sum += pow((nr-avg), 2)
             let cnt += 1
@@ -1627,48 +1610,93 @@ fu! csv#PopStdDevColumn(list) "{{{2
     endif
 endfu
 
+fu! csv#MedianCol(list) "{{{2
+    let list = sort(map(filter(a:list, {_,v -> !empty(v)}), {_,v -> str2float(csv#ExtractValue(v))}), 'n')
+    if empty(list)
+        return 0
+    endif
+
+    let i = len(list) / 2
+    return len(list) % 2 == 0 ? (list[i-1] + list[i]) / 2.0 : list[i]
+endfu
+
+fu! csv#HistogramCol(list) "{{{2
+    let list = sort(map(filter(a:list, {_,v -> !empty(v)}), {_,v -> str2float(csv#ExtractValue(v))}), 'n')
+    if empty(list)
+        return 'No numeric values found.'
+    endif
+
+    " Step Size Calculation   credit: https://stackoverflow.com/a/545960/510067
+    let ticks = min([float2nr(sqrt(len(list))), 10])
+    let minValue = list[0]
+    let maxValue = list[-1]
+    let step = maxValue == minValue ? 1 : (maxValue - minValue) / ticks
+    let magnitude = pow(10, floor(log10(step)))
+    let factor = filter([2, 2.5, 5, 7.5, 10], {_,v -> v >= (l:step / l:magnitude)})[0]
+    let step = magnitude * factor
+
+    " Create and fill the bins.
+    let start = float2nr(floor(minValue/step))
+    let end = float2nr(ceil(maxValue/step))-1
+
+    let bins = {}
+    for label in range(start, end)
+        let bins[label*step] = 0
+    endfor
+    for label in list
+        let bins[floor(label/step)*step] += 1
+    endfor
+
+    " Stuff the rendered histogram into a List and return it.
+    let result = []
+    call add(result, repeat('-', &columns/2))
+    call add(result, 'Count = ' . len(list) . '  Min = ' . minValue . '  Max = ' . maxValue)
+    call add(result, repeat('-', &columns/2))
+
+    let labelwidth = max(map(keys(bins), {_,v -> len(v)}))
+    let maxcount = max(values(bins))
+    let countwidth = float2nr(log10(maxcount)) + 1
+    for label in sort(keys(bins),{x1,x2 -> str2float(x1)==str2float(x2) ? 0 : str2float(x1)<str2float(x2) ? -1 : 1})
+        let count = bins[label]
+        let width = maxcount < &columns / 3 ? count : float2nr(1.0 * count * (&columns/3) / maxcount)
+        call add(result, printf('≥ %*s| %*d|%s  %d', labelwidth, label, countwidth, count, repeat(get(g:, 'csv_histogram_cell', '▇'), width), count))
+    endfor
+    return join(result,"\n")
+endfu
+
 fu! csv#MaxColumn(list) "{{{3
-    " Sum a list of values, but only consider the digits within each value
-    " parses the digits according to the given format (if none has been
-    " specified, assume POSIX format (without thousand separator) If Vim
-    " does not support floats, simply sum up only the integer part
+    " Show top/bottom 10 in a list of values, but only consider the digits
+    " within each value parses the digits according to the given format (if
+    " none has been specified, assume POSIX format (without thousand
+    " separator) If Vim does not support floats, simply sum up only the
+    " integer part
     if empty(a:list)
         return 0
-    else
-        let result = []
-        for item in a:list
-            if empty(item)
-                continue
-            endif
-            let nr = matchstr(item, '-\?\d\(.*\d\)\?$')
-            let format1 = '^-\?\d\+\zs\V' . s:nr_format[0] . '\m\ze\d'
-            let format2 = '\d\+\zs\V' . s:nr_format[1] . '\m\ze\d'
-            try
-                let nr = substitute(nr, format1, '', '')
-                if s:nr_format[1] != '.'
-                    let nr = substitute(nr, format2, '.', '')
-                endif
-            catch
-                let nr = '0'
-            endtry
-            call add(result, str2float(nr))
-        endfor
-        let result = sort(result, s:csv_numeric_sort ? 'N' : 'csv#CSVSortValues')
-        let ind = len(result) > 9 ? 9 : len(result)
-        if has_key(get(s:, 'additional', {}), 'distinct') && s:additional['distinct']
-          if exists("*uniq")
-            let result=uniq(result)
-          else
+    endif
+
+    let result = []
+    for item in a:list
+        if empty(item)
+            continue
+        endif
+        let nr = csv#ExtractValue(item)
+        call add(result, str2float(nr))
+    endfor
+    call sort(result, s:csv_numeric_sort ? 'n' : 'csv#CSVSortValues')
+    if get(s:additional, 'distinct', 0) == 1
+        if exists("*uniq")
+            call uniq(result)
+        else
             let l = {}
             for item in result
-              let l[item] = get(l, 'item', 0)
+                let l[item] = 0
             endfor
             let result = keys(l)
-          endif
         endif
-        return s:additional.ismax ? reverse(result)[:ind] : result[:ind]
     endif
+    return s:additional.ismax ? reverse(result)[:9] : result[:9]
 endfu
+
 fu! csv#CountColumn(list) "{{{3
     if empty(a:list)
         return 0
@@ -1678,7 +1706,7 @@ fu! csv#CountColumn(list) "{{{3
       else
         let l = {}
         for item in a:list
-          let l[item] =  get(l, 'item', 0) + 1
+          let l[item] = 0
         endfor
         return len(keys(l))
       endif
@@ -2295,8 +2323,10 @@ fu! csv#CommandDefinitions() "{{{3
     call csv#LocalCmd("Duplicates", ':call csv#CheckDuplicates(<q-args>)', '-nargs=? -complete=custom,csv#CompleteColumnNr')
     call csv#LocalCmd("Filters", ':call csv#OutputFilters(<bang>0)', '-nargs=0 -bang')
     call csv#LocalCmd("HeaderToggle", ':call csv#SplitHeaderToggle(1)', '')
+    call csv#LocalCmd("HistogramCol", ':echo csv#EvalColumn(<q-args>, "csv#HistogramCol", <line1>,<line2>)', '-range=% -nargs=?')
     call csv#LocalCmd("HiColumn", ':call csv#HiCol(<q-args>,<bang>0)', '-bang -nargs=?')
     call csv#LocalCmd("MaxCol", ':echo csv#EvalColumn(<q-args>, "csv#MaxColumn", <line1>,<line2>, 1)', '-nargs=? -range=% -complete=custom,csv#SortComplete')
+    call csv#LocalCmd("MedianCol", ':echo csv#EvalColumn(<q-args>, "csv#MedianCol", <line1>,<line2>)', '-range=% -nargs=?')
     call csv#LocalCmd("MinCol", ':echo csv#EvalColumn(<q-args>, "csv#MaxColumn", <line1>,<line2>, 0)', '-nargs=? -range=% -complete=custom,csv#SortComplete')
     call csv#LocalCmd("MoveColumn", ':call csv#MoveColumn(<line1>,<line2>,<f-args>)', '-range=% -nargs=* -complete=custom,csv#SortComplete')
     call csv#LocalCmd("NewDelimiter", ':call csv#NewDelimiter(<q-args>, 1, line(''$''))', '-nargs=1')
@@ -2897,10 +2927,8 @@ fu! csv#GetCells(list) "{{{3
     let column=a:list
     " Delete delimiter
     call map(column, 'substitute(v:val, b:delimiter . "$", "", "g")')
-    " Revmoe trailing whitespace
-    call map(column, 'substitute(v:val, ''^\s\+$'', "", "g")')
-    " Remove leading whitespace
-    call map(column, 'substitute(v:val, ''^\s\+'', "", "g")')
+    " Remove leading and trailing whitespace
+    call map(column, 'trim(v:val)')
     return column
 endfu
 fu! CSV_CloseBuffer(buffer) "{{{3

@@ -24,6 +24,7 @@ Neovim-only:
 - [Neovim Diagnostic](https://neovim.io/doc/user/diagnostic.html)
 - [Neovim LSP Semantic Highlights](https://neovim.io/doc/user/lsp.html#lsp-semantic-highlight)
 - [Barbar](https://github.com/romgrk/barbar.nvim)
+- [blink.cmp](https://github.com/Saghen/blink.cmp)
 - [Dashboard](https://github.com/glepnir/dashboard-nvim)
 - [fzf.lua](https://github.com/ibhagwan/fzf-lua)
 - [Gitsigns](https://github.com/lewis6991/gitsigns.nvim)
@@ -45,6 +46,7 @@ Neovim-only:
 - [NvCheatsheet.nvim](https://github.com/smartinellimarco/nvcheatsheet.nvim)
 - [NvimTree](https://github.com/kyazdani42/nvim-tree.lua)
 - [Rainbow Delimiters](https://github.com/HiPhish/rainbow-delimiters.nvim)
+- [snacks.nvim](https://github.com/folke/snacks.nvim)
 - [Telescope](https://github.com/nvim-telescope/telescope.nvim)
 
 Neovim & Vim compatible:
@@ -56,7 +58,6 @@ Neovim & Vim compatible:
 - [Fern](https://github.com/lambdalisue/fern.vim)
 - [fzf.vim](https://github.com/junegunn/fzf.vim) (works best with matching [fly16](https://github.com/bluz71/fly16-bat) `bat` theme)
 - [lightline](https://github.com/itchyny/lightline.vim)
-- [Tagbar](https://github.com/majutsushi/tagbar)
 - [vim-airline](https://github.com/vim-airline/vim-airline)
 
 Vim-only:
@@ -66,6 +67,7 @@ Vim-only:
 - [indentLine](https://github.com/Yggdroot/indentLine)
 - [NERDTree](https://github.com/preservim/nerdtree)
 - [Signify](https://github.com/mhinz/vim-signify)
+- [Tagbar](https://github.com/majutsushi/tagbar)
 
 :zap: Requirements
 ------------------
@@ -463,6 +465,7 @@ A collection of _nightfly_-flavoured extras for various terminals and tools:
 | [bat](https://github.com/sharkdp/bat)                      | [fly16](https://github.com/bluz71/fly16-bat)
 | [Fish Shell](https://fishshell.com)                        | [extras/fish](extras/nightfly.fish)
 | [fzf](https://junegunn.github.io/fzf)                      | [extras/fzf](extras/nightfly-fzf.sh)
+| [Ghostty](https://mitchellh.com/ghostty)                   | [extras/ghostty](extras/nightfly-ghostty.conf)
 | [iTerm2](https://iterm2.com)                               | [extras/iterm2](extras/nightfly.itermcolors)
 | [kitty](https://sw.kovidgoyal.net/kitty)                   | [extras/kitty](extras/nightfly-kitty.conf)
 | [Starship](https://starship.rs/)                           | [extras/starship](extras/nightfly-starship.toml)
@@ -470,6 +473,7 @@ A collection of _nightfly_-flavoured extras for various terminals and tools:
 | [WezTerm](https://wezfurlong.org/wezterm)                  | [extras/wezterm](extras/nightfly-wezterm.toml)
 | [Windows Terminal](https://github.com/microsoft/terminal)  | [extras/windows-terminal](extras/nightfly-windows-terminal.json)
 | [Xresources](https://wiki.archlinux.org/title/X_resources) | [extras/Xresources](extras/nightfly.Xresources)
+| [Yazi](https://yazi-rs.github.io)                          | [nightfly.yazi](https://github.com/tkapias/nightfly.yazi)
 | [Zellij](https://zellij.dev)                               | [extras/zellij](extras/nightfly-zellij.kdl)
 
 Terminal Colors
