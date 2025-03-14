@@ -44,7 +44,7 @@ let s:default_registry = {
 \   },
 \   'biome': {
 \       'function': 'ale#fixers#biome#Fix',
-\       'suggested_filetypes': ['javascript', 'typescript', 'json', 'jsonc'],
+\       'suggested_filetypes': ['javascript', 'typescript', 'json', 'jsonc', 'css', 'graphql'],
 \       'description': 'Fix JavaScript and TypeScript using biome.',
 \   },
 \   'black': {
@@ -477,6 +477,11 @@ let s:default_registry = {
 \       'suggested_filetypes': ['json'],
 \       'description': 'Fix JSON files with jq.',
 \   },
+\   'json_pytool': {
+\       'function': 'ale#fixers#json_pytool#Fix',
+\       'suggested_filetypes': ['json'],
+\       'description': "Fix JSON files with python's built-in json.tool module.",
+\   },
 \   'protolint': {
 \       'function': 'ale#fixers#protolint#Fix',
 \       'suggested_filetypes': ['proto'],
@@ -691,6 +696,11 @@ let s:default_registry = {
 \       'function': 'ale#fixers#rubyfmt#Fix',
 \       'suggested_filetypes': ['ruby'],
 \       'description': 'A formatter for Ruby source code',
+\   },
+\   'scadformat': {
+\       'function': 'ale#fixers#scadformat#Fix',
+\       'suggested_filetypes': ['openscad'],
+\       'description': 'Formatter for scad files',
 \   },
 \   'cljfmt': {
 \       'function': 'ale#fixers#cljfmt#Fix',

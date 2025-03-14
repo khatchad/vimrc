@@ -29,12 +29,13 @@ let s:blue         = '#82aaff'
 let s:malibu       = '#87bcff'
 let s:turquoise    = '#7fdbca'
 let s:emerald      = '#21c7a8'
+let s:lime         = '#85dc85'
 let s:green        = '#a1cd5e'
 " Extra colors
-let s:cyan_blue    = '#296596'
+let s:cyan_blue    = '#316394'
 let s:bay_blue     = '#24567F'
-let s:kashmir_blue = '#4d618e'
-let s:plant_green  = '#2a4e57'
+let s:kashmir      = '#4d618e'
+let s:plant        = '#2a4e57'
 
 function! nightfly#Style() abort
     "-----------------------------------------------------------------------
@@ -67,6 +68,7 @@ function! nightfly#Style() abort
     exec 'highlight NightflyMalibu guifg=' . s:malibu
     exec 'highlight NightflyTurquoise guifg=' . s:turquoise
     exec 'highlight NightflyEmerald guifg=' . s:emerald
+    exec 'highlight NightflyLime guifg=' . s:lime
     exec 'highlight NightflyGreen guifg=' . s:green
     " Statusline helper colors
     exec 'highlight NightflyBlueMode guibg=' . s:blue . ' guifg=' . s:dark_blue
@@ -81,9 +83,17 @@ function! nightfly#Style() abort
     exec 'highlight NightflyDiagnosticUnderlineError gui=underline guisp=' . s:red
     exec 'highlight NightflyDiagnosticUnderlineWarn gui=underline guisp=' . s:yellow
     exec 'highlight NightflyDiagnosticUnderlineInfo gui=underline guisp=' . s:malibu
-    exec 'highlight NightflyDiagnosticVirtualTextError guibg=' . s:dark_blue . ' guifg=' . s:red
-    exec 'highlight NightflyDiagnosticVirtualTextWarn guibg=' . s:dark_blue . ' guifg=' . s:yellow
-    exec 'highlight NightflyDiagnosticVirtualTextInfo guibg=' . s:dark_blue . ' guifg=' . s:malibu
+    if g:nightflyVirtualTextColor
+        exec 'highlight NightflyDiagnosticVirtualTextError guibg=' . s:dark_blue . ' guifg=' . s:red
+        exec 'highlight NightflyDiagnosticVirtualTextWarn guibg=' . s:dark_blue . ' guifg=' . s:yellow
+        exec 'highlight NightflyDiagnosticVirtualTextInfo guibg=' . s:dark_blue . ' guifg=' . s:malibu
+        exec 'highlight NightflyDiagnosticVirtualTextHint guibg=' . s:dark_blue . ' guifg=' . s:turquoise
+    else
+        highlight! link NightflyDiagnosticVirtualTextError NightflySteelBlue
+        highlight! link NightflyDiagnosticVirtualTextWarn NightflySteelBlue
+        highlight! link NightflyDiagnosticVirtualTextInfo NightflySteelBlue
+        highlight! link NightflyDiagnosticVirtualTextHint NightflySteelBlue
+    endif
 
     "-----------------------------------------------------------------------
     " Standard styling
@@ -234,8 +244,9 @@ function! nightfly#Style() abort
     exec 'highlight CursorLineNr cterm=none guibg=' . s:dark_blue . ' guifg=' . s:blue . ' gui=none'
     exec 'highlight CursorColumn guibg=' . s:dark_blue
     exec 'highlight CursorLine cterm=none guibg=' . s:dark_blue
-    exec 'highlight Folded guibg=' . s:dark_blue . ' guifg='. s:green
-    exec 'highlight FoldColumn guibg=' . s:slate_blue . ' guifg=' . s:green
+    highlight! link CursorLineSign CursorLine
+    exec 'highlight Folded guibg=' . s:dark_blue . ' guifg='. s:lime
+    exec 'highlight FoldColumn guibg=' . s:slate_blue . ' guifg=' . s:lime
     exec 'highlight SignColumn guibg=bg guifg=' . s:green
     exec 'highlight Todo guibg=' . s:deep_blue . ' guifg=' . s:yellow
     exec 'highlight SpecialKey guibg=bg guifg=' . s:blue
@@ -257,10 +268,10 @@ function! nightfly#Style() abort
     exec 'highlight Conceal guibg=NONE guifg=' . s:ash_blue
 
     " vimdiff/nvim -d
-    exec 'highlight DiffAdd guibg=' . s:plant_green
+    exec 'highlight DiffAdd guibg=' . s:plant
     exec 'highlight DiffChange guibg=' . s:slate_blue
     exec 'highlight DiffDelete guibg=' . s:slate_blue . ' guifg=' . s:steel_blue . ' gui=none'
-    exec 'highlight DiffText guibg=' . s:kashmir_blue
+    exec 'highlight DiffText guibg=' . s:kashmir
 
     "-----------------------------------------------------------------------
     " Language styling
@@ -652,7 +663,7 @@ function! nightfly#Style() abort
     highlight! link vimUserFunc NightflyBlue
 
     " XML
-    highlight! link xmlAttrib NightflyGreen
+    highlight! link xmlAttrib NightflyLime
     highlight! link xmlEndTag NightflyBlue
     highlight! link xmlTag NightflyGreen
     highlight! link xmlTagName NightflyBlue
@@ -678,15 +689,9 @@ function! nightfly#Style() abort
     highlight! link ALEErrorSign NightflyRed
     highlight! link ALEWarningSign NightflyYellow
     highlight! link ALEInfoSign NightflyMalibu
-    if g:nightflyVirtualTextColor
-        highlight! link ALEVirtualTextError NightflyDiagnosticVirtualTextError
-        highlight! link ALEVirtualTextWarning NightflyDiagnosticVirtualTextWarn
-        highlight! link ALEVirtualTextInfo NightflyDiagnosticVirtualTextInfo
-    else
-        highlight! link ALEVirtualTextError NightflySteelBlue
-        highlight! link ALEVirtualTextWarning NightflySteelBlue
-        highlight! link ALEVirtualTextInfo NightflySteelBlue
-    endif
+    highlight! link ALEVirtualTextError NightflyDiagnosticVirtualTextError
+    highlight! link ALEVirtualTextWarning NightflyDiagnosticVirtualTextWarn
+    highlight! link ALEVirtualTextInfo NightflyDiagnosticVirtualTextInfo
 
     " Coc
     highlight! link CocSemTypeBuiltin NightflyWatermelon
@@ -700,6 +705,11 @@ function! nightfly#Style() abort
     highlight! link CocSemTypeTypeParameter NightflyOrchid
     highlight! link CocUnusedHighlight NightflyAshBlue
     exec 'highlight CocInlayHint guibg=' . s:dark_blue . ' guifg=' . s:grey_blue
+    "   Coc virtual text
+    highlight! link CocErrorVirtualText NightflyDiagnosticVirtualTextError
+    highlight! link CocWarningVirtualText NightflyDiagnosticVirtualTextWarn
+    highlight! link CocInfoVirtualText NightflyDiagnosticVirtualTextInfo
+    highlight! link CocHintVirtualText NightflyDiagnosticVirtualTextHint
 
     " fern.vim plugin
     highlight! link FernBranchSymbol NightflyGreyBlue
@@ -793,9 +803,9 @@ function! nightfly#Style() abort
     highlight! link Directory NightflyBlue
     highlight! link erubyDelimiter NightflyWatermelon
     highlight! link HighlightedyankRegion NightflyRegalBlue
-    highlight! link jsonKeyword NightflyBlue
-    highlight! link jsonBoolean NightflyTurquoise
+    highlight! link jsonKeyword NightflyLavender
     highlight! link jsonQuote NightflyWhite
+    highlight! link jsonString NightflyLime
     highlight! link netrwClassify NightflyWatermelon
     highlight! link netrwDir NightflyBlue
     highlight! link netrwExe NightflyTan
