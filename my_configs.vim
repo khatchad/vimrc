@@ -274,6 +274,7 @@ au FileType c setl fp=astyle\ --mode=c\ --indent=tab
 " => Python section
 """""""""""""""""""""""""""""""
 au FileType python setl fp=astyle\ --mode=python\ --indent=tab
+au FileType python setl tabstop=4 softtabstop=4 shiftwidth=4 expandtab smartindent fileformat=unix
 
 """"""""""""""""""""""""""""""
 " => Help section
