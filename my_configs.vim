@@ -313,3 +313,5 @@ autocmd FileChangedShell * echo "File changed, enter :e to reload."
 let g:copilot_filetypes = {
 	    \ 'log': v:false
 	    \}
+
+set guifont=Ubuntu\ Mono\ 12
