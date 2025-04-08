@@ -139,8 +139,8 @@ autocmd FileType tex,plaintex syntax region texZone start='\\url{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\href{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\btag{' end='}'
 " autocmd FileType tex,plaintex syntax region texZone start='\\cite{' end='}'
-" autocmd FileType tex,plaintex syntax region texZone start='\\citep{' end='}'
-" autocmd FileType tex,plaintex syntax region texZone start='\\citet{' end='}'
+autocmd FileType tex,plaintex syntax match texRefZone '\\citet\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
+autocmd FileType tex,plaintex syntax match texRefZone '\\citep\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax match texRefZone '\\citetitle\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax match texRefZone '\\citetn\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax match texRefZone '\\citeauthor\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
@@ -149,6 +149,7 @@ autocmd FileType tex,plaintex syntax match texRefZone '\\citeseries\%([tp]\*\=\)
 autocmd FileType tex,plaintex syntax match texRefZone '\\citesn\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax match texRefZone '\\citejournaltitle\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax match texRefZone '\\citeurl\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
+autocmd FileType tex,plaintex syntax match texRefZone '\\printpartbibliography\%([tp]\*\=\)\=' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax region texRefZone start='\\citefield{.*}{' end='}' nextgroup=texRefOption,texCite
 autocmd FileType tex,plaintex syntax region texZone start='\\newlist{.*}{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\setlist{.*}{' end='}'

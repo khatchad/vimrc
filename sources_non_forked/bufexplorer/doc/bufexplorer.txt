@@ -1,13 +1,14 @@
-*bufexplorer.txt*              Buffer Explorer       Last Change: 20 Mar 2025
+*bufexplorer.txt*              Buffer Explorer       Last Change: 01 Apr 2025
 
 Buffer Explorer                                *buffer-explorer* *bufexplorer*
-                                Version 7.9.0
+                                Version 7.11.0
 
 Plugin for easily exploring (or browsing) Vim|:buffers|.
 
 |bufexplorer-installation|   Installation
 |bufexplorer-usage|          Usage
 |bufexplorer-windowlayout|   Window Layout
+|bufexplorer-commands|       Commands
 |bufexplorer-customization|  Customization
 |bufexplorer-changelog|      Change Log
 |bufexplorer-todo|           Todo
@@ -49,6 +50,8 @@ To start exploring in a newly split horizontal window, use: >
 To start exploring in a newly split vertical window, use: >
  <Leader>bv   or   :BufExplorerVerticalSplit   or   Your custom key mapping
 
+For full information on these flexible commands, see |bufexplorer-commands|.
+
 If you would like to use something other than the default leader key - '\' -
 you may simply change the leader (see |mapleader|).
 
@@ -59,10 +62,6 @@ bufexplorer show the buffer they are about to select (from the bufexplorer
 windows) in the newly split window.  When <Leader>be is issued, bufexplorer
 opens the bufexplorer contents in the current window and the buffer the user
 selects is opened in the current window.
-
-Note: If the current buffer is modified when bufexplorer started, the current
-      window is always split and the new bufexplorer is displayed in that new
-      window.
 
 Commands to use once exploring:
 
@@ -88,6 +87,8 @@ Commands to use once exploring:
  f             Open selected buffer in another window below the current.
  o             Opens the buffer that is under the cursor into the current
                window.
+ O             Opens the buffer that is under the cursor into the window where
+               BufExplorer was originally launched.
  p             Toggles the showing of a split filename/pathname.
  q             Exit/Close bufexplorer.
  r             Reverses the order the buffers are listed in.
@@ -111,6 +112,74 @@ able to move the cursor to the line containing the buffer's name you are
 wanting to act upon. Once you have selected the buffer you would like,
 you can then either open it, close it (delete), resort the list, reverse
 the sort, quit exploring and so on...
+
+===============================================================================
+COMMANDS                                            *bufexplorer-commands*
+
+:BufExplorer [action]                               *:BufExplorer*
+                Open or close BufExplorer.
+
+`:BufExplorer` accepts an optional "action" argument as follows:
+
+  current   Open BufExplorer in the current window
+  split     Open BufExplorer in a new horizontal split
+  vsplit    Open BufExplorer in a new vertical split
+  above     Open BufExplorer in a new horizontal split above the current window
+  below     Open BufExplorer in a new horizontal split below the current window
+  left      Open BufExplorer in a new vertical split left of the current window
+  right     Open BufExplorer in a new vertical split right of the current window
+  close     Close BufExplorer
+
+If the action argument is not provided, then the value of
+|g:bufExplorerDefaultAction| will be used; by default, this variable contains
+`current` and thus `:Bufexplorer` is the same as `:BufExplorer current`.
+
+Note that this means the behavior of the default mapping <Leader>be (which maps
+to `:BufExplorer`) is determined by |g:bufExplorerDefaultAction|.
+
+The `close` action will close BufExplorer regardless of the tab page or window
+where it was left running.
+
+For actions other than `close`, the `:BufExplorer` command will switch to any
+existing BufExplorer window instead of launching a new instance of BufExplorer.
+
+The actions `above`, `below`, `left`, and `right` specify the type of split
+(horizontal or vertical) to create and where the new window should be placed
+relative to the current window.
+
+The `split` action makes a horizontal split; the position of the split is
+controlled by |g:bufExplorerSplitBelow| (true means `below`, false means
+`above`).
+
+The `vsplit` action makes a vertical split; the position of the split is
+controlled by |g:bufExplorerSplitRight| (true means `right`, false means
+`left`).
+
+Tab completion is provided.  For example, typing `:BufExplorer v` and then
+pressing the <Tab> key will complete the action argument to become `vsplit`.
+
+:ToggleBufExplorer [action]                         *:ToggleBufExplorer*
+                Toggle open/closed BufExplorer.
+
+In most ways, this command is identical to |:BufExplorer|, and the invocation
+`:ToggleBufExplorer action` is equivalent to `:BufExplorer action`; however, if
+BufExplorer is already running in the current window, `action` is converted to
+`close` before chaining to `:BufExplorer action`.  If BufExplorer is running in
+a different window and the action is not `close`, switch to that already-running
+BufExplorer window.
+
+Note that the behavior of the default mapping <Leader>bt (which maps to
+`:ToggleBufExplorer`) is determined by |g:bufExplorerDefaultAction|.
+
+:BufExplorerHorizontalSplit                         *:BufExplorerHorizontalSplit*
+                Open BufExplorer in a new horizontal split.
+
+This is equivalent to `:BufExplorer split`.
+
+:BufExplorerVerticalSplit                           *:BufExplorerVerticalSplit*
+                Open BufExplorer in a new vertical split.
+
+This is equivalent to `:BufExplorer vsplit`.
 
 ===============================================================================
 WINDOW LAYOUT                                       *bufexplorer-windowlayout*
@@ -151,6 +220,7 @@ provides.  The mappings are buffer-local to BufExplorer:
   <Plug>(BufExplorer_Close)                    Close BufExplorer window
   <Plug>(BufExplorer_OpenBuffer)               Open buffer
   <Plug>(BufExplorer_OpenBufferAsk)            Prompt for buffer & open
+  <Plug>(BufExplorer_OpenBufferOriginalWindow) Open buffer in original window
   <Plug>(BufExplorer_OpenBufferSplitAbove)     Horizontal split & open above
   <Plug>(BufExplorer_OpenBufferSplitBelow)     Horizontal split & open below
   <Plug>(BufExplorer_OpenBufferSplitLeft)      Vertical split & open left
@@ -183,6 +253,7 @@ BufExplorer's buffer:
   nmap <nowait> <buffer> f        <Plug>(BufExplorer_OpenBufferSplitBelow)
   nmap <nowait> <buffer> F        <Plug>(BufExplorer_OpenBufferSplitAbove)
   nmap <nowait> <buffer> o        <Plug>(BufExplorer_OpenBuffer)
+  nmap <nowait> <buffer> O        <Plug>(BufExplorer_OpenBufferOriginalWindow)
   nmap <nowait> <buffer> p        <Plug>(BufExplorer_ToggleSplitOutPathName)
   nmap <nowait> <buffer> q        <Plug>(BufExplorer_Close)
   nmap <nowait> <buffer> r        <Plug>(BufExplorer_ToggleReverseSort)
@@ -241,6 +312,19 @@ be called to adjust BufExplorer's mappings: >
                                                           *g:bufExplorerChgWin*
 If set, bufexplorer will bring up the selected buffer in the window specified
 by g:bufExplorerChgWin.
+
+                                                   *g:bufExplorerDefaultAction*
+Specify the default action for |:BufExplorer| and |:ToggleBufExplorer|.  For
+example: >
+  let g:bufExplorerDefaultAction = 'current'  " Open in current window.
+  let g:bufExplorerDefaultAction = 'split'    " Open in new horizontal split.
+  let g:bufExplorerDefaultAction = 'vsplit'   " Open in new vertical split.
+  let g:bufExplorerDefaultAction = 'above'    " Open in horizontal split above.
+  let g:bufExplorerDefaultAction = 'below'    " Open in horizontal split below.
+  let g:bufExplorerDefaultAction = 'left'     " Open in vertical split to left.
+  let g:bufExplorerDefaultAction = 'right'    " Open in vertical split to right.
+The default is `current` (open in current window). See |:BufExplorer| for more
+details.
 
                                                      *g:bufExplorerDefaultHelp*
 To control whether the default help is displayed or not, use: >
@@ -378,6 +462,44 @@ The default is 1.
 ===============================================================================
 CHANGE LOG                                              *bufexplorer-changelog*
 
+7.11.0   April 01, 2025
+     What's Changed
+     - Thanks to Dr. Michael Henry for another patch.
+       * Fixed issue #131 when no help text is displayed and there are no
+         buffers to display.
+         https://github.com/jlanzarotta/bufexplorer/pull/132
+7.10.0   March 25, 2025
+     What's Changed
+     - Another major patch implemented by Dr. Michael Henry.
+       * Use a separate syntax/bufexplorer.vim file for syntax highlighting.
+         https://github.com/jlanzarotta/bufexplorer/pull/127
+         - Instead of setting up syntax highlighting for BufExplorer via a
+           function call, place syntax-related code into
+           syntax/bufexplorer.vim.
+         - This addresses issue Rainbow_csv interferes with syntax of
+           BufExplorer #82, wherein BufExplorer syntax highlighting becomes
+           disabled when the rainbow_csv plugin executes an "ugly hack" that
+           invokes :set filetype=bufexplorer.
+       * Add 'O' command to open in the original window at BufExplorer launch.
+         https://github.com/jlanzarotta/bufexplorer/pull/128
+         - Add new O command to open the buffer under the cursor into the
+           window where BufExplorer was originally launched.
+         - This addresses issue Open buffer in previous buffer #55.
+       * Flexibly open, close, and toggle BufExplorer windows and splits.
+         https://github.com/jlanzarotta/bufexplorer/pull/129
+         - Add action argument to :BufExplorer and :ToggleBufExplorer commands
+           for flexible control of BufExplorer window opening and closing:
+           * Switch to a running BufExplorer window even if GUI support is not
+             available.
+           * Close BufExplorer even if running in a different window.
+           * Toggle BufExplorer window with flexible split modes.
+         - Make default action configurable.
+         - Address issues:
+           * Can <leader>\be do a toggle instead? #3
+           * Add variable setting, instead of command for
+             BufExplorerVerticalSplit #94.
+           * How close BufExplorer is if it has opened in another tab? #95.
+           * Support toggle for vertical/horizontal splits #106.
 7.9.0    March 20, 2025
      What's Changed
      - Another major patch implemented by Dr. Michael Henry.
