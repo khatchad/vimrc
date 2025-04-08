@@ -302,7 +302,9 @@ let g:netrw_browsex_viewer= "google-chrome"
 " set background=light
 " colorscheme parsec
 " colorscheme peachpuff
-colorscheme desert
+" colorscheme desert
+" colorscheme OceanicNext
+colorscheme gruvbox
 " set mouse-=a
 
 autocmd FileChangedShell * echo "File changed, enter :e to reload."
