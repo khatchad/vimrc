@@ -64,7 +64,6 @@ vim-nightfly-guicolors https://github.com/bluz71/vim-nightfly-guicolors
 shuffle https://github.com/khatchad/shuffle.vim
 csv https://github.com/chrisbra/csv.vim
 copilot.vim https://github.com/github/copilot.vim
-vim-latex https://github.com/vim-latex/vim-latex
 """.strip()
 
 GITHUB_ZIP = "%s/archive/master.zip"
