@@ -36,7 +36,7 @@
 " Name Of File: bufexplorer.vim
 "  Description: Buffer Explorer Vim Plugin
 "   Maintainer: Jeff Lanzarotta (my name at gmail dot com)
-" Last Changed: Tuesday, 01 July 2025
+" Last Changed: Tuesday, 19 August 2025
 "      Version: See g:bufexplorer_version for version number.
 "        Usage: This file should reside in the plugin directory and be
 "               automatically sourced.
@@ -74,7 +74,7 @@ endif
 "1}}}
 
 " Version number.
-let g:bufexplorer_version = "7.12.1"
+let g:bufexplorer_version = "7.13.0"
 
 " Plugin Code {{{1
 " Check for Vim version {{{2
@@ -532,11 +532,6 @@ endfunction
 function! s:ShouldIgnore(buf)
     " Ignore temporary buffers with buftype set.
     if empty(getbufvar(a:buf, "&buftype")) == 0
-        return 1
-    endif
-
-    " Ignore buffers with no name.
-    if empty(bufname(a:buf)) == 1
         return 1
     endif
 
