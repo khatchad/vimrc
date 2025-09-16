@@ -257,6 +257,11 @@ au FileType xml setl tabstop=2 softtabstop=2 shiftwidth=2 expandtab
 au FileType html setl fp=tidy\ -q\ -i\ -wrap
 
 """"""""""""""""""""""""""""""
+" => CSS section
+"""""""""""""""""""""""""""""""
+au FileType css setl fp=npx\ prettier\ --parser\ css
+
+""""""""""""""""""""""""""""""
 " => Javascript section
 """""""""""""""""""""""""""""""
 au FileType javascript setl fp=json_xs\ -f\ json\ -t\ json-pretty
@@ -305,11 +310,17 @@ let g:netrw_browsex_viewer= "google-chrome"
 " colorscheme peachpuff
 " colorscheme desert
 " colorscheme OceanicNext
-colorscheme gruvbox
+" colorscheme gruvbox
+colorscheme peaksea
 " set mouse-=a
 
 autocmd FileChangedShell * echo "File changed, enter :e to reload."
 
 let g:copilot_filetypes = {
-	    \ 'log': v:false
+	    \ 'log': v:true,
+	    \ 'gitcommit': v:true,
 	    \}
+
+let g:better_whitespace_enabled=1
+let g:strip_whitespace_on_save=1
+let g:strip_whitespace_confirm=1
