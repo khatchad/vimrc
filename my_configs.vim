@@ -160,6 +160,7 @@ autocmd FileType tex,plaintex syntax region texZone start='\\newcounter{' end='}
 autocmd FileType tex,plaintex syntax region texZone start='\\newmdenv{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\setminted{' end='}'
 autocmd FileType tex,plaintex syntax region texZone start='\\setmintedinline{' end='}'
+autocmd FileType tex,plaintex syntax region texZone start='\\answer{' end='}'
 
 "===== For custom mappings
 augroup MyTeXIMAPs
