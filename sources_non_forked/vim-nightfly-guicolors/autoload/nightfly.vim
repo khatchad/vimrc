@@ -38,6 +38,7 @@ let s:cyan_blue    = '#316394'
 let s:bay_blue     = '#24567F'
 let s:kashmir      = '#4d618e'
 let s:plant        = '#2a4e57'
+let s:haze         = "#87a3ba"
 
 function! nightfly#Style() abort
     "-----------------------------------------------------------------------
@@ -223,7 +224,7 @@ function! nightfly#Style() abort
     exec 'highlight ErrorMsg guibg=bg guifg=' . s:red
     exec 'highlight WarningMsg guibg=bg guifg=' . s:orange
 
-    " Auto-text-completion menu
+    " Completions
     exec 'highlight Pmenu guibg=' . s:deep_blue . ' guifg=fg'
     exec 'highlight PmenuSel guibg=' . s:cyan_blue . ' guifg=' . s:white_blue
     exec 'highlight PmenuSbar guibg=' . s:deep_blue
@@ -257,9 +258,9 @@ function! nightfly#Style() abort
     exec 'highlight CursorColumn guibg=' . s:dark_blue
     exec 'highlight CursorLine cterm=none guibg=' . s:dark_blue
     highlight! link CursorLineSign CursorLine
-    exec 'highlight Folded guibg=' . s:dark_blue . ' guifg='. s:lime
-    exec 'highlight FoldColumn guibg=' . s:slate_blue . ' guifg=' . s:lime
-    exec 'highlight SignColumn guibg=bg guifg=' . s:green
+    exec 'highlight Folded guibg=' . s:dark_blue . ' guifg='. s:haze
+    exec 'highlight FoldColumn guibg=bg guifg=' . s:haze
+    exec 'highlight SignColumn guibg=bg guifg=' . s:haze
     exec 'highlight Todo guibg=' . s:deep_blue . ' guifg=' . s:yellow
     exec 'highlight SpecialKey guibg=bg guifg=' . s:blue
     if g:nightflyUnderlineMatchParen

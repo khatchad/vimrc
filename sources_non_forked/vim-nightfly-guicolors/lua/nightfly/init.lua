@@ -49,6 +49,7 @@ local bay_blue = "#24567f"
 local kashmir = "#4d618e"
 local plant = "#2a4e57"
 local bermuda = "#6e8da6"
+local haze = "#87a3ba"
 
 local nightfly_palette = function()
   return {
@@ -90,6 +91,7 @@ local nightfly_palette = function()
     kashmir = kashmir,
     plant = plant,
     bermuda = bermuda,
+    haze = haze,
   }
 end
 
@@ -292,7 +294,9 @@ M.style = function()
   highlight(0, "ErrorMsg", { bg = bg, fg = red })
   highlight(0, "WarningMsg", { bg = bg, fg = orange })
 
-  -- Auto-text-completion menu
+  -- Completions
+  highlight(0, "ComplHint", { link = "NightflySteelBlue" })
+  highlight(0, "ComplHintMore", { link = "NightflyMalibu" })
   highlight(0, "Pmenu", { bg = deep_blue, fg = white })
   highlight(0, "PmenuSel", { bg = cyan_blue, fg = white_blue })
   highlight(0, "PmenuSbar", { link = "NightflyCurrentLine" })
@@ -326,9 +330,9 @@ M.style = function()
   highlight(0, "CursorColumn", { bg = dark_blue })
   highlight(0, "CursorLine", { bg = dark_blue })
   highlight(0, "CursorLineSign", { link = "CursorLine" })
-  highlight(0, "Folded", { bg = dark_blue, fg = lime })
-  highlight(0, "FoldColumn", { bg = slate_blue, fg = lime })
-  highlight(0, "SignColumn", { bg = bg, fg = green })
+  highlight(0, "Folded", { bg = dark_blue, fg = haze })
+  highlight(0, "FoldColumn", { bg = bg, fg = haze })
+  highlight(0, "SignColumn", { bg = bg, fg = haze })
   highlight(0, "Todo", { bg = deep_blue, fg = yellow })
   highlight(0, "SpecialKey", { bg = bg, fg = blue })
   if g.nightflyUnderlineMatchParen then
@@ -1195,6 +1199,14 @@ M.style = function()
   highlight(0, "RainbowDelimiterViolet", { link = "NightflyViolet" })
   highlight(0, "RainbowDelimiterCyan", { link = "NightflyTurquoise" })
 
+  -- sidekick.nvim
+  highlight(0, "SidekickDiffAdd", { link = "DiffAdd" })
+  highlight(0, "SidekickDiffContext", { link = "DiffChange" })
+  highlight(0, "SidekickDiffDelete", { link = "DiffDelete" })
+  highlight(0, "SidekickSignAdd", { link = "GitSignsAdd" })
+  highlight(0, "SidekickSignChange", { link = "GitSignsChange" })
+  highlight(0, "SidekickSignDelete", { link = "GitSignsDelete" })
+
   -- snacks.nvim
   --   misc
   highlight(0, "SnacksWinBar", { link = "NightflyBlue" })
@@ -1433,6 +1445,7 @@ M.custom_colors = function(colors)
   kashmir = colors.kashmir and colors.kashmir or M.palette.kashmir
   plant = colors.plant and colors.plant or M.palette.plant
   bermuda = colors.bermuda and colors.bermuda or M.palette.bermuda
+  haze = colors.haze and colors.haze or M.palette.haze
 
   -- Rebuild the palette with custom colors.
   M.palette = nightfly_palette()
