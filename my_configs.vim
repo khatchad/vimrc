@@ -320,6 +320,8 @@ autocmd FileChangedShell * echo "File changed, enter :e to reload."
 let g:copilot_filetypes = {
 	    \ 'log': v:true,
 	    \ 'gitcommit': v:true,
+	    \ 'markdown': v:true,
+	    \ 'yaml': v:true,
 	    \}
 
 let g:better_whitespace_enabled=1
