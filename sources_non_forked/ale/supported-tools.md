@@ -190,6 +190,7 @@ formatting.
   * [dialyxir](https://github.com/jeremyjh/dialyxir)
   * [dogma](https://github.com/lpil/dogma) :floppy_disk:
   * [elixir-ls](https://github.com/elixir-lsp/elixir-ls) :warning: :speech_balloon:
+  * [expert](https://github.com/elixir-lang/expert) :warning: :speech_balloon:
   * [lexical](https://github.com/lexical-lsp/lexical) :warning: :speech_balloon:
   * [mix](https://hexdocs.pm/mix/Mix.html) :warning: :floppy_disk:
 * Elm
@@ -299,6 +300,7 @@ formatting.
   * [prettier](https://github.com/prettier/prettier)
   * [proselint](http://proselint.com/)
   * [rustywind](https://github.com/avencera/rustywind)
+  * [superhtml](https://github.com/kristoff-it/superhtml)
   * [tidy](http://www.html-tidy.org/)
   * [write-good](https://github.com/btford/write-good)
 * HTML Angular
@@ -346,6 +348,7 @@ formatting.
   * [xo](https://github.com/sindresorhus/xo)
 * Jinja
   * [djlint](https://djlint.com/)
+  * [j2lint](https://github.com/aristanetworks/j2lint/)
 * JSON
   * [VSCode JSON language server](https://github.com/hrsh7th/vscode-langservers-extracted)
   * [biome](https://biomejs.dev/)

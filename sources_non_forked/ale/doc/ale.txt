@@ -3490,6 +3490,7 @@ documented in additional help files.
     credo.................................|ale-elixir-credo|
     cspell................................|ale-elixir-cspell|
     lexical...............................|ale-elixir-lexical|
+    expert................................|ale-elixir-expert|
   elm.....................................|ale-elm-options|
     elm-format............................|ale-elm-elm-format|
     elm-ls................................|ale-elm-elm-ls|
@@ -3586,6 +3587,7 @@ documented in additional help files.
     prettier..............................|ale-html-prettier|
     rustywind.............................|ale-html-rustywind|
     stylelint.............................|ale-html-stylelint|
+    superhtml.............................|ale-html-superhtml|
     tidy..................................|ale-html-tidy|
     vscodehtml............................|ale-html-vscode|
     write-good............................|ale-html-write-good|
@@ -3634,6 +3636,7 @@ documented in additional help files.
     xo....................................|ale-javascript-xo|
   jinja...................................|ale-jinja-options|
     djlint................................|ale-jinja-djlint|
+    j2lint................................|ale-jinja-j2lint|
   json....................................|ale-json-options|
     biome.................................|ale-json-biome|
     clang-format..........................|ale-json-clangformat|

@@ -12,6 +12,7 @@ end
 -- Variations of midnight-blue
 local black_blue = "#081e2f"
 local dark_blue = "#092236"
+local ink_blue = "#09243a"
 local deep_blue = "#0e293f"
 local storm_blue = "#1b2633"
 local stone_blue = "#252c3f"
@@ -19,6 +20,7 @@ local slate_blue = "#2c3043"
 local pickle_blue = "#38507a"
 local cello_blue = "#1f4462"
 local regal_blue = "#1d3b53"
+local carbon_blue = "#334e65"
 local steel_blue = "#4b6479"
 local grey_blue = "#7c8f8f"
 local graphite_blue = "#768799"
@@ -49,6 +51,7 @@ local bay_blue = "#24567f"
 local kashmir = "#4d618e"
 local plant = "#2a4e57"
 local bermuda = "#6e8da6"
+local haze = "#87a3ba"
 
 local nightfly_palette = function()
   return {
@@ -57,12 +60,14 @@ local nightfly_palette = function()
     bg = bg,
     black_blue = black_blue,
     dark_blue = dark_blue,
+    ink_blue = ink_blue,
     deep_blue = deep_blue,
     storm_blue = storm_blue,
     stone_blue = stone_blue,
     slate_blue = slate_blue,
     pickle_blue = pickle_blue,
     regal_blue = regal_blue,
+    carbon_blue = carbon_blue,
     steel_blue = steel_blue,
     grey_blue = grey_blue,
     cadet_blue = cadet_blue,
@@ -90,6 +95,7 @@ local nightfly_palette = function()
     kashmir = kashmir,
     plant = plant,
     bermuda = bermuda,
+    haze = haze,
   }
 end
 
@@ -186,7 +192,7 @@ M.style = function()
   highlight(0, "Normal", { bg = bg, fg = white })
 
   -- Color of mode text, -- INSERT --
-  highlight(0, "ModeMsg", { fg = cadet_blue })
+  highlight(0, "ModeMsg", { link = "NightflyCadetBlue" })
 
   -- Comments
   if g.nightflyItalics then
@@ -292,10 +298,19 @@ M.style = function()
   highlight(0, "ErrorMsg", { bg = bg, fg = red })
   highlight(0, "WarningMsg", { bg = bg, fg = orange })
 
-  -- Auto-text-completion menu
-  highlight(0, "Pmenu", { bg = deep_blue, fg = white })
+  -- Completions
+  highlight(0, "ComplHint", { link = "NightflySteelBlue" })
+  highlight(0, "ComplHintMore", { link = "NightflyMalibu" })
+  highlight(0, "ComplMatchIns", { link = "NightflyCadetBlue" })
+  if g.nightflyNormalPmenu then
+    highlight(0, "Pmenu", { bg = bg, fg = cadet_blue })
+    highlight(0, "PmenuBorder", { bg = bg, fg = slate_blue })
+  else
+    highlight(0, "Pmenu", { bg = ink_blue, fg = white })
+    highlight(0, "PmenuBorder", { bg = ink_blue, fg = carbon_blue })
+  end
   highlight(0, "PmenuSel", { bg = cyan_blue, fg = white_blue })
-  highlight(0, "PmenuSbar", { link = "NightflyCurrentLine" })
+  highlight(0, "PmenuSbar", { bg = ink_blue })
   highlight(0, "PmenuThumb", { bg = steel_blue })
   highlight(0, "WildMenu", { bg = cyan_blue, fg = white_blue })
 
@@ -326,9 +341,9 @@ M.style = function()
   highlight(0, "CursorColumn", { bg = dark_blue })
   highlight(0, "CursorLine", { bg = dark_blue })
   highlight(0, "CursorLineSign", { link = "CursorLine" })
-  highlight(0, "Folded", { bg = dark_blue, fg = lime })
-  highlight(0, "FoldColumn", { bg = slate_blue, fg = lime })
-  highlight(0, "SignColumn", { bg = bg, fg = green })
+  highlight(0, "Folded", { bg = dark_blue, fg = haze })
+  highlight(0, "FoldColumn", { bg = bg, fg = haze })
+  highlight(0, "SignColumn", { bg = bg, fg = haze })
   highlight(0, "Todo", { bg = deep_blue, fg = yellow })
   highlight(0, "SpecialKey", { bg = bg, fg = blue })
   if g.nightflyUnderlineMatchParen then
@@ -363,11 +378,12 @@ M.style = function()
   highlight(0, "TermCursor", { bg = cadet_blue, fg = black })
   if g.nightflyNormalFloat then
     highlight(0, "NormalFloat", { bg = bg, fg = cadet_blue })
+    highlight(0, "FloatBorder", { bg = bg, fg = slate_blue })
   else
-    highlight(0, "NormalFloat", { bg = dark_blue, fg = white })
+    highlight(0, "NormalFloat", { bg = ink_blue, fg = white })
+    highlight(0, "FloatBorder", { bg = ink_blue, fg = carbon_blue })
   end
-  highlight(0, "FloatBorder", { bg = bg, fg = slate_blue })
-  highlight(0, "FloatBorder2", { bg = bg, fg = steel_blue })
+  highlight(0, "FloatBorderTransparent", { bg = bg, fg = slate_blue })
   highlight(0, "FloatTitle", { bg = slate_blue, fg = white })
   if g.nightflyTransparent then
     highlight(0, "WinBar", { fg = white })
@@ -448,9 +464,8 @@ M.style = function()
   highlight(0, "@variable.parameter", { link = "NightflyOrchid" })
 
   -- Language specific Tree-sitter overrides.
-  highlight(0, "@attribute.bind.html", { link = "NightflyMalibu" })
-  highlight(0, "@attribute.directive.value.html", { link = "NightflyLavender" })
-  highlight(0, "@attribute.on.html", { link = "NightflyEmerald" })
+  highlight(0, "@attribute.bind.html", { link = "NightflyEmerald" })
+  highlight(0, "@attribute.on.html", { link = "NightflyOrchid" })
   highlight(0, "@attribute.zig", { link = "NightflyViolet" })
   highlight(0, "@character.special.vim", { link = "NightflyBlue" })
   highlight(0, "@function.macro.vim", { link = "NightflyBlue" })
@@ -754,6 +769,27 @@ M.style = function()
   highlight(0, "BlinkCmpMenuBorder", { link = "FloatBorder" })
   highlight(0, "BlinkCmpMenuSelection", { link = "NightflyVisual" })
 
+  -- blink.indent plugin
+  --   base highlights
+  highlight(0, "BlinkIndent", { link = "IblIndent" })
+  highlight(0, "BlinkIndentScope", { link = "IblScope" })
+  --   colored indents
+  highlight(0, "BlinkIndentRed", { link = "NightflyRed" })
+  highlight(0, "BlinkIndentOrange", { link = "NightflyOrange" })
+  highlight(0, "BlinkIndentYellow", { link = "NightflyYellow" })
+  highlight(0, "BlinkIndentGreen", { link = "NightflyGreen" })
+  highlight(0, "BlinkIndentCyan", { link = "NightflyTurquoise" })
+  highlight(0, "BlinkIndentBlue", { link = "NightflyBlue" })
+  highlight(0, "BlinkIndentViolet", { link = "NightflyViolet" })
+  --   colored underlines
+  highlight(0, "BlinkIndentRedUnderline", { sp = red, underline = true })
+  highlight(0, "BlinkIndentOrangeUnderline", { sp = orange, underline = true })
+  highlight(0, "BlinkIndentYellowUnderline", { sp = yellow, underline = true })
+  highlight(0, "BlinkIndentGreenUnderline", { sp = green, underline = true })
+  highlight(0, "BlinkIndentCyanUnderline", { sp = turquoise, underline = true })
+  highlight(0, "BlinkIndentBlueUnderline", { sp = blue, underline = true })
+  highlight(0, "BlinkIndentVioletUnderline", { sp = violet, underline = true })
+
   -- Bufferline plugin
   highlight(0, "BufferLineTabSelected", { fg = blue })
   highlight(0, "BufferLineIndicatorSelected", { fg = blue })
@@ -764,8 +800,8 @@ M.style = function()
   highlight(0, "DashboardHeader", { link = "NightflyBlue" })
   highlight(0, "DashboardShortCut", { link = "NightflyTurquoise" })
 
-  -- fzf-lua
-  highlight(0, "FzfLuaBorder", { link = "FloatBorder" })
+  -- fzf-lua plugin
+  highlight(0, "FzfLuaBorder", { link = "FloatBorderTransparent" })
   highlight(0, "FzfLuaBufFlagAlt", { link = "NightflyTurquoise" })
   highlight(0, "FzfLuaBufFlagCur", { link = "NightflyOrange" })
   highlight(0, "FzfLuaBufNr", { link = "NightflyTan" })
@@ -839,9 +875,6 @@ M.style = function()
   highlight(0, "LazySpecial", { link = "NightflyBlue" })
   highlight(0, "LazyButton", { bg = deep_blue, fg = white })
   highlight(0, "LazyButtonActive", { bg = bay_blue, fg = white_blue })
-  if g.nightflyNormalFloat ~= true then
-    highlight(0, "LazyNormal", { bg = black_blue, fg = white })
-  end
 
   -- linefly plugin
   highlight(0, "LineflyNormal", { link = "NightflyBlueMode" })
@@ -854,7 +887,7 @@ M.style = function()
   highlight(0, "TitleString", { link = "NightflyBlue" })
   highlight(0, "TitleIcon", { link = "NightflyBlue" })
   highlight(0, "TitleSymbol", { link = "NightflyBlue" })
-  highlight(0, "SagaBorder", { link = "FloatBorder" })
+  highlight(0, "SagaBorder", { link = "FloatBorderTransparent" })
   highlight(0, "SagaNormal", { link = "Normal" })
   highlight(0, "SagaExpand", { link = "NightflyWatermelon" })
   highlight(0, "SagaCollapse", { link = "NightflyWatermelon" })
@@ -895,7 +928,7 @@ M.style = function()
 
   -- Mini.nvim plugin
   highlight(0, "MiniAnimateNormalFloat", { link = "NormalFloat" })
-  highlight(0, "MiniClueBorder", { link = "FloatBorder" })
+  highlight(0, "MiniClueBorder", { link = "FloatBorderTransparent" })
   highlight(0, "MiniClueDescGroup", { link = "DiagnosticFloatingWarn" })
   highlight(0, "MiniClueDescSingle", { link = "NormalFloat" })
   highlight(0, "MiniClueNextKey", { link = "DiagnosticFloatingHint" })
@@ -1078,7 +1111,7 @@ M.style = function()
   highlight(0, "DapUIBreakpointsInfo", { link = "NightflyMalibu" })
   highlight(0, "DapUIBreakpointsPath", { link = "NightflyTurquoise" })
   highlight(0, "DapUIDecoration", { link = "NightflyBlue" })
-  highlight(0, "DapUIFloatBorder", { link = "FloatBorder" })
+  highlight(0, "DapUIFloatBorder", { link = "FloatBorderTransparent" })
   highlight(0, "DapUILineNumber", { link = "Number" })
   highlight(0, "DapUIModifiedValue", { fg = white, underline = true })
   highlight(0, "DapUIPlayPause", { bg = deep_blue, fg = green })
@@ -1129,11 +1162,11 @@ M.style = function()
   highlight(0, "NavicIconsVariable", { link = "NavicIconsEnumMember" })
 
   -- nvim-notify plugin
-  highlight(0, "NotifyERRORBorder", { link = "FloatBorder" })
-  highlight(0, "NotifyWARNBorder", { link = "FloatBorder" })
-  highlight(0, "NotifyINFOBorder", { link = "FloatBorder" })
-  highlight(0, "NotifyDEBUGBorder", { link = "FloatBorder" })
-  highlight(0, "NotifyTRACEBorder", { link = "FloatBorder" })
+  highlight(0, "NotifyERRORBorder", { link = "FloatBorderTransparent" })
+  highlight(0, "NotifyWARNBorder", { link = "FloatBorderTransparent" })
+  highlight(0, "NotifyINFOBorder", { link = "FloatBorderTransparent" })
+  highlight(0, "NotifyDEBUGBorder", { link = "FloatBorderTransparent" })
+  highlight(0, "NotifyTRACEBorder", { link = "FloatBorderTransparent" })
   highlight(0, "NotifyERRORIcon", { link = "NightflyRed" })
   highlight(0, "NotifyWARNIcon", { link = "NightflyYellow" })
   highlight(0, "NotifyINFOIcon", { link = "NightflyBlue" })
@@ -1195,7 +1228,15 @@ M.style = function()
   highlight(0, "RainbowDelimiterViolet", { link = "NightflyViolet" })
   highlight(0, "RainbowDelimiterCyan", { link = "NightflyTurquoise" })
 
-  -- snacks.nvim
+  -- sidekick.nvim plugin
+  highlight(0, "SidekickDiffAdd", { link = "DiffAdd" })
+  highlight(0, "SidekickDiffContext", { link = "DiffChange" })
+  highlight(0, "SidekickDiffDelete", { link = "DiffDelete" })
+  highlight(0, "SidekickSignAdd", { link = "GitSignsAdd" })
+  highlight(0, "SidekickSignChange", { link = "GitSignsChange" })
+  highlight(0, "SidekickSignDelete", { link = "GitSignsDelete" })
+
+  -- snacks.nvim plugin
   --   misc
   highlight(0, "SnacksWinBar", { link = "NightflyBlue" })
   highlight(0, "SnacksScratchKey", { link = "DiagnosticInfo" })
@@ -1226,14 +1267,15 @@ M.style = function()
   highlight(0, "SnacksNotifierTitleDebug", { link = "DiagnosticHint" })
   highlight(0, "SnacksNotifierTitleError", { link = "DiagnosticError" })
   highlight(0, "SnacksNotifierTitleTrace", { link = "DiagnosticHint" })
-  highlight(0, "SnacksBorderTitleInfo", { link = "FloatBorder" })
-  highlight(0, "SnacksBorderTitleWarn", { link = "FloatBorder" })
-  highlight(0, "SnacksBorderTitleDebug", { link = "FloatBorder" })
-  highlight(0, "SnacksBorderTitleError", { link = "FloatBorder" })
-  highlight(0, "SnacksBorderTitleTrace", { link = "FloatBorder" })
+  highlight(0, "SnacksBorderTitleInfo", { link = "FloatBorderTransparent" })
+  highlight(0, "SnacksBorderTitleWarn", { link = "FloatBorderTransparent" })
+  highlight(0, "SnacksBorderTitleDebug", { link = "FloatBorderTransparent" })
+  highlight(0, "SnacksBorderTitleError", { link = "FloatBorderTransparent" })
+  highlight(0, "SnacksBorderTitleTrace", { link = "FloatBorderTransparent" })
   --   picker
   highlight(0, "SnacksPicker", { link = "Normal" })
   highlight(0, "SnacksPickerAuEvent", { link = "NightflyBlue" })
+  highlight(0, "SnacksPickerBorder", { link = "FloatBorderTransparent" })
   highlight(0, "SnacksPickerCol", { link = "NightflySteelBlue" })
   highlight(0, "SnacksPickerCursorLine", { link = "Normal" })
   highlight(0, "SnacksPickerDir", { fg = graphite_blue })
@@ -1259,7 +1301,7 @@ M.style = function()
   highlight(0, "SnacksPickerUndoRemoved", { link = "diffRemoved" })
 
   -- Telescope plugin
-  highlight(0, "TelescopeBorder", { link = "FloatBorder" })
+  highlight(0, "TelescopeBorder", { link = "FloatBorderTransparent" })
   highlight(0, "TelescopeMatching", { link = "NightflyOrange" })
   highlight(0, "TelescopeMultiIcon", { link = "NightflyWatermelon" })
   highlight(0, "TelescopeMultiSelection", { link = "NightflyEmerald" })
@@ -1400,12 +1442,14 @@ M.custom_colors = function(colors)
   bg = colors.bg and colors.bg or M.palette.bg
   black_blue = colors.black_blue and colors.black_blue or M.palette.black_blue
   dark_blue = colors.dark_blue and colors.dark_blue or M.palette.dark_blue
+  ink_blue = colors.ink_blue and colors.ink_blue or M.palette.ink_blue
   deep_blue = colors.deep_blue and colors.deep_blue or M.palette.deep_blue
   storm_blue = colors.storm_blue and colors.storm_blue or M.palette.storm_blue
   stone_blue = colors.stone_blue and colors.stone_blue or M.palette.stone_blue
   slate_blue = colors.slate_blue and colors.slate_blue or M.palette.slate_blue
   pickle_blue = colors.pickle_blue and colors.pickle_blue or M.palette.pickle_blue
   regal_blue = colors.regal_blue and colors.regal_blue or M.palette.regal_blue
+  carbon_blue = colors.carbon_blue and colors.carbon_blue or M.palette.carbon_blue
   steel_blue = colors.steel_blue and colors.steel_blue or M.palette.steel_blue
   grey_blue = colors.grey_blue and colors.grey_blue or M.palette.grey_blue
   cadet_blue = colors.cadet_blue and colors.cadet_blue or M.palette.cadet_blue
@@ -1433,6 +1477,7 @@ M.custom_colors = function(colors)
   kashmir = colors.kashmir and colors.kashmir or M.palette.kashmir
   plant = colors.plant and colors.plant or M.palette.plant
   bermuda = colors.bermuda and colors.bermuda or M.palette.bermuda
+  haze = colors.haze and colors.haze or M.palette.haze
 
   -- Rebuild the palette with custom colors.
   M.palette = nightfly_palette()

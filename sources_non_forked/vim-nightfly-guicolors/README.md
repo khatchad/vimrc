@@ -25,6 +25,7 @@ Neovim-only:
 - [Neovim LSP Semantic Highlights](https://neovim.io/doc/user/lsp.html#lsp-semantic-highlight)
 - [Barbar](https://github.com/romgrk/barbar.nvim)
 - [blink.cmp](https://github.com/Saghen/blink.cmp)
+- [blink.indent](https://github.com/Saghen/blink.indent)
 - [Dashboard](https://github.com/glepnir/dashboard-nvim)
 - [fzf.lua](https://github.com/ibhagwan/fzf-lua)
 - [Gitsigns](https://github.com/lewis6991/gitsigns.nvim)
@@ -46,6 +47,7 @@ Neovim-only:
 - [NvCheatsheet.nvim](https://github.com/smartinellimarco/nvcheatsheet.nvim)
 - [NvimTree](https://github.com/kyazdani42/nvim-tree.lua)
 - [Rainbow Delimiters](https://github.com/HiPhish/rainbow-delimiters.nvim)
+- [sidekick.nvim](https://github.com/folke/sidekick.nvim)
 - [snacks.nvim](https://github.com/folke/snacks.nvim)
 - [Telescope](https://github.com/nvim-telescope/telescope.nvim)
 
@@ -84,16 +86,24 @@ Installation
 Install the **bluz71/vim-nightfly-colors** colorscheme with your preferred
 plugin manager.
 
-[lazy.nvim](https://github.com/folke/lazy.nvim):
+- [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
 { "bluz71/vim-nightfly-colors", name = "nightfly", lazy = false, priority = 1000 },
 ```
 
-[vim-plug](https://github.com/junegunn/vim-plug):
+- [vim-plug](https://github.com/junegunn/vim-plug):
 
 ```vim
 Plug 'bluz71/vim-nightfly-colors', { 'as': 'nightfly' }
+```
+
+- [Neovim vim.pack](https://neovim.io/doc/user/pack.html#vim.pack):
+
+```lua
+vim.pack.add({
+  { src = "https://github.com/bluz71/vim-nightfly-colors", name = "nightfly" },
+})
 ```
 
 Usage
@@ -145,6 +155,7 @@ let g:lightline = { 'colorscheme': 'nightfly' }
 |--------|--------------
 | [nightflyCursorColor](https://github.com/bluz71/vim-nightfly-colors#nightflycursorcolor)                 | Disabled
 | [nightflyItalics](https://github.com/bluz71/vim-nightfly-colors#nightflyitalics)                         | Enabled
+| [nightflyNormalPmenu](https://github.com/bluz71/vim-nightfly-colors#nightflynormalpmenu)                 | Disabled
 | [nightflyNormalFloat](https://github.com/bluz71/vim-nightfly-colors#nightflynormalfloat)                 | Disabled
 | [nightflyTerminalColors](https://github.com/bluz71/vim-nightfly-colors#nightflyterminalcolors)           | Enabled
 | [nightflyTransparent](https://github.com/bluz71/vim-nightfly-colors#nightflytransparent)                 | Disabled
@@ -192,6 +203,32 @@ let g:nightflyItalics = v:false
 
 ---
 
+### nightflyNormalPmenu
+
+The `nightflyNormalPmenu` option specifies whether to use nightfly background and
+foreground colors in the popup menu. By default this option is **disabled**,
+hence, the popup menu will usually be styled with contrasting popup menu colors.
+If you would like to use nightfly colors instead then add the following to your
+configuration:
+
+```lua
+-- Lua initialization file
+vim.g.nightflyNormalPmenu = true
+```
+
+```vim
+" Vimscript initialization file
+let g:nightflyNormalPmenu = v:true
+```
+
+:bulb: If the above option is set then it is highly recommended to enable the
+popup menu border to distinguish between the edit window and popup menu:
+
+```lua
+vim.o.pumborder = "single"
+```
+
+---
 ### nightflyNormalFloat
 
 The `nightflyNormalFloat` option specifies whether to use nightfly background
