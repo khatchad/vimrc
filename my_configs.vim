@@ -292,7 +292,7 @@ au FileType help setl nospell
 " => Git commits section
 """""""""""""""""""""""""""""""
 au FileType gitcommit setl spell
-autocmd FileType text,markdown,mail setlocal textwidth=9999999999
+autocmd FileType text,markdown,mail,gitcommit setlocal textwidth=9999999999
 
 """"""""""""""""""""""""""""""
 " => Highlight TODO, FIXME, NOTE, etc.
