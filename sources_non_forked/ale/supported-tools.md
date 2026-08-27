@@ -14,11 +14,11 @@ formatting.
 
 **Legend**
 
-|      Key       |             Definition                                            |
-| -------------- | ----------------------------------------------------------------- |
-|:speech_balloon:| Language Server Protocol (LSP)                                    |
-| :floppy_disk:  | May only run on files on disk (see: `help ale-lint-file-linters`  |
-|   :warning:    | Disabled by default                                               |
+|      Key       |             Definition                                |
+| -------------- | ----------------------------------------------------- |
+|:speech_balloon:| Language Server Protocol (LSP)                        |
+| :floppy_disk:  | Only runs on disk (see: `help ale-lint-file-linters`) |
+|   :warning:    | Disabled by default                                   |
 
 ---
 
@@ -49,8 +49,11 @@ formatting.
   * [gcc](https://gcc.gnu.org)
   * [llvm-mc](https://llvm.org)
 * Astro
+  * [dprint](https://dprint.dev)
   * [eslint](http://eslint.org/)
   * [prettier](https://github.com/prettier/prettier)
+* Autopkgtest (filetype autopkgtest)
+  * [debian-lsp](https://github.com/jelmer/debian-lsp) :speech_balloon:
 * AVRA
   * [avra](https://github.com/Ro5bert/avra)
 * Awk
@@ -98,6 +101,7 @@ formatting.
   * [csc](http://www.mono-project.com/docs/about-mono/languages/csharp/) :floppy_disk: see:`help ale-cs-csc` for details and configuration
   * [cspell](https://github.com/streetsidesoftware/cspell/tree/main/packages/cspell)
   * [dotnet-format](https://github.com/dotnet/format)
+  * [dprint](https://dprint.dev)
   * [mcs](http://www.mono-project.com/docs/about-mono/languages/csharp/) see:`help ale-cs-mcs` for details
   * [mcsc](http://www.mono-project.com/docs/about-mono/languages/csharp/) :floppy_disk: see:`help ale-cs-mcsc` for details and configuration
   * [uncrustify](https://github.com/uncrustify/uncrustify)
@@ -147,6 +151,7 @@ formatting.
   * [cspell](https://github.com/streetsidesoftware/cspell/tree/main/packages/cspell)
   * [css-beautify](https://github.com/beautify-web/js-beautify)
   * [csslint](http://csslint.net/)
+  * [dprint](https://dprint.dev)
   * [fecs](http://fecs.baidu.com/)
   * [prettier](https://github.com/prettier/prettier)
   * [stylelint](https://github.com/stylelint/stylelint)
@@ -173,6 +178,18 @@ formatting.
   * [dart-format](https://github.com/dart-lang/sdk/tree/master/utils/dartfmt)
   * [dartfmt](https://github.com/dart-lang/sdk/tree/master/utils/dartfmt)
   * [language_server](https://github.com/natebosch/dart_language_server)
+* Debian Changelog (filetype debchangelog)
+  * [debian-lsp](https://github.com/jelmer/debian-lsp) :speech_balloon:
+* Debian Control (filetype debcontrol)
+  * [debian-lsp](https://github.com/jelmer/debian-lsp) :speech_balloon:
+* Debian Copyright (filetype debcopyright)
+  * [debian-lsp](https://github.com/jelmer/debian-lsp) :speech_balloon:
+* Debian Sources (filetype debsources)
+  * [debian-lsp](https://github.com/jelmer/debian-lsp) :speech_balloon:
+* Debian Upstream Metadata (filetype debupstream)
+  * [debian-lsp](https://github.com/jelmer/debian-lsp) :speech_balloon:
+* Debian Watch (filetype debwatch)
+  * [debian-lsp](https://github.com/jelmer/debian-lsp) :speech_balloon:
 * desktop
   * [desktop-file-validate](https://www.freedesktop.org/wiki/Software/desktop-file-utils/)
 * Dhall
@@ -224,6 +241,8 @@ formatting.
   * [proselint](http://proselint.com/)
 * FusionScript
   * [fusion-lint](https://github.com/RyanSquared/fusionscript)
+* Generic
+  * [ast-grep](https://ast-grep.github.io/)
 * Git Commit Messages
   * [gitlint](https://github.com/jorisroovers/gitlint)
 * Gleam
@@ -235,6 +254,7 @@ formatting.
 * Go
   * [bingo](https://github.com/saibing/bingo) :warning:
   * [cspell](https://github.com/streetsidesoftware/cspell/tree/main/packages/cspell) :warning:
+  * [dprint](https://dprint.dev)
   * [go build](https://golang.org/cmd/go/) :warning: :floppy_disk:
   * [go mod](https://golang.org/cmd/go/) :warning: :floppy_disk:
   * [go vet](https://golang.org/cmd/vet/) :floppy_disk:
@@ -252,6 +272,7 @@ formatting.
 * Go HTML Templates
   * [djlint](https://djlint.com/)
 * GraphQL
+  * [dprint](https://dprint.dev)
   * [eslint](http://eslint.org/)
   * [gqlint](https://github.com/happylinks/gqlint)
   * [prettier](https://github.com/prettier/prettier)
@@ -293,6 +314,7 @@ formatting.
   * [angular](https://www.npmjs.com/package/@angular/language-server)
   * [cspell](https://github.com/streetsidesoftware/cspell/tree/main/packages/cspell)
   * [djlint](https://www.djlint.com/)
+  * [dprint](https://dprint.dev)
   * [eslint](https://github.com/BenoitZugmeyer/eslint-plugin-html)
   * [fecs](http://fecs.baidu.com/)
   * [html-beautify](https://beautifier.io/)
@@ -319,6 +341,8 @@ formatting.
   * [inko](https://inko-lang.org/) :floppy_disk:
 * ISPC
   * [ispc](https://ispc.github.io/) :floppy_disk:
+* Janet
+  * [janet-format](https://github.com/janet-lang/spork)
 * Java
   * [PMD](https://pmd.github.io/)
   * [checkstyle](http://checkstyle.sourceforge.net) :floppy_disk:
@@ -348,6 +372,7 @@ formatting.
   * [xo](https://github.com/sindresorhus/xo)
 * Jinja
   * [djlint](https://djlint.com/)
+  * [dprint](https://dprint.dev)
   * [j2lint](https://github.com/aristanetworks/j2lint/)
 * JSON
   * [VSCode JSON language server](https://github.com/hrsh7th/vscode-langservers-extracted)
@@ -371,6 +396,7 @@ formatting.
   * [jsonnet-lint](https://jsonnet.org/learning/tools.html) :speech_balloon:
   * [jsonnetfmt](https://jsonnet.org/learning/tools.html) :speech_balloon:
 * Julia
+  * [fatou](https://github.com/jolars/fatou) :speech_balloon:
   * [languageserver](https://github.com/JuliaEditorSupport/LanguageServer.jl)
 * Kotlin
   * [kotlinc](https://kotlinlang.org) :floppy_disk:
@@ -383,6 +409,7 @@ formatting.
   * [lacheck](https://www.ctan.org/pkg/lacheck)
   * [proselint](http://proselint.com/)
   * [redpen](http://redpen.cc/)
+  * [tex-fmt](https://github.com/WGUNDERWOOD/tex-fmt)
   * [texlab](https://texlab.netlify.com) :speech_balloon:
   * [textlint](https://textlint.github.io/)
   * [vale](https://github.com/ValeLint/vale)
@@ -390,9 +417,12 @@ formatting.
 * Lean 4
   * [lake](https://github.com/leanprover/lean4)
 * Less
+  * [dprint](https://dprint.dev)
   * [lessc](https://www.npmjs.com/package/less)
   * [prettier](https://github.com/prettier/prettier)
   * [stylelint](https://github.com/stylelint/stylelint)
+* LilyPond
+  * [lilypond](https://lilypond.org/)
 * LLVM
   * [llc](https://llvm.org/docs/CommandGuide/llc.html)
 * Lua
@@ -414,9 +444,13 @@ formatting.
 * Markdown
   * [alex](https://github.com/get-alex/alex)
   * [cspell](https://github.com/streetsidesoftware/cspell/tree/main/packages/cspell)
+  * [dprint](https://dprint.dev)
+  * [harper](https://github.com/elijah-potter/harper) :speech_balloon:
   * [languagetool](https://languagetool.org/) :floppy_disk: :speech_balloon:
-  * [markdownlint](https://github.com/DavidAnson/markdownlint) :floppy_disk:
+  * [markdownlint-cli](https://github.com/igorshubovych/markdownlint-cli) :floppy_disk:
+  * [markdownlint-cli2](https://github.com/DavidAnson/markdownlint-cli2) :floppy_disk:
   * [marksman](https://github.com/artempyanykh/marksman) :speech_balloon:
+  * [mdformat](https://github.com/hukkin/mdformat)
   * [mdl](https://github.com/mivok/markdownlint)
   * [pandoc](https://pandoc.org)
   * [prettier](https://github.com/prettier/prettier)
@@ -424,6 +458,7 @@ formatting.
   * [pymarkdown](https://github.com/jackdewinter/pymarkdown) :floppy_disk:
   * [redpen](http://redpen.cc/)
   * [remark-lint](https://github.com/wooorm/remark-lint)
+  * [rumdl](https://github.com/rvben/rumdl/issues) :speech_balloon:
   * [textlint](https://textlint.github.io/)
   * [vale](https://github.com/ValeLint/vale)
   * [write-good](https://github.com/btford/write-good)
@@ -431,6 +466,8 @@ formatting.
   * [mlint](https://www.mathworks.com/help/matlab/ref/mlint.html) :speech_balloon:
 * Mercury
   * [mmc](http://mercurylang.org) :floppy_disk:
+* Mustache
+  * [dprint](https://dprint.dev)
 * NASM
   * [nasm](https://www.nasm.us/) :floppy_disk:
 * Nickel
@@ -453,6 +490,7 @@ formatting.
   * [write-good](https://github.com/btford/write-good)
 * Nunjucks
   * [djlint](https://djlint.com/)
+  * [dprint](https://dprint.dev)
 * Objective-C
   * [ccls](https://github.com/MaskRay/ccls) :speech_balloon:
   * [clang](http://clang.llvm.org/)
@@ -478,6 +516,7 @@ formatting.
   * [yamllint](https://yamllint.readthedocs.io/)
 * OpenSCAD
   * [SCA2D](https://gitlab.com/bath_open_instrumentation_group/sca2d) :floppy_disk:
+  * [openscad-lsp](https://github.com/Leathong/openscad-LSP)
   * [scadformat](https://github.com/hugheaves/scadformat)
 * Packer (HCL)
   * [packer-fmt-fixer](https://github.com/hashicorp/packer)
@@ -486,14 +525,16 @@ formatting.
 * Pawn
   * [uncrustify](https://github.com/uncrustify/uncrustify)
 * Perl
-  * [languageserver](https://metacpan.org/pod/Perl::LanguageServer)
+  * [languageserver](https://metacpan.org/pod/Perl::LanguageServer) :speech_balloon:
   * [perl -c](https://perl.org/) :warning:
   * [perl-critic](https://metacpan.org/pod/Perl::Critic)
+  * [perlnavigator](https://github.com/bscan/PerlNavigator) :speech_balloon:
   * [perltidy](https://metacpan.org/pod/distribution/Perl-Tidy/bin/perltidy)
 * Perl6
   * [perl6 -c](https://perl6.org) :warning:
 * PHP
   * [cspell](https://github.com/streetsidesoftware/cspell/tree/main/packages/cspell)
+  * [dprint](https://dprint.dev)
   * [intelephense](https://github.com/bmewburn/intelephense-docs) :speech_balloon:
   * [langserver](https://github.com/felixfbecker/php-language-server) :speech_balloon:
   * [phan](https://github.com/phan/phan) see `:help ale-php-phan` to instructions :speech_balloon:
@@ -547,6 +588,7 @@ formatting.
   * [bandit](https://github.com/PyCQA/bandit) :warning:
   * [black](https://github.com/psf/black)
   * [cspell](https://github.com/streetsidesoftware/cspell/tree/main/packages/cspell)
+  * [dprint](https://dprint.dev)
   * [flake8](http://flake8.pycqa.org/en/latest/)
   * [flakehell](https://github.com/flakehell/flakehell)
   * [isort](https://github.com/timothycrosley/isort)
@@ -567,6 +609,7 @@ formatting.
   * [reorder-python-imports](https://github.com/asottile/reorder_python_imports)
   * [ruff](https://github.com/charliermarsh/ruff)
   * [ruff-format](https://docs.astral.sh/ruff/formatter/)
+  * [ty](https://github.com/astral-sh/ty) :speech_balloon:
   * [unimport](https://github.com/hakancelik96/unimport)
   * [vulture](https://github.com/jendrikseipp/vulture) :warning: :floppy_disk:
   * [yapf](https://github.com/google/yapf)
@@ -641,6 +684,7 @@ formatting.
 * Salt
   * [salt-lint](https://github.com/warpnet/salt-lint)
 * Sass
+  * [dprint](https://dprint.dev)
   * [sass-lint](https://www.npmjs.com/package/sass-lint)
   * [stylelint](https://github.com/stylelint/stylelint)
 * Scala
@@ -652,6 +696,7 @@ formatting.
   * [scalafmt](https://scalameta.org/scalafmt/)
   * [scalastyle](http://www.scalastyle.org)
 * SCSS
+  * [dprint](https://dprint.dev)
   * [prettier](https://github.com/prettier/prettier)
   * [sass-lint](https://www.npmjs.com/package/sass-lint)
   * [scss-lint](https://github.com/brigade/scss-lint)
@@ -678,6 +723,7 @@ formatting.
 * SugarSS
   * [stylelint](https://github.com/stylelint/stylelint)
 * Svelte
+  * [dprint](https://dprint.dev)
   * [prettier](https://github.com/prettier/prettier)
   * [svelteserver](https://github.com/sveltejs/language-tools/tree/master/packages/language-server) :speech_balloon:
 * Swift
@@ -698,6 +744,7 @@ formatting.
   * [terraform-lsp](https://github.com/juliosueiras/terraform-lsp) :speech_balloon:
   * [tflint](https://github.com/wata727/tflint)
   * [tfsec](https://github.com/aquasecurity/tfsec)
+  * [trivy](https://github.com/aquasecurity/trivy)
 * Texinfo
   * [alex](https://github.com/get-alex/alex)
   * [cspell](https://github.com/streetsidesoftware/cspell/tree/main/packages/cspell)
@@ -718,6 +765,8 @@ formatting.
 * TOML
   * [dprint](https://dprint.dev)
   * [tombi](https://tombi-toml.github.io/tombi/)
+* Twig
+  * [dprint](https://dprint.dev)
 * TypeScript
   * [biome](https://biomejs.dev/)
   * [cspell](https://github.com/streetsidesoftware/cspell/tree/main/packages/cspell)
@@ -738,6 +787,8 @@ formatting.
 * VALA
   * [uncrustify](https://github.com/uncrustify/uncrustify)
   * [vala_lint](https://github.com/vala-lang/vala-lint) :floppy_disk:
+* Vento
+  * [dprint](https://dprint.dev)
 * Verilog
   * [hdl-checker](https://pypi.org/project/hdl-checker)
   * [iverilog](https://github.com/steveicarus/iverilog)
@@ -760,6 +811,7 @@ formatting.
   * [write-good](https://github.com/btford/write-good) :warning:
 * Vue
   * [cspell](https://github.com/streetsidesoftware/cspell/tree/main/packages/cspell)
+  * [dprint](https://dprint.dev)
   * [prettier](https://github.com/prettier/prettier)
   * [vls](https://github.com/vuejs/vetur/tree/master/server) :speech_balloon:
   * [volar](https://github.com/johnsoncodehk/volar)
@@ -771,10 +823,12 @@ formatting.
   * [proselint](http://proselint.com/)
   * [write-good](https://github.com/btford/write-good)
 * XML
+  * [dprint](https://dprint.dev)
   * [xmllint](http://xmlsoft.org/xmllint.html)
 * YAML
   * [actionlint](https://github.com/rhysd/actionlint)
   * [circleci](https://circleci.com/docs/2.0/local-cli) :floppy_disk: :warning:
+  * [dprint](https://dprint.dev)
   * [gitlablint](https://github.com/elijah-roberts/gitlab-lint)
   * [prettier](https://github.com/prettier/prettier)
   * [spectral](https://github.com/stoplightio/spectral)

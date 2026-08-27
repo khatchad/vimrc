@@ -143,7 +143,7 @@ function! nightfly#Style() abort
     highlight! link Identifier NightflyTurquoise
 
     " Color of titles
-    exec 'highlight Title guifg=' . s:orange . ' gui=none'
+    exec 'highlight Title guifg=' . s:malibu . ' gui=none'
 
     " const, static
     highlight! link StorageClass NightflyViolet
@@ -759,7 +759,7 @@ function! nightfly#Style() abort
 
     " Git commit diffs
     highlight! link diffAdded NightflyGreen
-    highlight! link diffChanged NightflyWatermelon
+    highlight! link diffChanged NightflyMalibu
     highlight! link diffIndexLine NightflyWatermelon
     highlight! link diffLine NightflyBlue
     highlight! link diffRemoved NightflyRed

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 
 """See module doc."""
 
@@ -7,7 +6,6 @@ from UltiSnips import vim_helper
 
 
 class IndentUtil:
-
     """Utility class for dealing properly with indentation."""
 
     def __init__(self):
@@ -15,9 +13,7 @@ class IndentUtil:
 
     def reset(self):
         """Gets the spacing properties from Vim."""
-        self.shiftwidth = int(
-            vim_helper.eval("exists('*shiftwidth') ? shiftwidth() : &shiftwidth")
-        )
+        self.shiftwidth = int(vim_helper.eval("shiftwidth()"))
         self._expandtab = vim_helper.eval("&expandtab") == "1"
         self._tabstop = int(vim_helper.eval("&tabstop"))
 
@@ -25,8 +21,7 @@ class IndentUtil:
         """Convert 'ntabs' number of tabs to the proper indent prefix."""
         line_ind = ntabs * self.shiftwidth * " "
         line_ind = self.indent_to_spaces(line_ind)
-        line_ind = self.spaces_to_indent(line_ind)
-        return line_ind
+        return self.spaces_to_indent(line_ind)
 
     def indent_to_spaces(self, indent):
         """Converts indentation to spaces respecting Vim settings."""

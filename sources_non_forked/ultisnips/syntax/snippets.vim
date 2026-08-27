@@ -82,7 +82,7 @@ syn match snipSnippetDocContextString ,"[^"]*", contained nextgroup=snipSnippetC
 syn match snipSnippetContext ,"[^"]\+", contained skipwhite contains=snipSnippetContextP
 syn region snipSnippetContextP start=,"\@<=., end=,", contained contains=@Python nextgroup=snipSnippetOptions skipwhite keepend
 syn match snipSnippetOptions ,\S\+, contained contains=snipSnippetOptionFlag
-syn match snipSnippetOptionFlag ,[biwrtsmxAe], contained
+syn match snipSnippetOptionFlag ,[biwrtspmxAe], contained
 
 " Command substitution {{{4
 
@@ -117,7 +117,7 @@ syn cluster snipTokens add=snipTabStop
 syn cluster snipTabStopTokens add=snipTabStop
 
 syn region snipVisual matchgroup=snipVisual start="\${VISUAL[:}/]\@=" end="}" contained contains=snipVisualDefault,snipTransformationPattern extend
-syn region snipVisualDefault matchgroup=snipVisual start=":" end="\ze[}/]" contained contains=snipTabStopEscape nextgroup=snipTransformationPattern
+syn region snipVisualDefault matchgroup=snipVisual start=":" end="\ze[}/]" contained contains=snipTabStopEscape,snipTransformationEscape nextgroup=snipTransformationPattern
 syn cluster snipTokens add=snipVisual
 syn cluster snipTabStopTokens add=snipVisual
 

@@ -26,10 +26,10 @@ let g:nightflyWinSeparator = get(g:, 'nightflyWinSeparator', 1)
 
 " Load theme style independently for Neovim and Vim.
 if has('nvim')
-    lua require("nightfly").style()
+    lua pcall(function() require("nightfly").style() end)
 else
     call nightfly#Style()
-end
+endif
 
 set background=dark " nightfly is a dark theme
 set termguicolors   " nightfly is a true-color theme

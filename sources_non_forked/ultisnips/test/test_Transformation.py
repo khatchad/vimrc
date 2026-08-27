@@ -1,7 +1,6 @@
-# encoding: utf-8
-from test.vim_test_case import VimTestCase as _VimTest
-from test.constant import *
+from test.constant import BS, ESC, EX, JF
 from test.util import no_unidecode_available
+from test.vim_test_case import VimTestCase as _VimTest
 
 
 class Transformation_SimpleCase_ExpectCorrectResult(_VimTest):
@@ -209,7 +208,7 @@ class Transformation_OptionReplaceGlobalMatchInReplace_ECR(_VimTest):
 class TransformationUsingBackspaceToDeleteDefaultValueInFirstTab_ECR(_VimTest):
     snippets = (
         "test",
-        "snip ${1/.+/(?0:m1)/} ${2/.+/(?0:m2)/} " "${1:default} ${2:def}",
+        "snip ${1/.+/(?0:m1)/} ${2/.+/(?0:m2)/} ${1:default} ${2:def}",
     )
     keys = "test" + EX + BS + JF + "hi"
     wanted = "snip  m2  hi"
@@ -218,7 +217,7 @@ class TransformationUsingBackspaceToDeleteDefaultValueInFirstTab_ECR(_VimTest):
 class TransformationUsingBackspaceToDeleteDefaultValueInSecondTab_ECR(_VimTest):
     snippets = (
         "test",
-        "snip ${1/.+/(?0:m1)/} ${2/.+/(?0:m2)/} " "${1:default} ${2:def}",
+        "snip ${1/.+/(?0:m1)/} ${2/.+/(?0:m2)/} ${1:default} ${2:def}",
     )
     keys = "test" + EX + "hi" + JF + BS
     wanted = "snip m1  hi "
@@ -276,3 +275,47 @@ class Transformation_ConditionalWithBackslashBeforeDelimiter1(_VimTest):
     snippets = "test", r"$1 ${1/(aa)|.*/(?1:yes:no\\)/}"
     keys = "test" + EX + "ab"
     wanted = "ab no\\"
+
+
+# GH #998: An escaped backslash before a whitespace escape character
+# (n, t, r, ...) should produce a literal backslash + letter, not the
+# whitespace character.
+class Transformation_LiteralBackslashN(_VimTest):
+    snippets = ("test", r"$1 ${1/.*/\\n/}")
+    keys = "test" + EX + "hi"
+    wanted = "hi \\n"
+
+
+class Transformation_LiteralBackslashT(_VimTest):
+    snippets = ("test", r"$1 ${1/.*/\\t/}")
+    keys = "test" + EX + "hi"
+    wanted = "hi \\t"
+
+
+# GH #1495: \l and \u in replacement strings are case-switch directives.
+# An escaped backslash (\\) before l/u should produce a literal backslash,
+# not trigger the case switch.
+class Transformation_EscapedBackslashBeforeLowercaseL(_VimTest):
+    snippets = ("test", r"$1 ${1/(.+)/\\l$1/}")
+    keys = "test" + EX + "world"
+    wanted = r"world \lworld"
+
+
+class Transformation_EscapedBackslashBeforeUppercaseU(_VimTest):
+    snippets = ("test", r"$1 ${1/(.+)/\\u$1/}")
+    keys = "test" + EX + "world"
+    wanted = r"world \uworld"
+
+
+# GH #1444: Backslashes coming from a capture group ($1..$9) must stay
+# literal -- they must not be reinterpreted as case-switch escapes.
+class Transformation_BackslashInCaptureNotCaseSwitch(_VimTest):
+    snippets = ("test", r"$1 ${1/^(\\u)/$1aa/}")
+    keys = "test" + EX + r"\u"
+    wanted = r"\u \uaa"
+
+
+class Transformation_BackslashInCaptureNotLongCaseSwitch(_VimTest):
+    snippets = ("test", r"$1 ${1/^(.+)/$1aa/}")
+    keys = "test" + EX + r"\Uhi"
+    wanted = r"\Uhi \Uhiaa"

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 
 """A Snippet instance is an instance of a Snippet Definition.
 
@@ -9,18 +8,19 @@ also a TextObject.
 
 """
 
+from collections import namedtuple
+
 from UltiSnips import vim_helper
 from UltiSnips.error import PebkacError
-from UltiSnips.position import Position, JumpDirection
+from UltiSnips.position import JumpDirection, Position
 from UltiSnips.text_objects.base import EditableTextObject, NoneditableTextObject
 from UltiSnips.text_objects.tabstop import TabStop
 
+_VisualContentSnapshot = namedtuple("_VisualContentSnapshot", ["mode", "text"])
+
 
 class SnippetInstance(EditableTextObject):
-
     """See module docstring."""
-
-    # pylint:disable=protected-access
 
     def __init__(
         self,
@@ -46,10 +46,18 @@ class SnippetInstance(EditableTextObject):
         self.locals = {"match": last_re, "context": context}
         self.globals = globals
         self._compiled_globals = _compiled_globals
-        self.visual_content = visual_content
+        # Snapshot mode + text right at launch. The live preserver gets
+        # reset() immediately after launch returns, so any later read
+        # (e.g. inside `post_jump` / `post_finish`) needs a frozen view.
+        if visual_content is None:
+            self.visual_content = _VisualContentSnapshot("", "")
+        else:
+            self.visual_content = _VisualContentSnapshot(
+                visual_content.mode, visual_content.text
+            )
         self.current_placeholder = None
 
-        EditableTextObject.__init__(self, parent, start, end, initial_text)
+        super().__init__(parent, start, end, initial_text)
 
     def replace_initial_text(self, buf):
         """Puts the initial text of all text elements into Vim."""
@@ -69,7 +77,7 @@ class SnippetInstance(EditableTextObject):
         for cmd in cmds:
             self._do_edit(cmd, ctab)
 
-    def update_textobjects(self, buf):
+    def update_textobjects(self, buf, ctab=None):
         """Update the text objects that should change automagically after the
         users edits have been replayed.
 
@@ -79,6 +87,17 @@ class SnippetInstance(EditableTextObject):
         done = set()
         not_done = set()
 
+        def _contains_ctab(obj):
+            """True if obj is ctab or one of its ancestors."""
+            if ctab is None:
+                return False
+            cur = ctab
+            while cur is not None:
+                if cur is obj:
+                    return True
+                cur = cur._parent
+            return False
+
         def _find_recursive(obj):
             """Finds all text objects and puts them into 'not_done'."""
             cursorInsideLowest = None
@@ -87,8 +106,26 @@ class SnippetInstance(EditableTextObject):
                     isinstance(obj, TabStop) and obj.number == 0
                 ):
                     cursorInsideLowest = obj
+                # Two siblings can both contain the cursor at a zero-width
+                # seam — e.g. `$1$2` immediately after expansion, or `$1$1$2`
+                # once `$1` has accumulated content and its mirror sits at
+                # the same column as the next tabstop. The last sibling
+                # would win the naive `or cursorInsideLowest` chain, but the
+                # currently-selected tabstop is where the user is editing,
+                # so prefer that branch. Without this, a mirror update
+                # inside the wrong sibling drags the cursor with it and
+                # subsequent typing falls outside any tabstop. See #1359.
+                preferred = None
+                fallback = cursorInsideLowest
                 for child in obj._children:
-                    cursorInsideLowest = _find_recursive(child) or cursorInsideLowest
+                    child_match = _find_recursive(child)
+                    if child_match is None:
+                        continue
+                    if _contains_ctab(child):
+                        preferred = child_match
+                    else:
+                        fallback = child_match
+                cursorInsideLowest = preferred or fallback
             not_done.add(obj)
             return cursorInsideLowest
 
@@ -127,7 +164,7 @@ class SnippetInstance(EditableTextObject):
                 return self._tabstops.get(self._cts, None)
             self._cts, ts = res
             return ts
-        elif jump_direction == JumpDirection.FORWARD:
+        if jump_direction == JumpDirection.FORWARD:
             res = self._get_next_tab(self._cts)
             if res is None:
                 self._cts = None
@@ -141,11 +178,9 @@ class SnippetInstance(EditableTextObject):
                 start = Position(self.end.line, self.end.col)
                 end = Position(self.end.line, self.end.col)
                 return TabStop(self, 0, start, end)
-            else:
-                self._cts, ts = res
-                return ts
-        else:
-            assert False, "Unknown JumpDirection: %r" % jump_direction
+            self._cts, ts = res
+            return ts
+        raise AssertionError(f"Unknown JumpDirection: {jump_direction!r}")
 
     def has_next_tab(self, jump_direction: JumpDirection):
         if jump_direction == JumpDirection.BACKWARD:
@@ -168,13 +203,11 @@ class SnippetInstance(EditableTextObject):
 
 
 class _VimCursor(NoneditableTextObject):
-
     """Helper class to keep track of the Vim Cursor when text objects expand
     and move."""
 
     def __init__(self, parent):
-        NoneditableTextObject.__init__(
-            self,
+        super().__init__(
             parent,
             vim_helper.buf.cursor,
             vim_helper.buf.cursor,

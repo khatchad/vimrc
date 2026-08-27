@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 
 """Parsing of snippet files."""
 
 from collections import defaultdict
-import glob
-import os
-from typing import Set, List
+from pathlib import Path
 
 from UltiSnips import vim_helper
 from UltiSnips.error import PebkacError
@@ -21,18 +18,23 @@ from UltiSnips.snippet.source.file.common import (
 from UltiSnips.text import LineIterator, head_tail
 
 
-def find_snippet_files(ft, directory: str) -> Set[str]:
+def find_snippet_files(ft, directory: str) -> set[str]:
     """Returns all matching snippet files for 'ft' in 'directory'."""
-    patterns = ["%s.snippets", "%s_*.snippets", os.path.join("%s", "*")]
+    patterns = ["%s.snippets", "%s_*.snippets", str(Path("%s") / "*")]
     ret = set()
-    directory = os.path.expanduser(directory)
+    directory_path = Path(directory).expanduser()
     for pattern in patterns:
-        for fn in glob.glob(os.path.join(directory, pattern % ft)):
-            ret.add(normalize_file_path(fn))
+        for fn in directory_path.glob(pattern % ft):
+            # Unlike glob.glob, Path.glob matches hidden files, so the
+            # "ft/*" pattern would pick up Vim's undo/swap files (e.g.
+            # ".foo.snippets.un~") and choke parsing them.
+            if fn.name.startswith("."):
+                continue
+            ret.add(normalize_file_path(str(fn)))
     return ret
 
 
-def find_all_snippet_directories() -> List[str]:
+def find_all_snippet_directories() -> list[str]:
     """Returns a list of the absolute path of all potential snippet
     directories, no matter if they exist or not."""
 
@@ -44,9 +46,9 @@ def find_all_snippet_directories() -> List[str]:
     if len(snippet_dirs) == 1:
         # To reduce confusion and increase consistency with
         # `UltiSnipsSnippetsDir`, we expand ~ here too.
-        full_path = os.path.expanduser(snippet_dirs[0])
-        if os.path.isabs(full_path):
-            return [full_path]
+        full_path = Path(snippet_dirs[0]).expanduser()
+        if full_path.is_absolute():
+            return [str(full_path)]
 
     all_dirs = []
     check_dirs = vim_helper.eval("&runtimepath").split(",")
@@ -58,26 +60,12 @@ def find_all_snippet_directories() -> List[str]:
                     "directory is reserved for snipMate snippets. Use another "
                     "directory for UltiSnips snippets."
                 )
-            pth = normalize_file_path(
-                os.path.expanduser(os.path.join(rtp, snippet_dir))
-            )
+            pth = Path(rtp, snippet_dir).expanduser()
             # Runtimepath entries may contain wildcards.
-            all_dirs.extend(glob.glob(pth))
+            all_dirs.extend(
+                str(p) for p in Path(pth.anchor).glob(str(pth.relative_to(pth.anchor)))
+            )
     return all_dirs
-
-
-def find_all_snippet_files(ft) -> Set[str]:
-    """Returns all snippet files matching 'ft' in the given runtime path
-    directory."""
-    patterns = ["%s.snippets", "%s_*.snippets", os.path.join("%s", "*")]
-    ret = set()
-    for directory in find_all_snippet_directories():
-        if not os.path.isdir(directory):
-            continue
-        for pattern in patterns:
-            for fn in glob.glob(os.path.join(directory, pattern % ft)):
-                ret.add(fn)
-    return ret
 
 
 def _handle_snippet_or_global(
@@ -95,11 +83,10 @@ def _handle_snippet_or_global(
     remain = line[len(snip) :].strip()
     words = remain.split()
 
-    if len(words) > 2:
-        # second to last word ends with a quote
-        if '"' not in words[-1] and words[-2][-1] == '"':
-            opts = words[-1]
-            remain = remain[: -len(opts) - 1].rstrip()
+    # second to last word ends with a quote
+    if len(words) > 2 and '"' not in words[-1] and words[-2][-1] == '"':
+        opts = words[-1]
+        remain = remain[: -len(opts) - 1].rstrip()
 
     if "e" in opts and not context:
         left = remain[:-1].rfind('"')
@@ -117,7 +104,7 @@ def _handle_snippet_or_global(
     trig = remain.strip()
     if len(trig.split()) > 1 or "r" in opts:
         if trig[0] != trig[-1]:
-            return "error", ("Invalid multiword trigger: '%s'" % trig, lines.line_index)
+            return "error", (f"Invalid multiword trigger: '{trig}'", lines.line_index)
         trig = trig[1:-1]
     end = "end" + snip
     content = ""
@@ -131,7 +118,7 @@ def _handle_snippet_or_global(
         content += line
 
     if not found_end:
-        return "error", ("Missing 'endsnippet' for %r" % trig, lines.line_index)
+        return "error", (f"Missing 'endsnippet' for {trig!r}", lines.line_index)
 
     if snip == "global":
         python_globals[trig].append(content)
@@ -143,13 +130,13 @@ def _handle_snippet_or_global(
             descr,
             opts,
             python_globals,
-            "%s:%i" % (filename, start_line_index),
+            f"{filename}:{start_line_index}",
             context,
             pre_expand,
         )
         return "snippet", (definition,)
     else:
-        return "error", ("Invalid snippet type: '%s'" % snip, lines.line_index)
+        return "error", (f"Invalid snippet type: '{snip}'", lines.line_index)
 
 
 def _parse_snippets_file(data, filename):
@@ -199,24 +186,31 @@ def _parse_snippets_file(data, filename):
             try:
                 current_priority = int(tail.split()[0])
             except (ValueError, IndexError):
-                yield "error", ("Invalid priority %r" % tail, lines.line_index)
-        elif head in ["pre_expand", "post_expand", "post_jump"]:
+                yield "error", (f"Invalid priority {tail!r}", lines.line_index)
+        elif head in ["pre_expand", "post_expand", "post_jump", "post_finish"]:
             head, tail = handle_action(head, tail, lines.line_index)
             if head == "error":
                 yield (head, tail)
             else:
                 (actions[head],) = tail
         elif head and not head.startswith("#"):
-            yield "error", ("Invalid line %r" % line.rstrip(), lines.line_index)
+            yield "error", (f"Invalid line {line.rstrip()!r}", lines.line_index)
 
 
 class UltiSnipsFileSource(SnippetFileSource):
-
     """Manages all snippets definitions found in rtp for ultisnips."""
 
-    def _get_all_snippet_files_for(self, ft):
-        return find_all_snippet_files(ft)
+    def get_all_snippet_files_for(self, ft):
+        """Returns all snippet files matching 'ft' across the configured
+        snippet directories. `find_snippet_files` already canonicalizes
+        paths, so symlinked or duplicated runtimepath entries don't make
+        the same file appear twice."""
+        ret = set()
+        for directory in find_all_snippet_directories():
+            if not Path(directory).is_dir():
+                continue
+            ret.update(find_snippet_files(ft, directory))
+        return ret
 
     def _parse_snippet_file(self, filedata, filename):
-        for event, data in _parse_snippets_file(filedata, filename):
-            yield event, data
+        yield from _parse_snippets_file(filedata, filename)

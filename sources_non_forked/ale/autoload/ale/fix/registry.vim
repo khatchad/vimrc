@@ -22,6 +22,11 @@ let s:default_registry = {
 \       'suggested_filetypes': ['apkbuild'],
 \       'description': 'Fix policy violations found by apkbuild-lint in APKBUILDs',
 \   },
+\   'ast-grep': {
+\       'function': 'ale#fixers#astgrep#Fix',
+\       'suggested_filetypes': ['c', 'cpp', 'cs', 'css', 'elixer', 'go', 'haskell', 'html', 'java', 'javascript', 'json', 'kotlin', 'lua', 'nix', 'php', 'python', 'ruby', 'rust', 'scala', 'sh', 'solidity', 'swift', 'tsx', 'typescript', 'yaml'],
+\       'description': 'Apply ast-grep rules.',
+\   },
 \   'autoimport': {
 \       'function': 'ale#fixers#autoimport#Fix',
 \       'suggested_filetypes': ['python'],
@@ -119,6 +124,11 @@ let s:default_registry = {
 \       'suggested_filetypes': ['erlang'],
 \       'description': 'Format Erlang code with erlfmt',
 \   },
+\   'fatou': {
+\       'function': 'ale#fixers#fatou#Fix',
+\       'suggested_filetypes': ['julia'],
+\       'description': 'Format Julia files with fatou.',
+\   },
 \   'fecs': {
 \       'function': 'ale#fixers#fecs#Fix',
 \       'suggested_filetypes': ['javascript', 'css', 'html'],
@@ -206,6 +216,11 @@ let s:default_registry = {
 \       'function': 'ale#fixers#puppetlint#Fix',
 \       'suggested_filetypes': ['puppet'],
 \       'description': 'Run puppet-lint -f on a file.',
+\   },
+\   'replace_emdash': {
+\       'function': 'ale#fixers#generic#ReplaceEmDash',
+\       'suggested_filetypes': [],
+\       'description': 'Replace em dash with -- ASCII characters.',
 \   },
 \   'remove_trailing_lines': {
 \       'function': 'ale#fixers#generic#RemoveTrailingBlankLines',
@@ -457,6 +472,11 @@ let s:default_registry = {
 \       'suggested_filetypes': ['markdown'],
 \       'description': 'Fix markdown files with pandoc.',
 \   },
+\   'mdformat': {
+\       'function': 'ale#fixers#mdformat#Fix',
+\       'suggested_filetypes': ['markdown'],
+\       'description': 'Fix Markdown files with mdformat.',
+\   },
 \   'pymarkdown': {
 \       'function': 'ale#fixers#pymarkdown#Fix',
 \       'suggested_filetypes': ['markdown'],
@@ -629,7 +649,7 @@ let s:default_registry = {
 \   },
 \   'dprint': {
 \       'function': 'ale#fixers#dprint#Fix',
-\       'suggested_filetypes': ['dockerfile', 'javascript', 'json', 'markdown', 'toml', 'typescript'],
+\       'suggested_filetypes': ['astro', 'cs', 'css', 'dockerfile', 'go', 'graphql', 'html', 'javascript', 'jinja', 'json', 'less', 'markdown', 'mustache', 'nunjucks', 'php', 'python', 'sass', 'scss', 'sql', 'svelte', 'toml', 'twig', 'typescript', 'vento', 'vue', 'xml', 'yaml'],
 \       'description': 'Pluggable and configurable code formatting platform',
 \   },
 \   'stylua': {
@@ -732,6 +752,11 @@ let s:default_registry = {
 \       'suggested_filetypes': ['clojure'],
 \       'description': 'formatter and linter for clojure files',
 \   },
+\   'janet-format': {
+\       'function': 'ale#fixers#janet_format#Fix',
+\       'suggested_filetypes': ['janet'],
+\       'description': 'Formatter for janet files',
+\   },
 \   'typstyle': {
 \       'function': 'ale#fixers#typstyle#Fix',
 \       'suggested_filetypes': ['typst'],
@@ -762,11 +787,27 @@ let s:default_registry = {
 \       'suggested_filetypes': ['verilog'],
 \       'description': 'Formats verilog files using verible.',
 \   },
-\   'markdownlint': {
+\   'markdownlint-cli': {
 \       'function': 'ale#fixers#markdownlint#Fix',
 \       'suggested_filetypes': ['markdown'],
-\       'description': 'Fix markdown files with markdownlint.',
+\       'description': 'Fix markdown files with markdownlint-cli.',
+\       'aliases': ['markdownlint'],
 \   },
+\   'markdownlint-cli2': {
+\       'function': 'ale#fixers#markdownlint_cli2#Fix',
+\       'suggested_filetypes': ['markdown'],
+\       'description': 'Fix markdown files with markdownlint-cli2.',
+\   },
+\   'rumdl': {
+\       'function': 'ale#fixers#rumdl#Fix',
+\       'suggested_filetypes': ['markdown'],
+\       'description': 'Fix markdown files with rumdl.',
+\   },
+\   'tex-fmt': {
+\       'function': 'ale#fixers#tex_fmt#Fix',
+\       'suggested_filetypes': ['bib', 'tex'],
+\       'description': 'Fix LaTeX and bibliography files with tex-fmt.',
+\   }
 \}
 
 " Reset the function registry to the default entries.

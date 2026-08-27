@@ -1,0 +1,69 @@
+[project]
+name = "ultisnips"
+version = "0.1.0"
+description = "The ultimate snippet solution for Vim."
+requires-python = ">=3.11"
+
+[dependency-groups]
+dev = [
+    "mypy",
+    "pytest",
+    "ruff",
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+mypy_path = "pythonx/UltiSnips"
+
+[[tool.mypy.overrides]]
+module = ["vim", "unidecode"]
+ignore_missing_imports = true
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E", "W", # pycodestyle
+    "F",      # pyflakes
+    "I",      # isort
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "SIM",    # flake8-simplify
+    "C4",     # flake8-comprehensions
+    "RET",    # flake8-return
+    "PIE",    # flake8-pie
+    "PERF",   # perflint
+    "PLC1802", # pylint: no `not len(x)`, use `not x`
+    "RUF",    # ruff-specific
+    "T20",    # flake8-print
+    "ERA",    # eradicate (commented-out code)
+]
+ignore = [
+    "E501",   # line too long — enforced by formatter, not linter
+    "E731",    # lambda assignment — used intentionally for skip_if in tests
+    "E741",    # ambiguous variable name (l, O, I) — common in vim plugin code
+    "RET503",  # missing explicit return None — implicit is fine
+    "RET502",  # unnecessary explicit return None — conflicts with RET503
+    "RUF001",  # ambiguous unicode — intentional in langmap test data
+    "RUF012",  # mutable class defaults — used as test data declarations, not shared state
+]
+
+[tool.ruff.lint.per-file-ignores]
+# __init__.py files re-export symbols for convenience.
+"pythonx/UltiSnips/__init__.py" = ["F401"]
+"pythonx/UltiSnips/snippet/definition/__init__.py" = ["F401"]
+"pythonx/UltiSnips/snippet/source/__init__.py" = ["F401"]
+"pythonx/UltiSnips/text_objects/__init__.py" = ["F401"]
+# Test infrastructure uses print for progress output.
+"test_all.py" = ["T201"]
+"test/vim_test_case.py" = ["T201"]
+# CLI scripts emit progress on stdout.
+"scripts/*.py" = ["T201"]
+
+[tool.ruff.format]
+# Match black's defaults.
+quote-style = "double"

@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 
 """Not really a lexer in the classical sense, but code to convert snippet
 definitions into logical units called Tokens."""
 
-import string
 import re
+import string
 
 from UltiSnips.error import PebkacError
 from UltiSnips.position import Position
@@ -13,7 +12,6 @@ from UltiSnips.text import unescape
 
 
 class _TextIterator:
-
     """Helper class to make iterating over text easier."""
 
     def __init__(self, text, offset):
@@ -113,7 +111,6 @@ def _parse_till_unescaped_char(stream, chars):
 
 
 class Token:
-
     """Represents a Token as parsed from a snippet definition."""
 
     def __init__(self, gen, indent):
@@ -124,11 +121,10 @@ class Token:
 
     def _parse(self, stream, indent):
         """Parses the token from 'stream' with the current 'indent'."""
-        pass  # Does nothing
+        # Does nothing
 
 
 class TabStopToken(Token):
-
     """${1:blub}"""
 
     CHECK = re.compile(r"^\${\d+[:}]")
@@ -150,16 +146,13 @@ class TabStopToken(Token):
         self.initial_text = _parse_till_closing_brace(stream)
 
     def __repr__(self):
-        return "TabStopToken(%r,%r,%r,%r)" % (
-            self.start,
-            self.end,
-            self.number,
-            self.initial_text,
+        return (
+            f"TabStopToken({self.start!r},{self.end!r},"
+            f"{self.number!r},{self.initial_text!r})"
         )
 
 
 class VisualToken(Token):
-
     """${VISUAL}"""
 
     CHECK = re.compile(r"^\${VISUAL[:}/]")
@@ -187,18 +180,17 @@ class VisualToken(Token):
             except StopIteration:
                 raise PebkacError(
                     "Invalid ${VISUAL} transformation! Forgot to escape a '/'?"
-                )
+                ) from None
         else:
             self.search = None
             self.replace = None
             self.options = None
 
     def __repr__(self):
-        return "VisualToken(%r,%r)" % (self.start, self.end)
+        return f"VisualToken({self.start!r},{self.end!r})"
 
 
 class TransformationToken(Token):
-
     """${1/match/replace/options}"""
 
     CHECK = re.compile(r"^\${\d+\/")
@@ -222,17 +214,14 @@ class TransformationToken(Token):
         self.options = _parse_till_closing_brace(stream)
 
     def __repr__(self):
-        return "TransformationToken(%r,%r,%r,%r,%r)" % (
-            self.start,
-            self.end,
-            self.number,
-            self.search,
-            self.replace,
+        return (
+            f"TransformationToken({self.start!r},"
+            f"{self.end!r},{self.number!r},"
+            f"{self.search!r},{self.replace!r})"
         )
 
 
 class MirrorToken(Token):
-
     """$1."""
 
     CHECK = re.compile(r"^\$\d+")
@@ -248,11 +237,10 @@ class MirrorToken(Token):
         self.number = _parse_number(stream)
 
     def __repr__(self):
-        return "MirrorToken(%r,%r,%r)" % (self.start, self.end, self.number)
+        return f"MirrorToken({self.start!r},{self.end!r},{self.number!r})"
 
 
 class ChoicesToken(Token):
-
     """${1|o1,o2,o3|}
     P.S. This is not a subclass of TabStop,
          so its content will not be parsed recursively.
@@ -290,7 +278,7 @@ class ChoicesToken(Token):
                 if not result:
                     continue
                 choice_list.append(self._get_unescaped_choice_item(result))
-            except:
+            except StopIteration:
                 last_choice_item = self._get_unescaped_choice_item(
                     choices_text[cur_col:]
                 )
@@ -298,7 +286,7 @@ class ChoicesToken(Token):
                     choice_list.append(last_choice_item)
                 break
         self.choice_list = choice_list
-        self.initial_text = "|{0}|".format(",".join(choice_list))
+        self.initial_text = f"|{','.join(choice_list)}|"
 
         _parse_till_closing_brace(stream)
 
@@ -307,16 +295,13 @@ class ChoicesToken(Token):
         return escaped_choice_item.replace(r"\,", ",")
 
     def __repr__(self):
-        return "ChoicesToken(%r,%r,%r,|%r|)" % (
-            self.start,
-            self.end,
-            self.number,
-            self.initial_text,
+        return (
+            f"ChoicesToken({self.start!r},{self.end!r},"
+            f"{self.number!r},|{self.initial_text!r}|)"
         )
 
 
 class EscapeCharToken(Token):
-
     """\\n."""
 
     @classmethod
@@ -332,11 +317,10 @@ class EscapeCharToken(Token):
         self.initial_text = next(stream)
 
     def __repr__(self):
-        return "EscapeCharToken(%r,%r,%r)" % (self.start, self.end, self.initial_text)
+        return f"EscapeCharToken({self.start!r},{self.end!r},{self.initial_text!r})"
 
 
 class ShellCodeToken(Token):
-
     """`echo "hi"`"""
 
     @classmethod
@@ -350,11 +334,10 @@ class ShellCodeToken(Token):
         self.code = _parse_till_unescaped_char(stream, "`")[0]
 
     def __repr__(self):
-        return "ShellCodeToken(%r,%r,%r)" % (self.start, self.end, self.code)
+        return f"ShellCodeToken({self.start!r},{self.end!r},{self.code!r})"
 
 
 class PythonCodeToken(Token):
-
     """`!p snip.rv = "Hi"`"""
 
     CHECK = re.compile(r"^`!p\s")
@@ -383,11 +366,10 @@ class PythonCodeToken(Token):
         self.indent = indent
 
     def __repr__(self):
-        return "PythonCodeToken(%r,%r,%r)" % (self.start, self.end, self.code)
+        return f"PythonCodeToken({self.start!r},{self.end!r},{self.code!r})"
 
 
 class VimLCodeToken(Token):
-
     """`!v g:hi`"""
 
     CHECK = re.compile(r"^`!v\s")
@@ -404,15 +386,14 @@ class VimLCodeToken(Token):
         self.code = _parse_till_unescaped_char(stream, "`")[0]
 
     def __repr__(self):
-        return "VimLCodeToken(%r,%r,%r)" % (self.start, self.end, self.code)
+        return f"VimLCodeToken({self.start!r},{self.end!r},{self.code!r})"
 
 
 class EndOfTextToken(Token):
-
     """Appears at the end of the text."""
 
     def __repr__(self):
-        return "EndOfText(%r)" % self.end
+        return f"EndOfText({self.end!r})"
 
 
 def tokenize(text, indent, offset, allowed_tokens):

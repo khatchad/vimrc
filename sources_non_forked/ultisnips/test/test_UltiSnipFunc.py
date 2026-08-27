@@ -1,14 +1,13 @@
-# encoding: utf-8
-from test.vim_test_case import VimTestCase as _VimTest
-from test.constant import *
+from test.constant import ESC, EX, JF
 from test.util import running_on_windows
+from test.vim_test_case import VimTestCase as _VimTest
 
 
 class _AddFuncBase(_VimTest):
     args = ""
 
     def _before_test(self):
-        self.vim.send_to_vim(":call UltiSnips#AddSnippetWithPriority(%s)\n" % self.args)
+        self.vim.send_to_vim(f":call UltiSnips#AddSnippetWithPriority({self.args})\n")
 
 
 class AddFunc_Simple(_AddFuncBase):
@@ -86,22 +85,23 @@ hi4"""
 
     def _before_test(self):
         self.vim.send_to_vim(
-            ":set langmap=йq,цw,уe,кr,еt,нy,гu,шi,щo,зp,х[,ъ],фa,ыs,вd,аf,пg,рh,оj,лk,дl,ж\\;,э',яz,чx,сc,мv,иb,тn,ьm,ю.,ё',ЙQ,ЦW,УE,КR,ЕT,НY,ГU,ШI,ЩO,ЗP,Х\\{,Ъ\\},ФA,ЫS,ВD,АF,ПG,РH,ОJ,ЛK,ДL,Ж\:,Э\",ЯZ,ЧX,СC,МV,ИB,ТN,ЬM,Б\<,Ю\>\n"
+            ":set langmap=йq,цw,уe,кr,еt,нy,гu,шi,щo,зp,х[,ъ],фa,ыs,вd,аf,пg,рh,оj,лk,дl,ж\\;,э',яz,чx,сc,мv,иb,тn,ьm,ю.,ё',ЙQ,ЦW,УE,КR,ЕT,НY,ГU,ШI,ЩO,ЗP,Х\\{,Ъ\\},ФA,ЫS,ВD,АF,ПG,РH,ОJ,ЛK,ДL,Ж\\:,Э\",ЯZ,ЧX,СC,МV,ИB,ТN,ЬM,Б\\<,Ю\\>\n"
         )
 
 
 class VerifyVimDict1(_VimTest):
-
     """check:
     correct type (4 means vim dictionary)
-    correct length of dictionary (in this case we have on element if the use same prefix, dictionary should have 1 element)
+    correct length of dictionary (in this case we have on element
+    if the use same prefix, dictionary should have 1 element)
     correct description (including the apostrophe)
     if the prefix is mismatched no resulting dict should have 0 elements
     """
 
     snippets = ("testâ", "abc123ά", "123'êabc")
     keys = (
-        "test=(type(UltiSnips#SnippetsInCurrentScope()) . len(UltiSnips#SnippetsInCurrentScope()) . "
+        "test=(type(UltiSnips#SnippetsInCurrentScope())"
+        " . len(UltiSnips#SnippetsInCurrentScope()) . "
         + 'UltiSnips#SnippetsInCurrentScope()["testâ"]'
         + ")\n"
         + "=len(UltiSnips#SnippetsInCurrentScope())\n"
@@ -111,27 +111,72 @@ class VerifyVimDict1(_VimTest):
 
 
 class VerifyVimDict2(_VimTest):
-
     """check:
     can use " in trigger
     """
 
     snippets = ('te"stâ', "abc123ά", "123êabc")
-    akey = "'te{}stâ'".format('"')
-    keys = 'te"=(UltiSnips#SnippetsInCurrentScope()[{}]'.format(akey) + ")\n"
+    akey = """'te"stâ'"""
+    keys = f'te"=(UltiSnips#SnippetsInCurrentScope()[{akey}]' + ")\n"
     wanted = 'te"123êabc'
 
 
 class VerifyVimDict3(_VimTest):
-
     """check:
     can use ' in trigger
     """
 
     snippets = ("te'stâ", "abc123ά", "123êabc")
-    akey = '"te{}stâ"'.format("'")
-    keys = "te'=(UltiSnips#SnippetsInCurrentScope()[{}]".format(akey) + ")\n"
+    akey = '''"te'stâ"'''
+    keys = f"te'=(UltiSnips#SnippetsInCurrentScope()[{akey}]" + ")\n"
     wanted = "te'123êabc"
+
+
+class SnippetsInCurrentScope_PopulatesInfoForMatching(_VimTest):
+    """`g:current_ulti_dict_info` should be populated for the matching scope
+    even when `UltiSnips#SnippetsInCurrentScope` is called without the
+    'all' argument (GH #981)."""
+
+    snippets = (("hello", "world"),)
+
+    def _extra_vim_config(self, vim_config):
+        vim_config.extend(
+            [
+                "function! S_SnippetInfoMatching()",
+                "  call UltiSnips#SnippetsInCurrentScope()",
+                "  return '|'.get(get(g:current_ulti_dict_info, 'hello', {}),"
+                " 'location', '!nokey!')",
+                "endfunction",
+                "inoremap <silent> <C-L> <C-R>=S_SnippetInfoMatching()<CR>",
+            ]
+        )
+
+    keys = "hello" + chr(12)
+    wanted = "hello|added"
+
+
+class SnippetsInCurrentScope_PopulatesInfoForAll(_VimTest):
+    """Calling `UltiSnips#SnippetsInCurrentScope(1)` still populates the
+    info dict, with one entry per known snippet."""
+
+    snippets = (
+        ("alpha", "AAA"),
+        ("beta", "BBB"),
+    )
+
+    def _extra_vim_config(self, vim_config):
+        vim_config.extend(
+            [
+                "function! S_SnippetInfoAll()",
+                "  call UltiSnips#SnippetsInCurrentScope(1)",
+                "  return join(sort(keys(g:current_ulti_dict_info)), ',')",
+                "endfunction",
+                "inoremap <silent> <C-L> <C-R>=S_SnippetInfoAll()<CR>",
+            ]
+        )
+
+    keys = chr(12)
+    wanted = "alpha,beta"
 
 
 class AddNewSnippetSource(_VimTest):
@@ -169,4 +214,4 @@ class MySnippetSource(SnippetSource):
     return []
 """,
         )
-        vim_config.append("py3file %s" % (self.name_temp("snippet_source.py")))
+        vim_config.append(f"py3file {self.name_temp('snippet_source.py')}")

@@ -28,10 +28,12 @@ CONTENTS                                                         *ale-contents*
   7. Linter/Fixer Options.................|ale-integration-options|
     7.1 Options for alex..................|ale-alex-options|
     7.2 Options for cspell................|ale-cspell-options|
-    7.3 Options for languagetool..........|ale-languagetool-options|
-    7.4 Options for write-good............|ale-write-good-options|
-    7.5 Options for redpen................|ale-redpen-options|
-    7.6 Other Linter/Fixer Options........|ale-other-integration-options|
+    7.3 Options for dprint................|ale-dprint-options|
+    7.4 Options for languagetool..........|ale-languagetool-options|
+    7.5 Options for write-good............|ale-write-good-options|
+    7.6 Options for redpen................|ale-redpen-options|
+    7.7 Options for vale..................|ale-vale-options|
+    7.8 Other Linter/Fixer Options........|ale-other-integration-options|
   8. Commands/Keybinds....................|ale-commands|
   9. API..................................|ale-api|
   10. Special Thanks......................|ale-special-thanks|
@@ -1141,6 +1143,20 @@ g:ale_completion_max_suggestions
   Adjust this option as needed, depending on the complexity of your codebase
   and your available processing power.
 
+                                               *ale-options.completion_timeout*
+                                                     *g:ale_completion_timeout*
+completion_timeout
+g:ale_completion_timeout
+  Type: |Number|
+  Default: `3`
+
+  The maximum time in seconds ale#completion#OmniFunc() will wait for a
+  completion result from the language server.
+
+  When the timeout is exceeded ale#completion#OmniFunc() will print an error
+  message and return an empty result. Setting a higher value allows longer
+  response times, but it may also keep Vim unresponsible for a longer time.
+
                                                     *ale-options.cursor_detail*
                                                           *g:ale_cursor_detail*
 cursor_detail
@@ -1620,10 +1636,21 @@ g:ale_lint_delay
   A buffer-local option, `b:ale_lint_delay`, can be set to change the delay
   for different buffers, such as in |ftplugin| files.
 
+                                                    *ale-options.ale_lint_diff*
+                                                              *g:ale_lint_diff*
+g:ale_lint_diff
+
+  Type: |Number|
+  Default: `0`
+
+  When this option is set to `1`, ALE will lint buffers where `&diff` is set.
+
+
                                                     *ale-options.lint_on_enter*
                                                           *g:ale_lint_on_enter*
 lint_on_enter
 g:ale_lint_on_enter
+
   Type: |Number|
   Default: `1`
 
@@ -1931,7 +1958,7 @@ g:ale_linters
   \   'jsonc': [],
   \   'perl': ['perlcritic'],
   \   'perl6': [],
-  \   'python': ['flake8', 'mypy', 'pylint', 'pyright', 'ruff'],
+  \   'python': ['flake8', 'mypy', 'pylint', 'pyright', 'ruff', 'ty'],
   \   'rust': ['analyzer', 'cargo'],
   \   'spec': [],
   \   'text': [],
@@ -2321,10 +2348,8 @@ g:ale_root
   This option is used to determine the project root for a linter. If the value
   is a |Dictionary|, it maps a linter to either a |String| containing the
   project root or a |Funcref| to call to look up the root. The |Funcref| is
-  provided the buffer number as its argument.
-
-  The buffer-specific variable may additionally be a string containing the
-  project root itself.
+  provided the buffer number as its argument. If the the value is a string, it
+  will be interpreted as the project root itself.
 
   If neither variable yields a result, a linter-specific function is invoked to
   detect a project root. If this, too, yields no result, and the linter is an
@@ -3359,7 +3384,31 @@ g:ale_redpen_options
 
 
 -------------------------------------------------------------------------------
-7.7. Other Linter/Fixer Options                 *ale-other-integration-options*
+7.7. Options for vale                                        *ale-vale-options*
+
+  The following options can be used to configure the `vale` linter for text
+  files.
+
+g:ale_text_vale_executable                         *g:ale_text_vale_executable*
+  Type: String
+  Default: 'vale'
+
+  This option controls which executable is used for running Vale. Set it to an
+  absolute path or a different command name if needed.
+
+g:ale_text_vale_options                               *g:ale_text_vale_options*
+  Type: String
+  Default: ''
+
+  Extra command-line options to pass to the Vale executable.
+
+  Example:
+
+    let g:ale_text_vale_options = '--minAlertLevel=warning'
+
+
+-------------------------------------------------------------------------------
+7.8. Other Linter/Fixer Options                 *ale-other-integration-options*
 
 ALE supports a very wide variety of tools. Other linter or fixer options are
 documented in additional help files.
@@ -3385,8 +3434,11 @@ documented in additional help files.
     gcc...................................|ale-asm-gcc|
     llvm_mc...............................|ale-asm-llvm_mc|
   astro...................................|ale-astro-options|
+    dprint................................|ale-astro-dprint|
     eslint................................|ale-astro-eslint|
     prettier..............................|ale-astro-prettier|
+  autopkgtest.............................|ale-autopkgtest-options|
+    debian-lsp............................|ale-autopkgtest-debian-lsp|
   avra....................................|ale-avra-options|
     avra..................................|ale-avra-avra|
   awk.....................................|ale-awk-options|
@@ -3417,6 +3469,8 @@ documented in additional help files.
     cspell................................|ale-c-cspell|
     flawfinder............................|ale-c-flawfinder|
     uncrustify............................|ale-c-uncrustify|
+  c3......................................|ale-c3-options|
+    c3lsp.................................|ale-c3-c3lsp|
   cairo...................................|ale-cairo-options|
     scarb.................................|ale-cairo-scarb|
     starknet..............................|ale-cairo-starknet|
@@ -3454,12 +3508,14 @@ documented in additional help files.
     csc...................................|ale-cs-csc|
     cspell................................|ale-cs-cspell|
     dotnet-format.........................|ale-cs-dotnet-format|
+    dprint................................|ale-cs-dprint|
     mcs...................................|ale-cs-mcs|
     mcsc..................................|ale-cs-mcsc|
     uncrustify............................|ale-cs-uncrustify|
   css.....................................|ale-css-options|
     cspell................................|ale-css-cspell|
     css-beautify..........................|ale-css-css-beautify|
+    dprint................................|ale-css-dprint|
     fecs..................................|ale-css-fecs|
     prettier..............................|ale-css-prettier|
     stylelint.............................|ale-css-stylelint|
@@ -3468,8 +3524,6 @@ documented in additional help files.
     clang-format..........................|ale-cuda-clangformat|
     clangd................................|ale-cuda-clangd|
     nvcc..................................|ale-cuda-nvcc|
-  c3......................................|ale-c3-options|
-    c3lsp.................................|ale-c3-c3lsp|
   d.......................................|ale-d-options|
     dfmt..................................|ale-d-dfmt|
     dls...................................|ale-d-dls|
@@ -3481,6 +3535,18 @@ documented in additional help files.
     dart-analyze..........................|ale-dart-analyze|
     dart-format...........................|ale-dart-format|
     dartfmt...............................|ale-dart-dartfmt|
+  debian changelog........................|ale-debchangelog-options|
+    debian-lsp............................|ale-debchangelog-debian-lsp|
+  debian control..........................|ale-debcontrol-options|
+    debian-lsp............................|ale-debcontrol-debian-lsp|
+  debian copyright........................|ale-debcopyright-options|
+    debian-lsp............................|ale-debcopyright-debian-lsp|
+  debian sources..........................|ale-debsources-options|
+    debian-lsp............................|ale-debsources-debian-lsp|
+  debian upstream metadata................|ale-debupstream-options|
+    debian-lsp............................|ale-debupstream-debian-lsp|
+  debian watch............................|ale-debwatch-options|
+    debian-lsp............................|ale-debwatch-debian-lsp|
   desktop.................................|ale-desktop-options|
     desktop-file-validate.................|ale-desktop-desktop-file-validate|
   dhall...................................|ale-dhall-options|
@@ -3527,6 +3593,8 @@ documented in additional help files.
   fountain................................|ale-fountain-options|
   fusionscript............................|ale-fuse-options|
     fusion-lint...........................|ale-fuse-fusionlint|
+  generic.................................|ale-generic-options|
+    astgrep...............................|ale-generic-astgrep|
   git commit..............................|ale-gitcommit-options|
     gitlint...............................|ale-gitcommit-gitlint|
   gleam...................................|ale-gleam-options|
@@ -3538,9 +3606,11 @@ documented in additional help files.
   go......................................|ale-go-options|
     bingo.................................|ale-go-bingo|
     cspell................................|ale-go-cspell|
+    dprint................................|ale-go-dprint|
     gobuild...............................|ale-go-gobuild|
     gofmt.................................|ale-go-gofmt|
     gofumpt...............................|ale-go-gofumpt|
+    goimports.............................|ale-go-goimports|
     golangci-lint.........................|ale-go-golangci-lint|
     golangserver..........................|ale-go-golangserver|
     golines...............................|ale-go-golines|
@@ -3551,6 +3621,7 @@ documented in additional help files.
   go html template........................|ale-gohtmltmpl-options|
     djlint................................|ale-gohtmltmpl-djlint|
   graphql.................................|ale-graphql-options|
+    dprint................................|ale-graphql-dprint|
     eslint................................|ale-graphql-eslint|
     gqlint................................|ale-graphql-gqlint|
     prettier..............................|ale-graphql-prettier|
@@ -3591,6 +3662,7 @@ documented in additional help files.
     angular...............................|ale-html-angular|
     cspell................................|ale-html-cspell|
     djlint................................|ale-html-djlint|
+    dprint................................|ale-html-dprint|
     fecs..................................|ale-html-fecs|
     html-beautify.........................|ale-html-beautify|
     htmlhint..............................|ale-html-htmlhint|
@@ -3617,6 +3689,8 @@ documented in additional help files.
     inko..................................|ale-inko-inko|
   ispc....................................|ale-ispc-options|
     ispc..................................|ale-ispc-ispc|
+  janet...................................|ale-janet-options|
+    janet-format..........................|ale-janet-janet-format|
   java....................................|ale-java-options|
     checkstyle............................|ale-java-checkstyle|
     clang-format..........................|ale-java-clangformat|
@@ -3646,6 +3720,7 @@ documented in additional help files.
     xo....................................|ale-javascript-xo|
   jinja...................................|ale-jinja-options|
     djlint................................|ale-jinja-djlint|
+    dprint................................|ale-jinja-dprint|
     j2lint................................|ale-jinja-j2lint|
   json....................................|ale-json-options|
     biome.................................|ale-json-biome|
@@ -3660,15 +3735,16 @@ documented in additional help files.
     prettier..............................|ale-json-prettier|
     spectral..............................|ale-json-spectral|
     vscodejson............................|ale-json-vscode|
+  json5...................................|ale-json5-options|
+    eslint................................|ale-json5-eslint|
   jsonc...................................|ale-jsonc-options|
     biome.................................|ale-jsonc-biome|
     eslint................................|ale-jsonc-eslint|
   jsonnet.................................|ale-jsonnet-options|
     jsonnetfmt............................|ale-jsonnet-jsonnetfmt|
     jsonnet-lint..........................|ale-jsonnet-jsonnet-lint|
-  json5...................................|ale-json5-options|
-    eslint................................|ale-json5-eslint|
   julia...................................|ale-julia-options|
+    fatou.................................|ale-julia-fatou|
     languageserver........................|ale-julia-languageserver|
   kotlin..................................|ale-kotlin-options|
     kotlinc...............................|ale-kotlin-kotlinc|
@@ -3681,9 +3757,12 @@ documented in additional help files.
   lean....................................|ale-lean-options|
     lake..................................|ale-lean-lake|
   less....................................|ale-less-options|
+    dprint................................|ale-less-dprint|
     lessc.................................|ale-less-lessc|
     prettier..............................|ale-less-prettier|
     stylelint.............................|ale-less-stylelint|
+  lilypond................................|ale-lilypond-options|
+    lilypond..............................|ale-lilypond|
   llvm....................................|ale-llvm-options|
     llc...................................|ale-llvm-llc|
   lua.....................................|ale-lua-options|
@@ -3700,18 +3779,24 @@ documented in additional help files.
   markdown................................|ale-markdown-options|
     cspell................................|ale-markdown-cspell|
     dprint................................|ale-markdown-dprint|
-    markdownlint..........................|ale-markdown-markdownlint|
+    harper................................|ale-markdown-harper|
+    markdownlint-cli......................|ale-markdown-markdownlint-cli|
+    markdownlint-cli2.....................|ale-markdown-markdownlint-cli2|
     marksman..............................|ale-markdown-marksman|
+    mdformat..............................|ale-markdown-mdformat|
     mdl...................................|ale-markdown-mdl|
     pandoc................................|ale-markdown-pandoc|
     prettier..............................|ale-markdown-prettier|
     pymarkdown............................|ale-markdown-pymarkdown|
     remark-lint...........................|ale-markdown-remark-lint|
+    rumdl.................................|ale-markdown-rumdl|
     textlint..............................|ale-markdown-textlint|
     write-good............................|ale-markdown-write-good|
     redpen................................|ale-markdown-redpen|
   mercury.................................|ale-mercury-options|
     mmc...................................|ale-mercury-mmc|
+  mustache................................|ale-mustache-options|
+    dprint................................|ale-mustache-dprint|
   nasm....................................|ale-nasm-options|
     nasm..................................|ale-nasm-nasm|
   nickel..................................|ale-nickel-options|
@@ -3730,6 +3815,7 @@ documented in additional help files.
     write-good............................|ale-nroff-write-good|
   nunjucks................................|ale-nunjucks-options|
     djlint................................|ale-nunjucks-djlint|
+    dprint................................|ale-nunjucks-dprint|
   objc....................................|ale-objc-options|
     ccls..................................|ale-objc-ccls|
     clang.................................|ale-objc-clang|
@@ -3754,6 +3840,7 @@ documented in additional help files.
     prettier..............................|ale-openapi-prettier|
     yamllint..............................|ale-openapi-yamllint|
   openscad................................|ale-openscad-options|
+    openscad-lsp..........................|ale-openscad-openscad_lsp|
     sca2d.................................|ale-openscad-sca2d|
     scadformat............................|ale-openscad-scadformat|
   packer..................................|ale-packer-options|
@@ -3766,11 +3853,13 @@ documented in additional help files.
     perl..................................|ale-perl-perl|
     perl language server..................|ale-perl-languageserver|
     perlcritic............................|ale-perl-perlcritic|
+    perlnavigator.........................|ale-perl-perlnavigator|
     perltidy..............................|ale-perl-perltidy|
   perl6...................................|ale-perl6-options|
     perl6.................................|ale-perl6-perl6|
   php.....................................|ale-php-options|
     cspell................................|ale-php-cspell|
+    dprint................................|ale-php-dprint|
     langserver............................|ale-php-langserver|
     phan..................................|ale-php-phan|
     phpactor..............................|ale-php-phpactor|
@@ -3821,6 +3910,7 @@ documented in additional help files.
     bandit................................|ale-python-bandit|
     black.................................|ale-python-black|
     cspell................................|ale-python-cspell|
+    dprint................................|ale-python-dprint|
     flake8................................|ale-python-flake8|
     flakehell.............................|ale-python-flakehell|
     isort.................................|ale-python-isort|
@@ -3841,6 +3931,7 @@ documented in additional help files.
     reorder-python-imports................|ale-python-reorder_python_imports|
     ruff..................................|ale-python-ruff|
     ruff-format...........................|ale-python-ruff-format|
+    ty....................................|ale-python-ty|
     unimport..............................|ale-python-unimport|
     vulture...............................|ale-python-vulture|
     yapf..................................|ale-python-yapf|
@@ -3903,6 +3994,7 @@ documented in additional help files.
   salt....................................|ale-salt-options|
     salt-lint.............................|ale-salt-salt-lint|
   sass....................................|ale-sass-options|
+    dprint................................|ale-sass-dprint|
     sasslint..............................|ale-sass-sasslint|
     stylelint.............................|ale-sass-stylelint|
   scala...................................|ale-scala-options|
@@ -3912,6 +4004,7 @@ documented in additional help files.
     scalafmt..............................|ale-scala-scalafmt|
     scalastyle............................|ale-scala-scalastyle|
   scss....................................|ale-scss-options|
+    dprint................................|ale-scss-dprint|
     prettier..............................|ale-scss-prettier|
     sasslint..............................|ale-scss-sasslint|
     stylelint.............................|ale-scss-stylelint|
@@ -3942,6 +4035,7 @@ documented in additional help files.
   sugarss.................................|ale-sugarss-options|
     stylelint.............................|ale-sugarss-stylelint|
   svelte..................................|ale-svelte-options|
+    dprint................................|ale-svelte-dprint|
     prettier..............................|ale-svelte-prettier|
     svelteserver..........................|ale-svelte-svelteserver|
   swift...................................|ale-swift-options|
@@ -3959,12 +4053,14 @@ documented in additional help files.
     terraform-ls..........................|ale-terraform-terraform-ls|
     terraform-lsp.........................|ale-terraform-terraform-lsp|
     tflint................................|ale-terraform-tflint|
+    trivy.................................|ale-terraform-trivy|
     tfsec.................................|ale-terraform-tfsec|
   tex.....................................|ale-tex-options|
     chktex................................|ale-tex-chktex|
     cspell................................|ale-tex-cspell|
     lacheck...............................|ale-tex-lacheck|
     latexindent...........................|ale-tex-latexindent|
+    tex-fmt...............................|ale-tex-tex-fmt|
     texlab................................|ale-tex-texlab|
     redpen................................|ale-tex-redpen|
   texinfo.................................|ale-texinfo-options|
@@ -3981,6 +4077,8 @@ documented in additional help files.
   toml....................................|ale-toml-options|
     dprint................................|ale-toml-dprint|
     tombi.................................|ale-toml-tombi|
+  twig....................................|ale-twig-options|
+    dprint................................|ale-twig-dprint|
   typescript..............................|ale-typescript-options|
     biome.................................|ale-typescript-biome|
     cspell................................|ale-typescript-cspell|
@@ -3999,6 +4097,8 @@ documented in additional help files.
     vfmt..................................|ale-v-vfmt|
   vala....................................|ale-vala-options|
     uncrustify............................|ale-vala-uncrustify|
+  vento...................................|ale-vento-options|
+    dprint................................|ale-vento-dprint|
   verilog/systemverilog...................|ale-verilog-options|
     hdl-checker...........................|ale-verilog-hdl-checker|
     iverilog..............................|ale-verilog-iverilog|
@@ -4014,13 +4114,14 @@ documented in additional help files.
     hdl-checker...........................|ale-vhdl-hdl-checker|
     vcom..................................|ale-vhdl-vcom|
     xvhdl.................................|ale-vhdl-xvhdl|
-  vim help................................|ale-vim-help-options|
-    write-good............................|ale-vim-help-write-good|
   vim.....................................|ale-vim-options|
     vimls.................................|ale-vim-vimls|
     vint..................................|ale-vim-vint|
+  vim help................................|ale-vim-help-options|
+    write-good............................|ale-vim-help-write-good|
   vue.....................................|ale-vue-options|
     cspell................................|ale-vue-cspell|
+    dprint................................|ale-vue-dprint|
     prettier..............................|ale-vue-prettier|
     vls...................................|ale-vue-vls|
     volar.................................|ale-vue-volar|
@@ -4030,10 +4131,12 @@ documented in additional help files.
     cspell................................|ale-xhtml-cspell|
     write-good............................|ale-xhtml-write-good|
   xml.....................................|ale-xml-options|
+    dprint................................|ale-xml-dprint|
     xmllint...............................|ale-xml-xmllint|
   yaml....................................|ale-yaml-options|
     actionlint............................|ale-yaml-actionlint|
     circleci..............................|ale-yaml-circleci|
+    dprint................................|ale-yaml-dprint|
     prettier..............................|ale-yaml-prettier|
     spectral..............................|ale-yaml-spectral|
     swaglint..............................|ale-yaml-swaglint|

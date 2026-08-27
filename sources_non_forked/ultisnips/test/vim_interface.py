@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 import os
 import re
 import shutil
@@ -7,13 +5,14 @@ import subprocess
 import tempfile
 import textwrap
 import time
+from pathlib import Path
 
-from test.constant import ARR_D, ARR_L, ARR_R, ARR_U, BS, ESC, SEQUENCES
+from test.constant import ARR_D, ARR_L, ARR_R, ARR_U, BS, ESC
 
 
 def wait_until_file_exists(file_path, times=None, interval=0.01):
     while times is None or times:
-        if os.path.exists(file_path):
+        if Path(file_path).exists():
             return True
         time.sleep(interval)
         if times is not None:
@@ -23,7 +22,7 @@ def wait_until_file_exists(file_path, times=None, interval=0.01):
 
 def _read_text_file(filename):
     """Reads the content of a text file."""
-    with open(filename, "r", encoding="utf-8") as to_read:
+    with open(filename, encoding="utf-8") as to_read:
         return to_read.read()
 
 
@@ -41,31 +40,28 @@ def is_process_running(pid):
 
 def create_directory(dirname):
     """Creates 'dirname' and its parents if it does not exist."""
-    try:
-        os.makedirs(dirname)
-    except OSError:
-        pass
+    Path(dirname).mkdir(parents=True, exist_ok=True)
 
 
 class TempFileManager:
     def __init__(self, name=""):
-        self._temp_dir = tempfile.mkdtemp(prefix="UltiSnipsTest_" + name)
+        self._temp_dir = Path(tempfile.mkdtemp(prefix="UltiSnipsTest_" + name))
 
     def name_temp(self, file_path):
-        return os.path.join(self._temp_dir, file_path)
+        return self._temp_dir / file_path
 
     def write_temp(self, file_path, content):
         abs_path = self.name_temp(file_path)
-        create_directory(os.path.dirname(abs_path))
+        create_directory(abs_path.parent)
         with open(abs_path, "w", encoding="utf-8") as f:
             f.write(content)
         return abs_path
 
     def unique_name_temp(self, suffix="", prefix=""):
-        file_handler, abspath = tempfile.mkstemp(suffix, prefix, self._temp_dir)
+        file_handler, abspath = tempfile.mkstemp(suffix, prefix, str(self._temp_dir))
         os.close(file_handler)
-        os.remove(abspath)
-        return abspath
+        Path(abspath).unlink()
+        return Path(abspath)
 
     def clear_temp(self):
         shutil.rmtree(self._temp_dir)
@@ -74,7 +70,7 @@ class TempFileManager:
 
 class VimInterface(TempFileManager):
     def __init__(self, vim_executable, name):
-        TempFileManager.__init__(self, name)
+        super().__init__(name)
         self._vim_executable = vim_executable
 
     @property
@@ -83,15 +79,17 @@ class VimInterface(TempFileManager):
 
     def has_version(self, major, minor, patchlevel):
         cmd = [
-            self._vim_executable, "-e", "-c",
-            "if has('patch-%d.%d.%d') | quit | else | cquit | endif"
-                % (major, minor, patchlevel),
+            self._vim_executable,
+            "-e",
+            "-c",
+            f"if has('patch-{major}.{minor}.{patchlevel}')"
+            " | quit | else | cquit | endif",
         ]
-        return not subprocess.call(cmd, stdout=subprocess.DEVNULL)
+        return not subprocess.run(cmd, stdout=subprocess.DEVNULL).returncode
 
     def get_buffer_data(self):
         buffer_path = self.unique_name_temp(prefix="buffer_")
-        self.send_to_vim(ESC + ":w! %s\n" % buffer_path)
+        self.send_to_vim(ESC + f":w! {buffer_path}\n")
         if wait_until_file_exists(buffer_path, 50):
             return _read_text_file(buffer_path)[:-1]
 
@@ -103,26 +101,32 @@ class VimInterface(TempFileManager):
         """Types 's' into the vim instance under test."""
         raise NotImplementedError()
 
-    def launch(self, config=[]):
+    def _build_launch_command(self, config_path):
+        # Note the leading space to exclude it from shell history.
+        return f""" {self._vim_executable} -u {config_path}\r\n"""
+
+    def launch(self, config=None):
         """Returns the python version in Vim as a string, e.g. '3.7'"""
+        if config is None:
+            config = []
         pid_file = self.name_temp("vim.pid")
         version_file = self.name_temp("vim_version")
-        if os.path.exists(version_file):
-            os.remove(version_file)
+        if version_file.exists():
+            version_file.unlink()
         done_file = self.name_temp("loading_done")
-        if os.path.exists(done_file):
-            os.remove(done_file)
+        if done_file.exists():
+            done_file.unlink()
 
         post_config = []
         post_config.append("py3 << EOF")
         post_config.append("import vim, sys")
         post_config.append(
-            "with open('%s', 'w') as pid_file: pid_file.write(vim.eval('getpid()'))"
-            % pid_file
+            f"with open('{pid_file}', 'w') as pid_file:"
+            " pid_file.write(vim.eval('getpid()'))"
         )
-        post_config.append("with open('%s', 'w') as version_file:" % version_file)
+        post_config.append(f"with open('{version_file}', 'w') as version_file:")
         post_config.append("    version_file.write('%i.%i.%i' % sys.version_info[:3])")
-        post_config.append("with open('%s', 'w') as done_file:" % done_file)
+        post_config.append(f"with open('{done_file}', 'w') as done_file:")
         post_config.append("    done_file.write('all_done!')")
         post_config.append("EOF")
 
@@ -131,26 +135,25 @@ class VimInterface(TempFileManager):
             textwrap.dedent(os.linesep.join(config + post_config) + "\n"),
         )
 
-        # Note the space to exclude it from shell history. Also we always set
-        # NVIM_LISTEN_ADDRESS, even when running vanilla Vim, because it will
-        # just not care.
-        self.send_to_terminal(
-            """ NVIM_LISTEN_ADDRESS=/tmp/nvim %s -u %s\r\n"""
-            % (self._vim_executable, config_path)
-        )
-        wait_until_file_exists(done_file)
+        self.send_to_terminal(self._build_launch_command(config_path))
+        if not wait_until_file_exists(done_file, times=1000):
+            raise RuntimeError("Vim did not start within 10 seconds")
         self._vim_pid = int(_read_text_file(pid_file))
         return _read_text_file(version_file).strip()
 
     def leave_with_wait(self):
         self.send_to_vim(3 * ESC + ":qa!\n")
+        start = time.time()
         while is_process_running(self._vim_pid):
+            if time.time() - start > 10:
+                os.kill(self._vim_pid, 9)
+                break
             time.sleep(0.01)
 
 
 class VimInterfaceTmux(VimInterface):
     def __init__(self, vim_executable, session):
-        VimInterface.__init__(self, vim_executable, "Tmux")
+        super().__init__(vim_executable, "Tmux")
         self.session = session
         self._check_version()
 
@@ -179,37 +182,7 @@ class VimInterfaceTmux(VimInterface):
         stdout = stdout.decode("utf-8")
         m = re.match(r"tmux (\d+).(\d+)", stdout)
         if not m or not (int(m.group(1)), int(m.group(2))) >= (1, 8):
-            raise RuntimeError("Need at least tmux 1.8, you have %s." % stdout.strip())
-
-
-class VimInterfaceTmuxNeovim(VimInterfaceTmux):
-    def __init__(self, vim_executable, session):
-        VimInterfaceTmux.__init__(self, vim_executable, session)
-        self._nvim = None
-
-    def send_to_vim(self, s):
-        if s == ARR_L:
-            s = "<Left>"
-        elif s == ARR_R:
-            s = "<Right>"
-        elif s == ARR_U:
-            s = "<Up>"
-        elif s == ARR_D:
-            s = "<Down>"
-        elif s == BS:
-            s = "<bs>"
-        elif s == ESC:
-            s = "<esc>"
-        elif s == "<":
-            s = "<lt>"
-        self._nvim.input(s)
-
-    def launch(self, config=[]):
-        import neovim
-
-        rv = VimInterfaceTmux.launch(self, config)
-        self._nvim = neovim.attach("socket", path="/tmp/nvim")
-        return rv
+            raise RuntimeError(f"Need at least tmux 1.8, you have {stdout.strip()}.")
 
 
 class VimInterfaceWindows(VimInterface):
@@ -242,9 +215,7 @@ class VimInterfaceWindows(VimInterface):
 
     def is_focused(self, title=None):
         cur_title = self.win32gui.GetWindowText(self.win32gui.GetForegroundWindow())
-        if (title or "- GVIM") in cur_title:
-            return True
-        return False
+        return (title or "- GVIM") in cur_title
 
     def focus(self, title=None):
         if not self.shell.AppActivate(title or "- GVIM"):
@@ -254,7 +225,7 @@ class VimInterfaceWindows(VimInterface):
     def convert_keys(self, keys):
         keys = self.BRACES.sub(r"{\1}", keys)
         for k in self.WIN_ESCAPES:
-            keys = keys.replace(k, "{%s}" % k)
+            keys = keys.replace(k, f"{{{k}}}")
         for f, r in self.WIN_REPLACES:
             keys = keys.replace(f, r)
         return keys

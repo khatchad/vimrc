@@ -496,9 +496,11 @@ fu! csv#GetDelimiter(first, last, ...) "{{{3
         endfor
 	let &cmdheight = _cmdheight
         let &lz = _lz
-        let Delim = map(temp, 'matchstr(substitute(v:val, "\n", "", ""), "^\\s*\\d\\+")')
-        let Delim = filter(temp, 'v:val=~''\d''')
-        let max   = max(values(temp))
+
+        " convert temp into Delim with numeric counts
+        let Delim = map(temp, {_, v -> str2nr(matchstr(substitute(v, "\n", "", ""), "^\\s*\\d\\+"))})
+        call filter(Delim, 'v:val > 0')
+
         if lang != 'C'
             exe "sil lang mess" lang
         endif
@@ -506,11 +508,15 @@ fu! csv#GetDelimiter(first, last, ...) "{{{3
         let result=[]
         call setpos('.', _cur)
         let @/ = _s
-        for [key, value] in items(Delim)
-            if value == max
-                return key
-            endif
-        endfor
+
+        if !empty(Delim)
+            let maxcount = max(values(Delim))
+            for [key, value] in items(Delim)
+                if value == maxcount
+                    return key
+                endif
+            endfor
+        endif
         return ''
     else
         " There is no delimiter for fixedwidth files
@@ -1643,16 +1649,12 @@ fu! csv#HistogramCol(list) "{{{2
     let factor = filter([2, 2.5, 5, 7.5, 10], {_,v -> v >= (l:step / l:magnitude)})[0]
     let step = magnitude * factor
 
-    " Create and fill the bins.
-    let start = float2nr(floor(minValue/step))
-    let end = float2nr(ceil(maxValue/step))-1
-
+    " Create and fill the bins dynamically.
     let bins = {}
-    for label in range(start, end)
-        let bins[label*step] = 0
-    endfor
     for label in list
-        let bins[floor(label/step)*step] += 1
+        " Convert the calculated bin boundary to a string explicitly to ensure consistent dictionary keys
+        let bin_key = string(floor(label / step) * step)
+        let bins[bin_key] = get(bins, bin_key, 0) + 1
     endfor
 
     " Stuff the rendered histogram into a List and return it.
@@ -1665,9 +1667,9 @@ fu! csv#HistogramCol(list) "{{{2
     let maxcount = max(values(bins))
     let countwidth = float2nr(log10(maxcount)) + 1
     for label in sort(keys(bins),{x1,x2 -> str2float(x1)==str2float(x2) ? 0 : str2float(x1)<str2float(x2) ? -1 : 1})
-        let count = bins[label]
-        let width = maxcount < &columns / 3 ? count : float2nr(1.0 * count * (&columns/3) / maxcount)
-        call add(result, printf('≥ %*s| %*d|%s  %d', labelwidth, label, countwidth, count, repeat(get(g:, 'csv_histogram_cell', '▇'), width), count))
+        let cnt = bins[label]
+        let width = maxcount < &columns / 3 ? cnt : float2nr(1.0 * cnt * (&columns/3) / maxcount)
+        call add(result, printf('≥ %*s| %*d|%s  %d', labelwidth, label, countwidth, cnt, repeat(get(g:, 'csv_histogram_cell', '▇'), width), cnt))
     endfor
     return join(result,"\n")
 endfu

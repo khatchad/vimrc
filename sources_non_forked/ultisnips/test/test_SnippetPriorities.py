@@ -1,5 +1,5 @@
+from test.constant import ESC, EX
 from test.vim_test_case import VimTestCase as _VimTest
-from test.constant import EX, ESC
 
 
 class SnippetPriorities_MultiWordTriggerOverwriteExisting(_VimTest):

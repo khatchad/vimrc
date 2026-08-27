@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 
 """Implements `echo hi` shell code interpolation."""
 
 import os
 import platform
-from subprocess import Popen, PIPE
 import stat
 import tempfile
+from pathlib import Path
+from subprocess import PIPE, Popen
 
 from UltiSnips.text_objects.base import NoneditableTextObject
 
@@ -45,16 +45,16 @@ def _run_shell_command(cmd, tmpdir):
 
 def _get_tmp():
     """Find an executable tmp directory."""
-    userdir = os.path.expanduser("~")
+    userdir = Path("~").expanduser()
     for testdir in [
         tempfile.gettempdir(),
-        os.path.join(userdir, ".cache"),
-        os.path.join(userdir, ".tmp"),
-        userdir,
+        str(userdir / ".cache"),
+        str(userdir / ".tmp"),
+        str(userdir),
     ]:
         if (
-            not os.path.exists(testdir)
-            or not _run_shell_command("echo success", testdir) == "success"
+            not Path(testdir).exists()
+            or _run_shell_command("echo success", testdir) != "success"
         ):
             continue
         return testdir
@@ -62,11 +62,10 @@ def _get_tmp():
 
 
 class ShellCode(NoneditableTextObject):
-
     """See module docstring."""
 
     def __init__(self, parent, token):
-        NoneditableTextObject.__init__(self, parent, token)
+        super().__init__(parent, token.start, token.end, token.initial_text)
         self._code = token.code.replace("\\`", "`")
         self._tmpdir = _get_tmp()
 
@@ -76,5 +75,5 @@ class ShellCode(NoneditableTextObject):
         else:
             output = _run_shell_command(self._code, self._tmpdir)
         self.overwrite(buf, output)
-        self._parent._del_child(self)  # pylint:disable=protected-access
+        self._parent._del_child(self)
         return True

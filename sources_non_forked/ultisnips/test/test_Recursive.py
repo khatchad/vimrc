@@ -1,5 +1,5 @@
+from test.constant import ARR_L, BS, EX, JF
 from test.vim_test_case import VimTestCase as _VimTest
-from test.constant import *
 
 
 class RecTabStops_SimpleCase_ExpectCorrectResult(_VimTest):
@@ -217,7 +217,7 @@ class RecTabStops_InNewlineMultilineWithIndent_ECR(_VimTest):
 class RecTabStops_InNewlineMultilineWithNonZeroTS_ECR(_VimTest):
     snippets = ("m", "M START\n    $1\nM END -> $0")
     keys = "m" + EX + "m" + EX + "hi" + JF + "hallo" + JF + "end"
-    wanted = "M START\n    M START\n        hi\n    M END -> hallo\n" "M END -> end"
+    wanted = "M START\n    M START\n        hi\n    M END -> hallo\nM END -> end"
 
 
 class RecTabStops_BarelyNotLeavingInner_ECR(_VimTest):

@@ -1,27 +1,28 @@
-# coding=utf8
+from contextlib import contextmanager
 
 import vim
+
 from UltiSnips import vim_helper
-from UltiSnips.diff import diff
+from UltiSnips.change_provider import diff
 from UltiSnips.error import PebkacError
 from UltiSnips.position import Position
 
-from contextlib import contextmanager
-
 
 @contextmanager
-def use_proxy_buffer(snippets_stack, vstate):
+def use_proxy_buffer(snippets_stack, vstate, change_provider):
     """
     Forward all changes made in the buffer to the current snippet stack while
     function call.
     """
     buffer_proxy = VimBufferProxy(snippets_stack, vstate)
     old_buffer = vim_helper.buf
+    change_provider.suppress()
     try:
         vim_helper.buf = buffer_proxy
         yield
     finally:
         vim_helper.buf = old_buffer
+        change_provider.unsuppress()
     buffer_proxy.validate_buffer()
 
 
@@ -45,10 +46,10 @@ class VimBufferProxy(vim_helper.VimBuffer):
     Proxy object used for tracking changes that made from snippet actions.
 
     Unfortunately, vim by itself lacks of the API for changing text in
-    trackable maner.
+    trackable manner.
 
     Vim marks offers limited functionality for tracking line additions and
-    deletions, but nothing offered for tracking changes withing single line.
+    deletions, but nothing offered for tracking changes within single line.
 
     Instance of this class is passed to all snippet actions and behaves as
     internal vim.current.window.buffer.
@@ -79,7 +80,7 @@ class VimBufferProxy(vim_helper.VimBuffer):
 
     def validate_buffer(self):
         """
-        Raises exception if buffer is changes beyound proxy object.
+        Raises exception if buffer is changed beyond proxy object.
         """
         if self.is_buffer_changed_outside():
             raise PebkacError(
@@ -96,7 +97,7 @@ class VimBufferProxy(vim_helper.VimBuffer):
         changes and applies them to the current snippet stack.
         """
         if isinstance(key, slice):
-            value = [line for line in value]
+            value = list(value)
             changes = list(self._get_diff(key.start, key.stop, value))
             self._buffer[key.start : key.stop] = [line.strip("\n") for line in value]
         else:
@@ -112,23 +113,11 @@ class VimBufferProxy(vim_helper.VimBuffer):
             if self._snippets_stack:
                 self._vstate.remember_buffer(self._snippets_stack[0])
 
-    def __setslice__(self, i, j, text):
-        """
-        Same as __setitem__.
-        """
-        self.__setitem__(slice(i, j), text)
-
     def __getitem__(self, key):
         """
         Just passing call to the vim.current.window.buffer.__getitem__.
         """
         return self._buffer[key]
-
-    def __getslice__(self, i, j):
-        """
-        Same as __getitem__.
-        """
-        return self.__getitem__(slice(i, j))
 
     def __len__(self):
         """
@@ -144,7 +133,7 @@ class VimBufferProxy(vim_helper.VimBuffer):
             line_number = len(self)
         if not isinstance(line, list):
             line = [line]
-        self[line_number:line_number] = [l for l in line]
+        self[line_number:line_number] = list(line)
 
     def __delitem__(self, key):
         if isinstance(key, slice):
@@ -163,7 +152,7 @@ class VimBufferProxy(vim_helper.VimBuffer):
 
         if start < 0:
             start = len(self._buffer) + start
-        for line_number in range(0, len(new_value)):
+        for line_number in range(len(new_value)):
             yield ("I", start + line_number, 0, new_value[line_number], True)
 
     def _get_line_diff(self, line_number, before, after):
@@ -187,9 +176,14 @@ class VimBufferProxy(vim_helper.VimBuffer):
 
         change_type, line_number, column_number, change_text = change[0:4]
 
-        line_before = line_number <= self._snippets_stack[0]._start.line
-        column_before = column_number <= self._snippets_stack[0]._start.col
-        if line_before and column_before:
+        # Position comparison must be lexicographic on (line, col); the
+        # historical version compared line and column independently, which
+        # silently dropped any edit whose `column_number` >= `_end.col` —
+        # for a multi-line snippet whose end sits at the start of a line
+        # (`_end.col == 0`) that's *every* edit on an interior line.
+        snippet = self._snippets_stack[0]
+        pos = Position(line_number, column_number)
+        if pos <= snippet._start:
             direction = 1
             if change_type == "D":
                 direction = -1
@@ -198,13 +192,11 @@ class VimBufferProxy(vim_helper.VimBuffer):
             if len(change) != 5:
                 diff = Position(0, direction * len(change_text))
 
-            self._snippets_stack[0]._move(Position(line_number, column_number), diff)
+            snippet._move(pos, diff)
+        elif pos >= snippet._end:
+            return
         else:
-            if line_number > self._snippets_stack[0]._end.line:
-                return
-            if column_number >= self._snippets_stack[0]._end.col:
-                return
-            self._snippets_stack[0]._do_edit(change[0:4])
+            snippet._do_edit(change[0:4])
 
     def _disable_edits(self):
         """

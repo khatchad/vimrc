@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 
 """Base classes for all text objects."""
+
+import contextlib
 
 from UltiSnips import vim_helper
 from UltiSnips.position import Position
@@ -36,29 +37,24 @@ def _replace_text(buf, start, end, text):
     return new_end
 
 
-# These classes use their subclasses a lot and we really do not want to expose
-# their functions more globally.
-# pylint: disable=protected-access
-
-
 class TextObject:
-
     """Represents any object in the text that has a span in any ways."""
 
-    def __init__(
-        self, parent, token_or_start, end=None, initial_text="", tiebreaker=None
-    ):
+    def __init__(self, parent, start, end, initial_text="", tiebreaker=None):
         self._parent = parent
-
-        if end is not None:  # Took 4 arguments
-            self._start = token_or_start
-            self._end = end
-            self._initial_text = initial_text
-        else:  # Initialize from token
-            self._start = token_or_start.start
-            self._end = token_or_start.end
-            self._initial_text = token_or_start.initial_text
+        self._start = start
+        self._end = end
+        self._initial_text = initial_text
         self._tiebreaker = tiebreaker or Position(self._start.line, self._end.line)
+        # Immutable snapshot of the original start position. Used as a final
+        # sort tiebreaker so that two text objects that started at different
+        # source positions but later collapsed to the same runtime position
+        # (e.g. two zero-width `!p` blocks back-to-back, or a TabStop and a
+        # PythonCode that both shrunk to col 10) keep their source-document
+        # order. Without it, sort order falls back to set iteration — which
+        # is non-deterministic — and side-effecting interpolations execute
+        # in the wrong order. See #1403.
+        self._origin = Position(start.line, start.col)
         if parent is not None:
             parent._add_child(self)
 
@@ -67,35 +63,21 @@ class TextObject:
         self._start.move(pivot, diff)
         self._end.move(pivot, diff)
 
-    def __lt__(self, other):
-        me_tuple = (
-            self.start.line,
-            self.start.col,
-            self._tiebreaker.line,
-            self._tiebreaker.col,
-        )
-        other_tuple = (
-            other._start.line,
-            other._start.col,
-            other._tiebreaker.line,
-            other._tiebreaker.col,
-        )
-        return me_tuple < other_tuple
-
-    def __le__(self, other):
-        me_tuple = (
+    def _sort_key(self):
+        return (
             self._start.line,
             self._start.col,
             self._tiebreaker.line,
             self._tiebreaker.col,
+            self._origin.line,
+            self._origin.col,
         )
-        other_tuple = (
-            other._start.line,
-            other._start.col,
-            other._tiebreaker.line,
-            other._tiebreaker.col,
-        )
-        return me_tuple <= other_tuple
+
+    def __lt__(self, other):
+        return self._sort_key() < other._sort_key()
+
+    def __le__(self, other):
+        return self._sort_key() <= other._sort_key()
 
     def __repr__(self):
         ct = ""
@@ -104,18 +86,17 @@ class TextObject:
         except IndexError:
             ct = "<err>"
 
-        return "%s(%r->%r,%r)" % (self.__class__.__name__, self._start, self._end, ct)
+        return f"{self.__class__.__name__}({self._start!r}->{self._end!r},{ct!r})"
 
     @property
     def current_text(self):
         """The current text of this object."""
         if self._start.line == self._end.line:
             return vim_helper.buf[self._start.line][self._start.col : self._end.col]
-        else:
-            lines = [vim_helper.buf[self._start.line][self._start.col :]]
-            lines.extend(vim_helper.buf[self._start.line + 1 : self._end.line])
-            lines.append(vim_helper.buf[self._end.line][: self._end.col])
-            return "\n".join(lines)
+        lines = [vim_helper.buf[self._start.line][self._start.col :]]
+        lines.extend(vim_helper.buf[self._start.line + 1 : self._end.line])
+        lines.append(vim_helper.buf[self._end.line][: self._end.col])
+        return "\n".join(lines)
 
     @property
     def start(self):
@@ -144,6 +125,20 @@ class TextObject:
             return
         old_end = self._end
         self._end = _replace_text(buf, self._start, self._end, gtext)
+        # The _VimCursor sentinel (tiebreaker (-1, -1)) holds the absolute
+        # (line, col) where the user's cursor should land after this update
+        # cycle. When an interpolation overwrites a tabstop with a
+        # differently-shaped string (e.g. a `!p` block that swaps in a
+        # multi-line replacement), the cursor's old absolute position can
+        # fall outside the rewritten span and the next to_vim() clamps it
+        # to an unrelated cell. Pull cursor sentinels back to the new end
+        # so they sit on a valid coordinate; the test in
+        # PythonCode_CanOverwriteTabstop exercises this exact path.
+        if hasattr(self, "_children"):
+            for child in self._children:
+                if child._tiebreaker == Position(-1, -1):
+                    child._start = Position(self._end.line, self._end.col)
+                    child._end = Position(self._end.line, self._end.col)
         if self._parent:
             self._parent._child_has_moved(
                 self._parent._children.index(self),
@@ -162,12 +157,11 @@ class TextObject:
 
 
 class EditableTextObject(TextObject):
-
     """This base class represents any object in the text that can be changed by
     the user."""
 
     def __init__(self, *args, **kwargs):
-        TextObject.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._children = []
         self._tabstops = {}
 
@@ -217,7 +211,7 @@ class EditableTextObject(TextObject):
                     to_kill.add(child)
                     new_cmds.append(cmd)
                     break
-                elif (child._start <= pos <= child._end) and isinstance(
+                if (child._start <= pos <= child._end) and isinstance(
                     child, EditableTextObject
                 ):
                     if pos == child.end and not child.children:
@@ -242,24 +236,23 @@ class EditableTextObject(TextObject):
                         to_kill.add(child)
                         new_cmds.append(cmd)
                         break
-                    else:
-                        child._do_edit(cmd, ctab)
-                        return
-                elif (
+                    child._do_edit(cmd, ctab)
+                    return
+                if (
                     pos < child._start and child._end <= delend and child.start < delend
                 ) or (pos <= child._start and child._end < delend):
                     # Case: this deletion removes the child
                     to_kill.add(child)
                     new_cmds.append(cmd)
                     break
-                elif pos < child._start and (child._start < delend <= child._end):
+                if pos < child._start and (child._start < delend <= child._end):
                     # Case: partially for us, partially for the child
                     my_text = text[: (child._start - pos).col]
                     c_text = text[(child._start - pos).col :]
                     new_cmds.append((ctype, line, col, my_text))
                     new_cmds.append((ctype, line, col, c_text))
                     break
-                elif delend >= child._end and (child._start <= pos < child._end):
+                if delend >= child._end and (child._start <= pos < child._end):
                     # Case: partially for us, partially for the child
                     c_text = text[(child._end - pos).col :]
                     my_text = text[: (child._end - pos).col]
@@ -269,7 +262,7 @@ class EditableTextObject(TextObject):
 
         for child in to_kill:
             self._del_child(child)
-        if len(new_cmds):
+        if new_cmds:
             for child in new_cmds:
                 self._do_edit(child)
             return
@@ -287,10 +280,20 @@ class EditableTextObject(TextObject):
         for cidx, child in enumerate(self._children):
             if child._start < pivot <= child._end:
                 idx = cidx
+        # An insertion that landed at our `_end` and that no child took is
+        # the user typing past the snippet (typically `o` from normal
+        # mode, which queues an "I" of `\n` at end-of-line). Don't drag
+        # `_end` along; leave the snippet's bounds where they were so
+        # `_check_if_still_inside_snippet` observes the cursor outside
+        # them and terminates the snippet. We only do this at the
+        # outermost level (no parent EditableTextObject above us) — nested
+        # tabstop / snippet edits still need to propagate.
+        if ctype == "I" and idx == -1 and self._parent is None and pivot >= self._end:
+            return
         self._child_has_moved(idx, pivot, delta)
 
     def _move(self, pivot, diff):
-        TextObject._move(self, pivot, diff)
+        super()._move(pivot, diff)
 
         for child in self._children:
             child._move(pivot, diff)
@@ -310,7 +313,7 @@ class EditableTextObject(TextObject):
 
     def _get_next_tab(self, number):
         """Returns the next tabstop after 'number'."""
-        if not len(self._tabstops.keys()):
+        if not self._tabstops:
             return
         tno_max = max(self._tabstops.keys())
 
@@ -327,14 +330,14 @@ class EditableTextObject(TextObject):
 
         possible_sol += child
 
-        if not len(possible_sol):
+        if not possible_sol:
             return None
 
         return min(possible_sol)
 
     def _get_prev_tab(self, number):
         """Returns the previous tabstop before 'number'."""
-        if not len(self._tabstops.keys()):
+        if not self._tabstops:
             return
         tno_min = min(self._tabstops.keys())
 
@@ -351,7 +354,7 @@ class EditableTextObject(TextObject):
 
         possible_sol += child
 
-        if not len(possible_sol):
+        if not possible_sol:
             return None
 
         return max(possible_sol)
@@ -391,14 +394,11 @@ class EditableTextObject(TextObject):
 
         # If this is a tabstop, delete it. Might have been deleted already if
         # it was nested.
-        try:
+        with contextlib.suppress(AttributeError, KeyError):
             del self._tabstops[child.number]
-        except (AttributeError, KeyError):
-            pass
 
 
 class NoneditableTextObject(TextObject):
-
     """All passive text objects that the user can't edit by hand."""
 
     def _update(self, done, buf):

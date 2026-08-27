@@ -4,8 +4,8 @@
 UltiSnips
 =========
 
-UltiSnips is the ultimate solution for snippets in Vim. It has many features,
-speed being one of them.
+UltiSnips is the ultimate solution for snippets in Vim and Neovim. It has many
+features, speed being one of them.
 
 ![GIF Demo](https://raw.github.com/SirVer/ultisnips/master/doc/demo.gif)
 
@@ -28,9 +28,7 @@ Please add pull requests and issues there.
 
 UltiSnips was started in Jun 2009 by @SirVer. In Dec 2015, maintenance was
 handed over to [@seletskiy](https://github.com/seletskiy) who ran out of time
-in early 2017. Since Jun 2019, @SirVer is maintaining UltiSnips again on a
-very constrained time budget. If you can help triaging issues it would be
-greatly appreciated.
+in early 2017. Since Jun 2019, @SirVer has been maintaining UltiSnips again.
 
 
 Quick Start

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 
 """Utilities to deal with text."""
+
+import contextlib
 
 
 def unescape(text):
@@ -34,8 +35,7 @@ def fill_in_whitespace(text):
     text = text.replace(r"\t", "\t")
     text = text.replace(r"\r", "\r")
     text = text.replace(r"\a", "\a")
-    text = text.replace(r"\b", "\b")
-    return text
+    return text.replace(r"\b", "\b")
 
 
 def head_tail(line):
@@ -44,15 +44,12 @@ def head_tail(line):
     generator = (t.strip() for t in line.split(None, 1))
     head = next(generator).strip()
     tail = ""
-    try:
+    with contextlib.suppress(StopIteration):
         tail = next(generator).strip()
-    except StopIteration:
-        pass
     return head, tail
 
 
 class LineIterator:
-
     """Convenience class that keeps track of line numbers in files."""
 
     def __init__(self, text):

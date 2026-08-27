@@ -1,54 +1,53 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 
 """Implements `!p ` interpolation."""
 
-import os
-from collections import namedtuple
+# We'll end up compiling the global snippets for every snippet so
+# caching compile() should pay off
+from functools import cache
+from pathlib import Path
+from typing import NamedTuple
 
+import UltiSnips.snippet_manager
 from UltiSnips import vim_helper
 from UltiSnips.indent_util import IndentUtil
 from UltiSnips.text_objects.base import NoneditableTextObject
 from UltiSnips.vim_state import _Placeholder
-import UltiSnips.snippet_manager
-
-# We'll end up compiling the global snippets for every snippet so
-# caching compile() should pay off
-from functools import lru_cache
 
 
-@lru_cache(maxsize=None)
+@cache
 def cached_compile(*args):
     return compile(*args)
 
 
 class _Tabs:
-
     """Allows access to tabstop content via t[] inside of python code."""
 
-    def __init__(self, to):
+    def __init__(self, to, buf):
         self._to = to
+        self._buf = buf
 
     def __getitem__(self, no):
-        ts = self._to._get_tabstop(self._to, int(no))  # pylint:disable=protected-access
+        ts = self._to._get_tabstop(self._to, int(no))
         if ts is None:
             return ""
         return ts.current_text
 
     def __setitem__(self, no, value):
-        ts = self._to._get_tabstop(self._to, int(no))  # pylint:disable=protected-access
+        ts = self._to._get_tabstop(self._to, int(no))
         if ts is None:
             return
-        # TODO(sirver): The buffer should be passed into the object on construction.
-        ts.overwrite(vim_helper.buf, value)
+        ts.overwrite(self._buf, value)
 
 
-_VisualContent = namedtuple("_VisualContent", ["mode", "text"])
+class _VisualContent(NamedTuple):
+    mode: str
+    text: str
 
 
 class SnippetUtilForAction(dict):
     def __init__(self, *args, **kwargs):
-        super(SnippetUtilForAction, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.__dict__ = self
 
     def expand_anon(self, *args, **kwargs):
@@ -57,7 +56,6 @@ class SnippetUtilForAction(dict):
 
 
 class SnippetUtil:
-
     """Provides easy access to indentation, etc.
 
     This is the 'snip' object in python code.
@@ -84,6 +82,7 @@ class SnippetUtil:
         self._cur = cur
         self._rv = ""
         self._changed = False
+        self._mkline_seen_first = False
         self.reset_indent()
 
     def shift(self, amount=1):
@@ -118,9 +117,24 @@ class SnippetUtil:
         """
         if indent is None:
             indent = self.indent
-            # this deals with the fact that the first line is
-            # already properly indented
-            if "\n" not in self._rv:
+            # The first line emitted by mkline shares the buffer position
+            # where the snippet expansion landed, which already provides
+            # the snippet's initial indent. Subsequent lines start on a
+            # fresh line and need the full indent prepended.
+            #
+            # `snip.rv` is the historical signal for "we have already
+            # emitted something", but only `snip +=` / explicit
+            # `snip.rv += mkline(...)` updates it between calls. Users
+            # who build the result in a single expression
+            # (`snip.rv = mkline(...) + "\n" + mkline(...)`,
+            # `"\n".join(snip.mkline(x) for x in ...)`) leave `rv` empty
+            # until the end, so every mkline call used to under-indent.
+            # Track our own call counter so the second-and-later mkline
+            # within a python block keeps the full indent regardless of
+            # how the user is assembling the result.
+            first_line = "\n" not in self._rv and not self._mkline_seen_first
+            self._mkline_seen_first = True
+            if first_line:
                 try:
                     indent = indent[len(self._initial_indent) :]
                 except IndexError:
@@ -135,22 +149,22 @@ class SnippetUtil:
 
     # Utility methods
     @property
-    def fn(self):  # pylint:disable=no-self-use,invalid-name
+    def fn(self):
         """The filename."""
         return vim_helper.eval('expand("%:t")') or ""
 
     @property
-    def basename(self):  # pylint:disable=no-self-use
+    def basename(self):
         """The filename without extension."""
         return vim_helper.eval('expand("%:t:r")') or ""
 
     @property
-    def ft(self):  # pylint:disable=invalid-name
+    def ft(self):
         """The filetype."""
         return self.opt("&filetype", "")
 
     @property
-    def rv(self):  # pylint:disable=invalid-name
+    def rv(self):
         """The return value.
 
         The text to insert at the location of the placeholder.
@@ -159,7 +173,7 @@ class SnippetUtil:
         return self._rv
 
     @rv.setter
-    def rv(self, value):  # pylint:disable=invalid-name
+    def rv(self, value):
         """See getter."""
         self._changed = True
         self._rv = value
@@ -170,12 +184,12 @@ class SnippetUtil:
         return self._changed
 
     @property
-    def c(self):  # pylint:disable=invalid-name
+    def c(self):
         """The current text of the placeholder."""
         return self._cur
 
     @property
-    def v(self):  # pylint:disable=invalid-name
+    def v(self):
         """Content of visual expansions."""
         return self._visual
 
@@ -189,9 +203,9 @@ class SnippetUtil:
     def context(self):
         return self._context
 
-    def opt(self, option, default=None):  # pylint:disable=no-self-use
+    def opt(self, option, default=None):
         """Gets a Vim variable."""
-        if vim_helper.eval("exists('%s')" % option) == "1":
+        if vim_helper.eval(f"exists('{option}')") == "1":
             try:
                 return vim_helper.eval(option)
             except vim_helper.error:
@@ -200,7 +214,7 @@ class SnippetUtil:
 
     def __add__(self, value):
         """Appends the given line to rv using mkline."""
-        self.rv += "\n"  # pylint:disable=invalid-name
+        self.rv += "\n"
         self.rv += self.mkline(value)
         return self
 
@@ -232,7 +246,6 @@ class SnippetUtil:
 
 
 class PythonCode(NoneditableTextObject):
-
     """See module docstring."""
 
     def __init__(self, parent, token):
@@ -247,7 +260,7 @@ class PythonCode(NoneditableTextObject):
                 context = snippet.context
                 break
             except AttributeError:
-                snippet = snippet._parent  # pylint:disable=protected-access
+                snippet = snippet._parent
         self._snip = SnippetUtil(token.indent, mode, text, context, snippet)
 
         self._codes = (
@@ -263,33 +276,31 @@ class PythonCode(NoneditableTextObject):
             ),
         )
 
-        NoneditableTextObject.__init__(self, parent, token)
+        super().__init__(parent, token.start, token.end, token.initial_text)
 
     def _update(self, done, buf):
         path = vim_helper.eval('expand("%")') or ""
         ct = self.current_text
         self._locals.update(
             {
-                "t": _Tabs(self._parent),
-                "fn": os.path.basename(path),
+                "t": _Tabs(self._parent, buf),
+                "fn": Path(path).name,
                 "path": path,
                 "cur": ct,
                 "res": ct,
                 "snip": self._snip,
             }
         )
-        self._snip._reset(ct)  # pylint:disable=protected-access
+        self._snip._reset(ct)
 
-        for code, compiled_code in zip(self._codes, self._compiled_codes):
+        for code, compiled_code in zip(self._codes, self._compiled_codes, strict=True):
             try:
-                exec(compiled_code, self._locals)  # pylint:disable=exec-used
+                exec(compiled_code, self._locals)
             except Exception as exception:
                 exception.snippet_code = code
                 raise
 
-        rv = str(
-            self._snip.rv if self._snip._rv_changed else self._locals["res"]
-        )  # pylint:disable=protected-access
+        rv = str(self._snip.rv if self._snip._rv_changed else self._locals["res"])
 
         if ct != rv:
             self.overwrite(buf, rv)

@@ -1,22 +1,23 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 
 """Wrapper functionality around the functions we need from Vim."""
 
-from contextlib import contextmanager
+import contextlib
 import os
 import platform
+from contextlib import contextmanager
+from pathlib import Path
 
-from UltiSnips.compatibility import col2byte, byte2col
+import vim
+from vim import error
+
 from UltiSnips.error import PebkacError
 from UltiSnips.position import Position
 from UltiSnips.snippet.source.file.common import normalize_file_path
-from vim import error  # pylint:disable=import-error,unused-import
-import vim  # pylint:disable=import-error
+from UltiSnips.vim_encoding import byte2col, col2byte
 
 
 class VimBuffer:
-
     """Wrapper around the current Vim buffer."""
 
     def __getitem__(self, idx):
@@ -34,13 +35,13 @@ class VimBuffer:
         return iter(vim.current.buffer)
 
     @property
-    def line_till_cursor(self):  # pylint:disable=no-self-use
+    def line_till_cursor(self):
         """Returns the text before the cursor."""
         _, col = self.cursor
         return vim.current.line[:col]
 
     @property
-    def number(self):  # pylint:disable=no-self-use
+    def number(self):
         """The bufnr() of the current buffer."""
         return vim.current.buffer.number
 
@@ -49,7 +50,7 @@ class VimBuffer:
         return [ft for ft in vim.eval("&filetype").split(".") if ft]
 
     @property
-    def cursor(self):  # pylint:disable=no-self-use
+    def cursor(self):
         """The current windows cursor.
 
         Note that this is 0 based in col and 0 based in line which is
@@ -61,23 +62,23 @@ class VimBuffer:
         return Position(line - 1, col)
 
     @cursor.setter
-    def cursor(self, pos):  # pylint:disable=no-self-use
+    def cursor(self, pos):
         """See getter."""
         nbyte = col2byte(pos.line + 1, pos.col)
         vim.current.window.cursor = pos.line + 1, nbyte
 
 
-buf = VimBuffer()  # pylint:disable=invalid-name
+buf = VimBuffer()
 
 
 @contextmanager
 def option_set_to(name, new_value):
     old_value = vim.eval("&" + name)
-    command("set {0}={1}".format(name, new_value))
+    vim.command(f"set {name}={new_value}")
     try:
         yield
     finally:
-        command("set {0}={1}".format(name, old_value))
+        vim.command(f"set {name}={old_value}")
 
 
 @contextmanager
@@ -103,24 +104,25 @@ def escape(inp):
         elif isinstance(obj, dict):
             rv = (
                 "{"
-                + ",".join(
-                    [
-                        "%s:%s" % (conv(key), conv(value))
-                        for key, value in obj.iteritems()
-                    ]
-                )
+                + ",".join([f"{conv(key)}:{conv(value)}" for key, value in obj.items()])
                 + "}"
             )
         else:
-            rv = '"%s"' % obj.replace('"', '\\"')
+            escaped = obj.replace('"', '\\"')
+            rv = f'"{escaped}"'
         return rv
 
     return conv(inp)
 
 
-def command(cmd):
-    """Wraps vim.command."""
-    return vim.command(cmd)
+def as_str(value):
+    """Convert a value from vim.vars to a Python str.
+
+    vim.vars returns bytes for string values in Vim's Python 3 binding.
+    """
+    if isinstance(value, bytes):
+        return value.decode(vim.eval("&encoding"), "replace")
+    return str(value)
 
 
 def eval(text):
@@ -154,9 +156,9 @@ def feedkeys(keys, mode="n"):
             keys = "startinsert"
 
     if keys == "startinsert":
-        command("startinsert")
+        vim.command("startinsert")
     else:
-        command(r'call feedkeys("%s", "%s")' % (keys, mode))
+        vim.command(rf'call feedkeys("{keys}", "{mode}")')
 
 
 def new_scratch_buffer(text):
@@ -181,11 +183,18 @@ def new_scratch_buffer(text):
 def virtual_position(line, col):
     """Runs the position through virtcol() and returns the result."""
     nbytes = col2byte(line, col)
-    return line, int(eval("virtcol([%d, %d])" % (line, nbytes)))
+    return line, int(eval(f"virtcol([{line}, {nbytes}])"))
 
 
 def select(start, end):
-    """Select the span in Select mode."""
+    """Position the cursor for a snippet jump and return the keys that
+    enter the target mode (insert / select), to be fed by the caller.
+
+    Returns an empty string when there's nothing to feed — either the fast
+    path has already left the cursor in the right state, or the caller
+    decides (see issue #751 for why deferring matters when a `post_jump`
+    action consumes typeahead or expands a nested snippet).
+    """
     _unmap_select_mode_mapping()
 
     selection = eval("&selection")
@@ -195,13 +204,32 @@ def select(start, end):
 
     mode = eval("mode()")
 
+    # Fast path: empty tabstop while already in insert mode. The cursor is
+    # already at the new tabstop and we're in the target mode; only an undo
+    # break is needed (the `\<Esc>a` path created one implicitly).
+    if mode == "i" and start == end:
+        return r"\<C-g>u"
+
+    # Leave a non-normal mode synchronously where possible. Doing this via
+    # the queued `\<Esc>` in the move command lets a typeahead-consuming
+    # `post_jump` action (input(), getchar()) swallow it.
+    if mode == "i":
+        vim.command("stopinsert")
+        mode = "n"
+    elif mode in ("s", "S", "\x13", "v", "V", "\x16"):
+        vim.command(r'call feedkeys("\<C-\>\<C-N>", "nx")')
+        # The mode-leave moves the cursor to one of the selection endpoints;
+        # restore it.
+        buf.cursor = start
+        mode = "n"
+
     move_cmd = ""
     if mode != "n":
         move_cmd += r"\<Esc>"
 
     if start == end:
         # Zero Length Tabstops, use 'i' or 'a'.
-        if col == 0 or mode not in "i" and col < len(buf[start.line]):
+        if col == 0 or (mode not in "i" and col < len(buf[start.line])):
             move_cmd += "i"
         else:
             move_cmd += "a"
@@ -210,44 +238,47 @@ def select(start, end):
         move_cmd += "v"
         if "inclusive" in selection:
             if end.col == 0:
-                move_cmd += "%iG$" % end.line
+                move_cmd += f"{end.line}G$"
             else:
-                move_cmd += "%iG%i|" % virtual_position(end.line + 1, end.col)
+                vp = virtual_position(end.line + 1, end.col)
+                move_cmd += f"{vp[0]}G{vp[1]}|"
         elif "old" in selection:
-            move_cmd += "%iG%i|" % virtual_position(end.line + 1, end.col)
+            vp = virtual_position(end.line + 1, end.col)
+            move_cmd += f"{vp[0]}G{vp[1]}|"
         else:
-            move_cmd += "%iG%i|" % virtual_position(end.line + 1, end.col + 1)
-        move_cmd += "o%iG%i|o\\<c-g>" % virtual_position(start.line + 1, start.col + 1)
-    feedkeys(move_cmd)
+            vp = virtual_position(end.line + 1, end.col + 1)
+            move_cmd += f"{vp[0]}G{vp[1]}|"
+        vp = virtual_position(start.line + 1, start.col + 1)
+        move_cmd += f"o{vp[0]}G{vp[1]}|o\\<c-g>"
+    return move_cmd
 
 
 def get_dot_vim():
     """Returns the likely places for ~/.vim for the current setup."""
-    home = vim.eval("$HOME")
+    home = Path(vim.eval("$HOME"))
     candidates = []
     if platform.system() == "Windows":
-        candidates.append(os.path.join(home, "vimfiles"))
+        candidates.append(str(home / "vimfiles"))
     if vim.eval("has('nvim')") == "1":
-        xdg_home_config = vim.eval("$XDG_CONFIG_HOME") or os.path.join(home, ".config")
-        candidates.append(os.path.join(xdg_home_config, "nvim"))
+        xdg_home_config = vim.eval("$XDG_CONFIG_HOME") or str(home / ".config")
+        candidates.append(str(Path(xdg_home_config) / "nvim"))
 
-    candidates.append(os.path.join(home, ".vim"))
+    candidates.append(str(home / ".vim"))
 
     # Note: this potentially adds a duplicate on nvim
     # I assume nvim sets the MYVIMRC env variable (to beconfirmed)
     if "MYVIMRC" in os.environ:
-        my_vimrc = os.path.expandvars(os.environ["MYVIMRC"])
-        candidates.append(normalize_file_path(os.path.dirname(my_vimrc)))
+        my_vimrc = Path(os.path.expandvars(os.environ["MYVIMRC"]))
+        candidates.append(normalize_file_path(str(my_vimrc.parent)))
 
-    candidates_normalized = []
-    for candidate in candidates:
-        if os.path.isdir(candidate):
-            candidates_normalized.append(normalize_file_path(candidate))
+    candidates_normalized = [
+        normalize_file_path(c) for c in candidates if Path(c).is_dir()
+    ]
     if candidates_normalized:
         # We remove duplicates on return
         return sorted(set(candidates_normalized))
     raise PebkacError(
-        "Unable to find user configuration directory. I tried '%s'." % candidates
+        f"Unable to find user configuration directory. I tried '{candidates}'."
     )
 
 
@@ -269,21 +300,23 @@ def get_cursor_pos():
 
 def delete_mark(name):
     try:
-        return command("delma " + name)
-    except:
+        return vim.command("delma " + name)
+    except error:
         return False
 
 
 def _set_pos(name, pos):
-    return eval('setpos("{0}", {1})'.format(name, pos))
+    return eval(f'setpos("{name}", {pos})')
 
 
 def _get_pos(name):
-    return eval('getpos("{0}")'.format(name))
+    return eval(f'getpos("{name}")')
 
 
 def _is_pos_zero(pos):
-    return ["0"] * 4 == pos or [0] == pos
+    # getpos() returns ["0","0","0","0"] for unset marks in most cases,
+    # but can return [0] in some Vim/Neovim Python binding edge cases.
+    return pos == ["0"] * 4 or pos == [0]
 
 
 def _unmap_select_mode_mapping():
@@ -294,16 +327,16 @@ def _unmap_select_mode_mapping():
 
     """
     if int(eval("g:UltiSnipsRemoveSelectModeMappings")):
-        ignores = eval("g:UltiSnipsMappingsToIgnore") + ["UltiSnips"]
+        ignores = [*eval("g:UltiSnipsMappingsToIgnore"), "UltiSnips"]
 
         for option in ("<buffer>", ""):
             # Put all smaps into a var, and then read the var
-            command(r"redir => _tmp_smaps | silent smap %s " % option + "| redir END")
+            vim.command(rf"redir => _tmp_smaps | silent smap {option} " + "| redir END")
 
-            # Check if any mappings where found
+            # Prefer bindeval because it can deal with non-UTF-8 characters
+            # in mappings (see GH #690). Neovim's Python binding does not
+            # provide bindeval, so fall back to eval there.
             if hasattr(vim, "bindeval"):
-                # Safer to use bindeval, if it exists, because it can deal with
-                # non-UTF-8 characters in mappings; see GH #690.
                 all_maps = bindeval(r"_tmp_smaps")
             else:
                 all_maps = eval(r"_tmp_smaps")
@@ -338,7 +371,7 @@ def _unmap_select_mode_mapping():
                     add = False
                     # Only allow these
                     for valid in ["Tab", "NL", "CR", "C-Tab", "BS"]:
-                        if trig == "<%s>" % valid:
+                        if trig == f"<{valid}>":
                             add = True
                     if not add:
                         continue
@@ -348,15 +381,13 @@ def _unmap_select_mode_mapping():
                     continue
 
                 # Actually unmap it
-                try:
-                    command("silent! sunmap %s %s" % (option, trig))
-                except:  # pylint:disable=bare-except
-                    # Bug 908139: ignore unmaps that fail because of
-                    # unprintable characters. This is not ideal because we
-                    # will not be able to unmap lhs with any unprintable
-                    # character. If the lhs stats with a printable
-                    # character this will leak to the user when he tries to
-                    # type this character as a first in a selected tabstop.
-                    # This case should be rare enough to not bother us
-                    # though.
-                    pass
+                # Bug 908139: ignore unmaps that fail because of
+                # unprintable characters. This is not ideal because we
+                # will not be able to unmap lhs with any unprintable
+                # character. If the lhs stats with a printable
+                # character this will leak to the user when he tries to
+                # type this character as a first in a selected tabstop.
+                # This case should be rare enough to not bother us
+                # though.
+                with contextlib.suppress(error):
+                    vim.command(f"silent! sunmap {option} {trig}")

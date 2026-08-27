@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 
 """Implements TabStop transformations."""
 
 import re
 import sys
 
-from UltiSnips.text import unescape, fill_in_whitespace
+from UltiSnips.text import fill_in_whitespace, unescape
 from UltiSnips.text_objects.mirror import Mirror
 
 
@@ -23,10 +22,7 @@ def _find_closing_brace(string, start_pos):
                 bracks_open -= 1
             if not bracks_open:
                 return start_pos + idx + 1
-        if char == "\\":
-            escaped = not escaped
-        else:
-            escaped = False
+        escaped = not escaped if char == "\\" else False
 
 
 def _split_conditional(string):
@@ -35,7 +31,7 @@ def _split_conditional(string):
     args = []
     carg = ""
     escaped = False
-    for idx, char in enumerate(string):
+    for _idx, char in enumerate(string):
         if char == "(":
             if not escaped:
                 bracks_open += 1
@@ -48,10 +44,7 @@ def _split_conditional(string):
             escaped = False
             continue
         carg += char
-        if char == "\\":
-            escaped = not escaped
-        else:
-            escaped = False
+        escaped = not escaped if char == "\\" else False
     args.append(carg)
     return args
 
@@ -80,7 +73,6 @@ _CONDITIONAL = re.compile(r"\(\?(\d+):", re.DOTALL)
 
 
 class _CleverReplace:
-
     """Mimics TextMates replace syntax."""
 
     def __init__(self, expression):
@@ -89,18 +81,28 @@ class _CleverReplace:
     def replace(self, match):
         """Replaces 'match' through the correct replacement string."""
         transformed = self._expression
-        # Replace all $? with capture groups
-        transformed = _DOLLAR.subn(lambda m: match.group(int(m.group(1))), transformed)[
-            0
-        ]
+
+        # Shelter escaped backslashes (\\) so they are not consumed by
+        # case-switch regexes (\l, \u, \U, \L) or whitespace escapes
+        # (\n, \t, ...).  Restored before the final unescape() which
+        # turns \\ into a literal \.  GH #998, GH #1495.  Capture-group
+        # content is sheltered the same way so backslashes from $1..$9
+        # aren't reinterpreted as escape sequences either.  GH #1444.
+        _ESCAPED_BSLASH = "\x00"
+
+        def _expand_dollar(dollar_match):
+            group = match.group(int(dollar_match.group(1))) or ""
+            return group.replace("\\", _ESCAPED_BSLASH)
+
+        transformed = _DOLLAR.subn(_expand_dollar, transformed)[0]
+        transformed = transformed.replace("\\\\", _ESCAPED_BSLASH)
 
         # Replace Case switches
         def _one_char_case_change(match):
             """Replaces one character case changes."""
             if match.group(1)[0] == "u":
                 return match.group(1)[-1].upper()
-            else:
-                return match.group(1)[-1].lower()
+            return match.group(1)[-1].lower()
 
         transformed = _ONE_CHAR_CASE_SWITCH.subn(_one_char_case_change, transformed)[0]
 
@@ -108,12 +110,14 @@ class _CleverReplace:
             """Replaces multi character case changes."""
             if match.group(1)[0] == "U":
                 return match.group(1)[1:].upper()
-            else:
-                return match.group(1)[1:].lower()
+            return match.group(1)[1:].lower()
 
         transformed = _LONG_CASEFOLDINGS.subn(_multi_char_case_change, transformed)[0]
         transformed = _replace_conditional(match, transformed)
-        return unescape(fill_in_whitespace(transformed))
+
+        transformed = fill_in_whitespace(transformed)
+        transformed = transformed.replace(_ESCAPED_BSLASH, "\\\\")
+        return unescape(transformed)
 
 
 # flag used to display only one time the lack of unidecode
@@ -121,7 +125,6 @@ UNIDECODE_ALERT_RAISED = False
 
 
 class TextObjectTransformation:
-
     """Base class for Transformations and ${VISUAL}."""
 
     def __init__(self, token):
@@ -148,14 +151,14 @@ class TextObjectTransformation:
 
     def _transform(self, text):
         """Do the actual transform on the given text."""
-        global UNIDECODE_ALERT_RAISED  # pylint:disable=global-statement
+        global UNIDECODE_ALERT_RAISED
         if self._convert_to_ascii:
             try:
                 import unidecode
 
                 text = unidecode.unidecode(text)
-            except Exception:  # pylint:disable=broad-except
-                if UNIDECODE_ALERT_RAISED == False:
+            except Exception:
+                if not UNIDECODE_ALERT_RAISED:
                     UNIDECODE_ALERT_RAISED = True
                     sys.stderr.write(
                         "Please install unidecode python package in order to "
@@ -167,10 +170,11 @@ class TextObjectTransformation:
 
 
 class Transformation(Mirror, TextObjectTransformation):
-
     """See module docstring."""
 
     def __init__(self, parent, ts, token):
+        # Non-cooperative multiple inheritance: Mirror and
+        # TextObjectTransformation have incompatible __init__ signatures.
         Mirror.__init__(self, parent, ts, token)
         TextObjectTransformation.__init__(self, token)
 

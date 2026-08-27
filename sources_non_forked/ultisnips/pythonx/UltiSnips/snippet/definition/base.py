@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 
 """Snippet representation after parsing."""
 
 import re
+import textwrap
 
 import vim
-import textwrap
 
 from UltiSnips import vim_helper
 from UltiSnips.error import PebkacError
@@ -15,7 +14,6 @@ from UltiSnips.position import Position
 from UltiSnips.text import escape
 from UltiSnips.text_objects import SnippetInstance
 from UltiSnips.text_objects.python_code import SnippetUtilForAction, cached_compile
-
 
 __WHITESPACE_SPLIT = re.compile(r"\s")
 
@@ -70,16 +68,14 @@ def _words_for_line(trigger, before, num_words=None):
     word_list = split_at_whitespace(before)
     if len(word_list) <= num_words:
         return before.strip()
-    else:
-        before_words = before
-        for i in range(-1, -(num_words + 1), -1):
-            left = before_words.rfind(word_list[i])
-            before_words = before_words[:left]
-        return before[len(before_words) :].strip()
+    before_words = before
+    for i in range(-1, -(num_words + 1), -1):
+        left = before_words.rfind(word_list[i])
+        before_words = before_words[:left]
+    return before[len(before_words) :].strip()
 
 
 class SnippetDefinition:
-
     """Represents a snippet as parsed from a file."""
 
     _INDENT = re.compile(r"^[ \t]*")
@@ -127,11 +123,10 @@ class SnippetDefinition:
         }
 
     def __repr__(self):
-        return "_SnippetDefinition(%r,%s,%s,%s)" % (
-            self._priority,
-            self._trigger,
-            self._description,
-            self._opts,
+        return (
+            f"_SnippetDefinition({self._priority!r},"
+            f"{self._trigger},{self._description},"
+            f"{self._opts})"
         )
 
     def _re_match(self, trigger):
@@ -143,8 +138,7 @@ class SnippetDefinition:
         for match in re.finditer(self._trigger, trigger):
             if match.end() != len(trigger):
                 continue
-            else:
-                self._matched = trigger[match.start() : match.end()]
+            self._matched = trigger[match.start() : match.end()]
 
             self._last_re = match
             return match
@@ -172,7 +166,9 @@ class SnippetDefinition:
             "snip.context = " + self._context_code, locals, self._compiled_context_code
         ).context
 
-    def _eval_code(self, code, additional_locals={}, compiled_code=None):
+    def _eval_code(self, code, additional_locals=None, compiled_code=None):
+        if additional_locals is None:
+            additional_locals = {}
         current = vim.current
 
         locals = {
@@ -207,8 +203,16 @@ class SnippetDefinition:
         return snip
 
     def _execute_action(
-        self, action, context, additional_locals={}, compiled_action=None
+        self, action, context, additional_locals=None, compiled_action=None
     ):
+        if additional_locals is None:
+            additional_locals = {}
+        # Set Vim mark `\`` at the pre-action cursor; Vim auto-adjusts
+        # it across line insertions/deletions inside the action, so the
+        # mark tracks the *content* the cursor was attached to (not the
+        # absolute line number). The line-content comparison below then
+        # detects the case where the action mutated the line under the
+        # cursor without setting `snip.cursor`.
         mark_to_use = "`"
         with vim_helper.save_mark(mark_to_use):
             vim_helper.set_mark_from_pos(mark_to_use, vim_helper.get_cursor_pos())
@@ -216,7 +220,6 @@ class SnippetDefinition:
             cursor_line_before = vim_helper.buf.line_till_cursor
 
             locals = {"context": context}
-
             locals.update(additional_locals)
 
             snip = self._eval_code(action, locals, compiled_action)
@@ -227,20 +230,23 @@ class SnippetDefinition:
                 )
             else:
                 new_mark_pos = vim_helper.get_mark_pos(mark_to_use)
-
-                cursor_invalid = False
-
-                if vim_helper._is_pos_zero(new_mark_pos):
-                    cursor_invalid = True
-                else:
+                if not vim_helper._is_pos_zero(new_mark_pos):
+                    # Mark survived — use it; it knows where the cursor's
+                    # original content went after any line shifts.
                     vim_helper.set_cursor_from_pos(new_mark_pos)
-                    if cursor_line_before != vim_helper.buf.line_till_cursor:
-                        cursor_invalid = True
+                # else: Neovim cleared the mark because the cursor's
+                # line was replaced via the Python buffer API
+                # (`nvim_buf_set_lines` treats line-replace as
+                # delete+insert and drops marks on that line). The
+                # cursor itself stayed put across that replacement, so
+                # leave it where the action left it — line_till_cursor
+                # below will catch the case where the replacement
+                # actually changed the content under the cursor.
 
-                if cursor_invalid:
+                if cursor_line_before != vim_helper.buf.line_till_cursor:
                     raise PebkacError(
                         "line under the cursor was modified, but "
-                        + '"snip.cursor" variable is not set; either set set '
+                        + '"snip.cursor" variable is not set; either set '
                         + '"snip.cursor" to new cursor position, or do not '
                         + "modify cursor line"
                     )
@@ -248,26 +254,14 @@ class SnippetDefinition:
         return snip
 
     def _make_debug_exception(self, e, code=""):
-        e.snippet_info = textwrap.dedent(
-            """
-            Defined in: {}
-            Trigger: {}
-            Description: {}
-            Context: {}
-            Pre-expand: {}
-            Post-expand: {}
-        """
-        ).format(
-            self._location,
-            self._trigger,
-            self._description,
-            self._context_code if self._context_code else "<none>",
-            self._actions["pre_expand"] if "pre_expand" in self._actions else "<none>",
-            self._actions["post_expand"]
-            if "post_expand" in self._actions
-            else "<none>",
-            code,
-        )
+        e.snippet_info = textwrap.dedent(f"""
+            Defined in: {self._location}
+            Trigger: {self._trigger}
+            Description: {self._description}
+            Context: {self._context_code if self._context_code else "<none>"}
+            Pre-expand: {self._actions.get("pre_expand", "<none>")}
+            Post-expand: {self._actions.get("post_expand", "<none>")}
+        """)
 
         e.snippet_code = code
 
@@ -290,7 +284,7 @@ class SnippetDefinition:
     @property
     def description(self):
         """Descriptive text for this snippet."""
-        return ("(%s) %s" % (self._trigger, self._description)).strip()
+        return (f"({self._trigger}) {self._description}").strip()
 
     @property
     def priority(self):
@@ -344,9 +338,17 @@ class SnippetDefinition:
             if match and words_prefix:
                 # Require a word boundary between prefix and suffix.
                 boundary_chars = escape(words_prefix[-1:] + words_suffix[:1], r"\"")
-                match = vim_helper.eval('"%s" =~# "\\\\v.<."' % boundary_chars) != "0"
+                match = vim_helper.eval(f'"{boundary_chars}" =~# "\\\\v.<."') != "0"
         elif "i" in self._opts:
             match = words.endswith(self._trigger)
+        elif "p" in self._opts:
+            # Partial prefix: match if the user typed a non-empty prefix of
+            # the trigger. The typed prefix (not the full trigger) is what
+            # gets removed before expansion, so the user only loses what
+            # they actually typed.
+            match = bool(words) and self._trigger.startswith(words)
+            if match:
+                self._matched = words
         else:
             match = words == self._trigger
 
@@ -388,19 +390,20 @@ class SnippetDefinition:
             # Trim non-empty prefix up to word boundary, if present.
             qwords = escape(words, r"\"")
             words_suffix = vim_helper.eval(
-                'substitute("%s", "\\\\v^.+<(.+)", "\\\\1", "")' % qwords
+                f'substitute("{qwords}", "\\\\v^.+<(.+)", "\\\\1", "")'
             )
             match = self._trigger.startswith(words_suffix)
             self._matched = words_suffix
-
-            # TODO: list_snippets() function cannot handle partial-trigger
-            # matches yet, so for now fail if we trimmed the prefix.
-            if words_suffix != words:
-                match = False
         elif "i" in self._opts:
-            # TODO: It is hard to define when a inword snippet could match,
-            # therefore we check only for full-word trigger.
-            match = self._trigger.startswith(words)
+            # In-word snippets can appear after arbitrary non-word
+            # characters, so check if the trigger starts with any
+            # suffix of `words`.  GH #1036.
+            match = False
+            for i in range(len(words)):
+                if self._trigger.startswith(words[i:]):
+                    match = True
+                    self._matched = words[i:]
+                    break
         else:
             match = self._trigger.startswith(words)
 
@@ -434,8 +437,7 @@ class SnippetDefinition:
             )
             self._context = snip.context
             return snip.cursor.is_set()
-        else:
-            return False
+        return False
 
     def do_post_expand(self, start, end, snippets_stack):
         if "post_expand" in self._actions:
@@ -455,8 +457,22 @@ class SnippetDefinition:
             snippets_stack[-1].context = snip.context
 
             return snip.cursor.is_set()
-        else:
-            return False
+        return False
+
+    def do_post_finish(self, snippet_instance):
+        if "post_finish" in self._actions:
+            locals = {
+                "snippet_start": snippet_instance.start,
+                "snippet_end": snippet_instance.end,
+                "buffer": vim_helper.buf,
+            }
+
+            self._execute_action(
+                self._actions["post_finish"],
+                snippet_instance.context,
+                locals,
+                self._compiled_actions["post_finish"],
+            )
 
     def do_post_jump(
         self, tabstop_number, jump_direction, snippets_stack, current_snippet
@@ -465,6 +481,10 @@ class SnippetDefinition:
             start = current_snippet.start
             end = current_snippet.end
 
+            visual_content = current_snippet.visual_content
+            visual_text = visual_content.text if visual_content else ""
+            visual_mode = visual_content.mode if visual_content else ""
+
             locals = {
                 "tabstop": tabstop_number,
                 "jump_direction": jump_direction,
@@ -472,6 +492,9 @@ class SnippetDefinition:
                 "snippet_start": start,
                 "snippet_end": end,
                 "buffer": vim_helper.buf,
+                "visual_content": visual_content,
+                "visual_text": visual_text,
+                "visual_mode": visual_mode,
             }
 
             snip = self._execute_action(
@@ -484,8 +507,7 @@ class SnippetDefinition:
             current_snippet.context = snip.context
 
             return snip.cursor.is_set()
-        else:
-            return False
+        return False
 
     def launch(self, text_before, visual_content, parent, start, end):
         """Launch this snippet, overwriting the text 'start' to 'end' and
@@ -501,10 +523,7 @@ class SnippetDefinition:
         # Replace leading tabs in the snippet definition via proper indenting
         initial_text = []
         for line_num, line in enumerate(lines):
-            if "t" in self._opts:
-                tabs = 0
-            else:
-                tabs = len(self._TABS.match(line).group(0))
+            tabs = 0 if "t" in self._opts else len(self._TABS.match(line).group(0))
             line_ind = ind_util.ntabs_to_proper_indent(tabs)
             if line_num != 0:
                 line_ind = indent + line_ind
@@ -531,5 +550,26 @@ class SnippetDefinition:
         )
         self.instantiate(snippet_instance, initial_text, indent)
         snippet_instance.replace_initial_text(vim_helper.buf)
-        snippet_instance.update_textobjects(vim_helper.buf)
+
+        # Iterate update_textobjects until the snippet's text reaches a fixed
+        # point. A `!p` block whose rv depends on its own side effect
+        # (sys.modules state, locals[] cache, ...) only produces its final
+        # value on a later evaluation; the inner convergence loop alone
+        # exits as soon as one evaluation produces ct == rv, leaving
+        # snippet.end stale before _jump synthesizes the implicit $0 and
+        # parks the cursor. Repeat until current_text stabilizes; cap at the
+        # same depth the inner loop uses. See issue #1402.
+        prev_text = None
+        for _ in range(10):
+            snippet_instance.update_textobjects(vim_helper.buf)
+            cur_text = snippet_instance.current_text
+            if cur_text == prev_text:
+                break
+            prev_text = cur_text
+        else:
+            raise PebkacError(
+                "The snippets content did not converge: text kept changing "
+                "across 10 update_textobjects passes. Check `!p` blocks for "
+                "non-idempotent rv that never settles."
+            )
         return snippet_instance

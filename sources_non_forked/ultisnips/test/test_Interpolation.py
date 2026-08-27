@@ -1,9 +1,8 @@
-# encoding: utf-8
 import os
 
-from test.vim_test_case import VimTestCase as _VimTest
-from test.constant import EX, JF, ESC
+from test.constant import ESC, EX, JF
 from test.util import running_on_windows
+from test.vim_test_case import VimTestCase as _VimTest
 
 
 class TabStop_Shell_SimpleExample(_VimTest):
@@ -59,10 +58,9 @@ class TabStop_Shell_ShebangPython(_VimTest):
     skip_if = lambda self: running_on_windows()
     snippets = (
         "test",
-        """Hallo ${1:now `#!/usr/bin/env %s
+        """Hallo ${{1:now `#!/usr/bin/env {}
 print("Hallo Welt")
-`} end"""
-        % os.environ.get("PYTHON", "python3"),
+`}} end""".format(os.environ.get("PYTHON", "python3")),
     )
     keys = "test" + EX + JF + "and more"
     wanted = "Hallo now Hallo Welt endand more"
@@ -530,15 +528,47 @@ snip.rv = "placeholder: " + snip.p.current_text`)""",
 first second (placeholder: second)"""
 
 
-class PythonVisual_HasAccessToZeroPlaceholders(_VimTest):
+# Issue #1405: same pattern as PythonVisual_HasAccessToSelectedPlaceholders, but
+# with the !p block placed before the tabstops. The reporter claimed this
+# variant exposed a cursor / selection sync bug.
+class PythonVisual_ReversedHasAccessToSelectedPlaceholders(_VimTest):
     snippets = (
         "test",
-        """${1:first} ${2:second} (`!p
-snip.rv = "placeholder: " + snip.p.current_text`)""",
+        """(`!p
+snip.rv = "placeholder: " + snip.p.current_text`) ${1:first} ${2:second}""",
     )
-    keys = "test" + EX + ESC + "otest" + EX + JF + JF + JF + JF
-    wanted = """first second (placeholder: first second (placeholder: ))
-first second (placeholder: )"""
+    keys = "test" + EX + ESC + "otest" + EX + JF + ESC
+    wanted = """(placeholder: first) first second
+(placeholder: second) first second"""
+
+
+# Issue #1405: zero-length tabstop preceded by a `!p` that evaluates to "" on
+# first expansion exposes the cursor-sync bug the reporter pinpointed in
+# vim_helper.select() (`i` vs `a` choice for zero-length tabstops).
+class Issue1405_EmptyPythonBeforeZeroLengthTabstop(_VimTest):
+    snippets = ("test", "`!p snip.rv = ''`abc$1def")
+    keys = "test" + EX + "X"
+    wanted = "abcXdef"
+
+
+class Issue1405_EmptyPythonAtStartZeroLengthTabstopMid(_VimTest):
+    snippets = ("test", "`!p snip.rv = ''`$1abc")
+    keys = "test" + EX + "X"
+    wanted = "Xabc"
+
+
+class Issue1405_EmptyPythonZeroLengthTabstopEnd(_VimTest):
+    snippets = ("test", "abc$1`!p snip.rv = ''`")
+    keys = "test" + EX + "X"
+    wanted = "abcX"
+
+
+# First tabstop is zero-length and sits right after an empty !p block —
+# the closest reconstruction of the issue's "ZeroLength_Trivial" repro.
+class Issue1405_ZeroLengthTabstopAfterEmptyPython(_VimTest):
+    snippets = ("test", "(`!p snip.rv = ''`)$1 ${2:second}")
+    keys = "test" + EX + "X" + JF + "Y"
+    wanted = "()X Y"
 
 
 class Python_SnipRvCanBeNonText(_VimTest):
@@ -546,3 +576,59 @@ class Python_SnipRvCanBeNonText(_VimTest):
     snippets = ("test", "`!p snip.rv = 5`")
     keys = "test" + EX
     wanted = "5"
+
+
+# https://github.com/SirVer/ultisnips/issues/1403 — two `!p` blocks at the
+# same start position (back-to-back, both initially empty) had no stable
+# tiebreaker in `TextObject.__lt__`, so `sorted(set_of_objects)` fell back
+# to set iteration order. The producer ran after the consumer, the
+# convergence loop never re-ran the consumer (its text already matched its
+# stale rv=''), and the inter-block dependency silently dropped.
+class PythonCode_SameStartCol_OrderedBySource_Issue1403(_VimTest):
+    snippets = (
+        "test",
+        "`!p import sys; sys.modules['ut_1403_marker'] = 'tt'; snip.rv = ''`"
+        "`!p import sys; snip.rv = sys.modules.get('ut_1403_marker', '')`",
+    )
+    keys = "test" + EX
+    wanted = "tt"
+
+
+# https://github.com/SirVer/ultisnips/issues/1402 — a `!p` block that
+# converges in two evaluations (because rv depends on side-effect state
+# set by the first call). Before the fix in PythonCode._update, the
+# convergence loop exited after the first call (ct == rv == ""), the
+# snippet end was still at column 0, _jump placed the cursor there, and
+# the *second* update_textobjects (driven by _jump) wrote "tt" to the
+# buffer but could no longer move the cursor — the user's first keystroke
+# landed at the wrong end ("Xtt" instead of "ttX").
+class PythonCode_TwoStepConverge_RvExplicitlyEmpty_Issue1402(_VimTest):
+    snippets = (
+        "test1402a",
+        """`!p
+import sys
+if 'ut_1402_a' not in sys.modules:
+    sys.modules['ut_1402_a'] = 'tt'
+    snip.rv = ''
+else:
+    snip.rv = 'tt'
+`""",
+    )
+    keys = "test1402a" + EX + "X"
+    wanted = "ttX"
+
+
+class PythonCode_TwoStepConverge_RvNotMutated_Issue1402(_VimTest):
+    snippets = (
+        "test1402b",
+        """`!p
+import sys
+if 'ut_1402_b' not in sys.modules:
+    sys.modules['ut_1402_b'] = 'tt'
+    # snip.rv is intentionally not mutated on first execution
+else:
+    snip.rv = 'tt'
+`""",
+    )
+    keys = "test1402b" + EX + "X"
+    wanted = "ttX"

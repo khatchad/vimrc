@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 
 """Base class for snippet sources."""
 
@@ -9,13 +8,14 @@ from UltiSnips.snippet.source.snippet_dictionary import SnippetDictionary
 
 
 class SnippetSource:
-
     """See module docstring."""
 
     def __init__(self):
         self._snippets = defaultdict(SnippetDictionary)
-        self._extends = defaultdict(set)
-        self.must_ensure = True
+        # dict-with-None-values gives us a set that preserves insertion order,
+        # which keeps `get_deep_extends` deterministic — see issue surfaced in
+        # `DuplicateSnippets_DoesNotMergeDistinctTriggers`.
+        self._extends = defaultdict(dict)
 
     def ensure(self, filetypes):
         """Ensures that snippets are loaded."""
@@ -24,6 +24,13 @@ class SnippetSource:
         """Resets all snippets, so that they are reloaded on the next call to
         ensure.
         """
+
+    def get_all_snippet_files_for(self, ft):
+        """Returns the set of on-disk snippet files this source would load
+        for filetype 'ft'. Returns an empty set for sources that don't
+        back snippets with files (added programmatically, dynamic
+        sources, etc.). File-backed subclasses override this."""
+        return set()
 
     def _get_existing_deep_extends(self, base_filetypes):
         """Helper for get all existing filetypes extended by base filetypes."""
@@ -79,20 +86,27 @@ class SnippetSource:
     def update_extends(self, child_ft, parent_fts):
         """Update the extending relation by given child filetype and its parent
         filetypes."""
-        self._extends[child_ft].update(parent_fts)
+        for ft in parent_fts:
+            self._extends[child_ft][ft] = None
 
     def get_deep_extends(self, base_filetypes):
-        """Get a list of filetypes that is either directed or indirected
-        extended by given base filetypes.
+        """Return the list of filetypes that is directly or transitively
+        extended by `base_filetypes`, including the base filetypes themselves.
 
-        Note that the returned list include the root filetype itself.
-
+        Iteration is BFS so base filetypes appear before their parents, and
+        among siblings the order is the insertion order of the `extends`
+        directives. A stable order matters: the "Multiple matches" prompt
+        and per-trigger priority resolution both walk this list, so two
+        Vim sessions must agree on which snippet is "first".
         """
-        seen = set(base_filetypes)
-        todo_fts = list(set(base_filetypes))
+        seen = {}  # dict gives us an order-preserving set
+        for ft in base_filetypes:
+            seen.setdefault(ft, None)
+        todo_fts = list(seen)
         while todo_fts:
-            todo_ft = todo_fts.pop()
-            unseen_extends = set(ft for ft in self._extends[todo_ft] if ft not in seen)
-            seen.update(unseen_extends)
-            todo_fts.extend(unseen_extends)
-        return seen
+            todo_ft = todo_fts.pop(0)
+            for parent_ft in self._extends[todo_ft]:
+                if parent_ft not in seen:
+                    seen[parent_ft] = None
+                    todo_fts.append(parent_ft)
+        return list(seen)

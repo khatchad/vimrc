@@ -1,15 +1,12 @@
-# coding=utf8
+#!/usr/bin/env python3
 
-from functools import wraps
-import traceback
 import re
 import sys
-import time
-from bdb import BdbQuit
+import traceback
+from functools import wraps
 
 from UltiSnips import vim_helper
 from UltiSnips.error import PebkacError
-from UltiSnips.remote_pdb import RemotePDB
 
 
 def _report_exception(self, msg, e):
@@ -33,7 +30,7 @@ def _report_exception(self, msg, e):
 
     # Vim sends no WinLeave msg here.
     if hasattr(self, "_leaving_buffer"):
-        self._leaving_buffer()  # pylint:disable=protected-access
+        self._leaving_buffer()
     vim_helper.new_scratch_buffer(msg)
 
 
@@ -45,37 +42,30 @@ def wrap(func):
     def wrapper(self, *args, **kwds):
         try:
             return func(self, *args, **kwds)
-        except BdbQuit:
-            pass  # A debugger stopped, but it's not really an error
         except PebkacError as e:
-            if RemotePDB.is_enable():
-                RemotePDB.pm()
             msg = "UltiSnips Error:\n\n"
             msg += str(e).strip()
-            if RemotePDB.is_enable():
-                host, port = RemotePDB.get_host_port()
-                msg += "\nUltisnips' post mortem debug server caught the error. Run `telnet {}:{}` to inspect it with pdb\n".format(
-                    host, port
-                )
             _report_exception(self, msg, e)
-        except Exception as e:  # pylint: disable=bare-except
-            if RemotePDB.is_enable():
-                RemotePDB.pm()
-            msg = """An error occured. This is either a bug in UltiSnips or a bug in a
+        except Exception as e:
+            if hasattr(e, "snippet_code"):
+                # The exception happened inside user-authored snippet
+                # python code (snippet_code is attached by
+                # SnippetDefinition._make_debug_exception). The internal
+                # UltiSnips stack frames are not useful to the user; the
+                # offending line is already pointed at by the
+                # "Executed snippet code" block in _report_exception.
+                msg = "UltiSnips Error:\n\n"
+                msg += f"{type(e).__name__}: {e}".strip()
+            else:
+                msg = """An error occurred. This is either a bug in UltiSnips or a bug in a
 snippet definition. If you think this is a bug, please report it to
 https://github.com/SirVer/ultisnips/issues/new
 Please read and follow:
-https://github.com/SirVer/ultisnips/blob/master/CONTRIBUTING.md#reproducing-bugs
+https://github.com/SirVer/ultisnips/blob/master/docs/CONTRIBUTING.md#reproducing-bugs
 
 Following is the full stack trace:
 """
-            msg += traceback.format_exc()
-            if RemotePDB.is_enable():
-                host, port = RemotePDB.get_host_port()
-                msg += "\nUltisnips' post mortem debug server caught the error. Run `telnet {}:{}` to inspect it with pdb\n".format(
-                    host, port
-                )
-
+                msg += traceback.format_exc()
             _report_exception(self, msg, e)
 
     return wrapper

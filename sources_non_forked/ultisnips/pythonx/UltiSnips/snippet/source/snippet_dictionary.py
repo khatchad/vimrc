@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 
 """Implements a container for parsed snippets."""
 
 
 class SnippetDictionary:
-
     """See module docstring."""
 
     def __init__(self):
@@ -38,8 +36,7 @@ class SnippetDictionary:
 
         if not potentially:
             return [s for s in all_snippets if s.matches(trigger, visual_content)]
-        else:
-            return [s for s in all_snippets if s.could_match(trigger)]
+        return [s for s in all_snippets if s.could_match(trigger)]
 
     def clear_snippets(self, priority, triggers):
         """Clear the snippets by mark them as cleared.
@@ -49,7 +46,7 @@ class SnippetDictionary:
 
         """
         if not triggers:
-            if self._clear_priority is None or priority > self._clear_priority:
+            if priority > self._clear_priority:
                 self._clear_priority = priority
         else:
             for trigger in triggers:

@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-# encoding: utf-8
-
-# pylint: skip-file
 
 import unittest
 
-from position import Position
+from UltiSnips.position import Position
 
 
 class _MPBase:
