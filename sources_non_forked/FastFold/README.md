@@ -5,7 +5,7 @@ from `manual`), bog down VIM noticeably in insert mode. They are also often
 recomputed too early (for example, when inserting an opening fold marker
 whose closing counterpart is yet missing to complete the fold.)
 
-See http://vim.wikia.com/wiki/Keep_folds_closed_while_inserting_text
+See https://vim.fandom.com/wiki/Keep_folds_closed_while_inserting_text
 for a discussion.
 
 With this plug-in, the folds in the currently edited buffer are updated by an
@@ -55,7 +55,7 @@ let g:baan_fold=1
 ```
 
 to the `.vimrc` file and installing this plug-in, the folds in a `TeX`, `Vim`, `XML`, `JavaScript`, `(Z)SH`, `R`, `PHP`, `Ruby`, `Perl`, `Fortran`, `Clojure`  or `Baan` file are updated by the `syntax` fold method when saving the buffer, opening, closing, moving or operating on folds, or typing `zuz` in normal mode and are kept as is otherwise.
-(Likewise, in a `Markdown`, `RST` or `Rust` file, by the `expression` fold method.)
+(Likewise, in a `Markdown`, `RST` or `Rust` file, by the `expr` fold method, once `expr` is added to `g:fastfold_foldmethods`; see below.)
 Syntax folding  for `C` and `C++` files can be enabled by adding
 
 ```vim
@@ -69,7 +69,7 @@ For Python, adding
 autocmd FileType python setlocal foldmethod=indent
 ```
 
-to your `vimrc` mostly suffices, though installing [SimplyFold](https://github.com/tmhedberg/SimpylFold) refines folds from successive indent levels to syntax objects such as functions.
+to your `vimrc` mostly suffices, though installing [SimpylFold](https://github.com/tmhedberg/SimpylFold) refines folds from successive indent levels to syntax objects such as functions.
 
 # Configuration
 
@@ -82,17 +82,17 @@ to your `vimrc` mostly suffices, though installing [SimplyFold](https://github.c
 
   The exact list of these standard keystrokes is `zx,zX,za,zA,zo,zO,zc,zC` and
   it can be customized by changing the global variable
-  `g:fastfold_mapsuffixes`. If you wanted to intercept all possible fold
+  `g:fastfold_fold_command_suffixes`. If you wanted to intercept all possible fold
   commands (such as zr,zm,...), change this to:
 
     ```vim
     let g:fastfold_fold_command_suffixes =
-    ['x','X','a','A','o','O','c','C','r','R','m','M','i','n','N']
+    \ ['x','X','a','A','o','O','c','C','r','R','m','M','i','n','N']
     ```
 
 - If you prefer that this plug-in does not add a normal mode mapping that updates
   folds (that defaults to `zuz`), then add
-  `nmap <SID>(DisableFastFoldUpdate) <Plug>(FastFoldUpdate) ` to your `.vimrc`.
+  `nmap <SID>(DisableFastFoldUpdate) <Plug>(FastFoldUpdate)` to your `.vimrc`.
 
   You can remap `zuz` to your favorite keystroke, say `<F5>`, by adding
   `nmap <F5> <Plug>(FastFoldUpdate)` to your `.vimrc`.
@@ -103,12 +103,12 @@ to your `vimrc` mostly suffices, though installing [SimplyFold](https://github.c
 
 - FastFold by default only prevents the `syntax` fold methods from recomputing
   on every buffer change. These can be customized by `g:fastfold_foldmethods`
-  in your `.vimrc`, for example `g:fastfold_foldmethods = ['syntax', 'expr']`
+  in your `.vimrc`, for example `let g:fastfold_foldmethods = ['syntax', 'expr']`
   (equivalent to `let g:fastfold_force = 1`) also applies this to `expr` folds.
   This should only be necessary for [inefficient foldexprs, though](https://github.com/lervag/vimtex/pull/3054).
 
 - FastFold is by default enabled for files that have more than a certain
-  number of lines, by default set to 200. To change this number, for example,
+  number of lines, by default set to 100. To change this number, for example,
   to enable FastFold independent of the number of lines of a file, add
   `let g:fastfold_minlines = 0` to your `.vimrc`.
 
@@ -158,3 +158,6 @@ xnoremap <silent> az :<c-u>FastFoldUpdate<cr>]zV[z
 
 to the file `~/.vimrc` (respectively `%USERPROFILE%/_vimrc` on Microsoft Windows).
 
+# Tests
+
+Run `test/run.sh` to execute the headless test suite in Vim and Neovim.
